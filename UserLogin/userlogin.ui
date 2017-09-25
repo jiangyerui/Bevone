@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>UserLogin</class>
+ <widget class="QWidget" name="UserLogin">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::ClickFocus</enum>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QPushButton{
+   color: rgb(255, 255, 255);
+	border: 2px solid ; 
+	border-color: rgb(53, 156, 212);
+	border-radius:10px;
+}
+QLabel{
+   color: rgb(255, 255, 255);
+}
+QlineEdit{
+font: 15pt &quot;文泉驿微米黑&quot;;
+background-color: rgb(255, 255, 255);
+}
+</string>
+  </property>
+  <widget class="QLabel" name="lb_image">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>480</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">border-image: url(:/Image/Style-1.png);</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_passwd">
+   <property name="geometry">
+    <rect>
+     <x>355</x>
+     <y>320</y>
+     <width>140</width>
+     <height>35</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>文泉驿等宽微米黑</family>
+     <pointsize>15</pointsize>
+    </font>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::ClickFocus</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="dragEnabled">
+    <bool>false</bool>
+   </property>
+   <property name="placeholderText">
+    <string>输入登录密码</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lb_msg">
+   <property name="geometry">
+    <rect>
+     <x>305</x>
+     <y>260</y>
+     <width>201</width>
+     <height>56</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>文泉驿等宽微米黑</family>
+     <pointsize>15</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>欢迎您登录本系统
+请输入该设备的密码...</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pBtn_ok">
+   <property name="geometry">
+    <rect>
+     <x>315</x>
+     <y>370</y>
+     <width>80</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>文泉驿等宽微米黑</family>
+     <pointsize>15</pointsize>
+    </font>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="text">
+    <string>确  定</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pBtn_cancel">
+   <property name="geometry">
+    <rect>
+     <x>415</x>
+     <y>370</y>
+     <width>80</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>文泉驿等宽微米黑</family>
+     <pointsize>15</pointsize>
+    </font>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="text">
+    <string>取  消</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lb_cue">
+   <property name="geometry">
+    <rect>
+     <x>295</x>
+     <y>320</y>
+     <width>56</width>
+     <height>36</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>文泉驿等宽微米黑</family>
+     <pointsize>15</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>密 码：</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lb_cue_2">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>230</y>
+     <width>66</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>文泉驿等宽微米黑</family>
+     <pointsize>15</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>产品编号:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lb_serialNO">
+   <property name="geometry">
+    <rect>
+     <x>375</x>
+     <y>230</y>
+     <width>161</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>文泉驿等宽微米黑</family>
+     <pointsize>15</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lb_EVNValue">
+   <property name="geometry">
+    <rect>
+     <x>725</x>
+     <y>445</y>
+     <width>71</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>文泉驿等宽微米黑</family>
+     <pointsize>15</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>V-1.1.9</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lb_EVN">
+   <property name="geometry">
+    <rect>
+     <x>650</x>
+     <y>445</y>
+     <width>66</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>文泉驿等宽微米黑</family>
+     <pointsize>15</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="text">
+    <string>软件版本:</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

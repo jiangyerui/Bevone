@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Image/back.png</file>
+        <file>Image/check.png</file>
+        <file>Image/cut.png</file>
+        <file>Image/down.png</file>
+        <file>Image/fore.png</file>
+        <file>Image/key.png</file>
+        <file>Image/logo.png</file>
+        <file>Image/print.png</file>
+        <file>Image/quit.png</file>
+        <file>Image/record.png</file>
+        <file>Image/recycle.png</file>
+        <file>Image/reset.png</file>
+        <file>Image/search.png</file>
+        <file alias="secretKey">Image/secretKey.png</file>
+        <file>Image/set.png</file>
+        <file>Image/sound.png</file>
+        <file>Image/up.png</file>
+        <file>Image/user.png</file>
+        <file>Image/Style-1.png</file>
+        <file>Image/mute.png</file>
+    </qresource>
+</RCC>
