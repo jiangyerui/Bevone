@@ -38,7 +38,7 @@ public:
     static MyPrint *getPrint();
     static void deletePrint();
 
-    void printConnect(QString net, QString id, QString type, QString time,QString address);
+    void printConnect(QString net, QString id, QString type, QString status, QString value, QString time, QString address);
 
 signals:
     void showNoPageMessage();

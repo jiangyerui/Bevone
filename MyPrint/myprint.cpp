@@ -81,7 +81,7 @@ void MyPrint::deletePrint()
     delete print;
 }
 
-void MyPrint::printConnect(QString net, QString id, QString type, QString time, QString address)
+void MyPrint::printConnect(QString net, QString id, QString type,QString status,QString value, QString time, QString address)
 {
     QByteArray byte;
     QString company = tr("****北京北元安达电子有限公司****");
@@ -95,6 +95,16 @@ void MyPrint::printConnect(QString net, QString id, QString type, QString time, 
     //打印时间
     QString modTime = tr("时间 : ") + time;
     byte = modTime.toLocal8Bit();
+    myCom->write(byte);
+    myCom->write(lf,1);
+    //数值
+    QString modValue = tr("数值 : ") + value;
+    byte = modValue.toLocal8Bit();
+    myCom->write(byte);
+    myCom->write(lf,1);
+    //状态
+    QString modStatus = tr("状态 : ") + status;
+    byte = modStatus.toLocal8Bit();
     myCom->write(byte);
     myCom->write(lf,1);
     //打印类型

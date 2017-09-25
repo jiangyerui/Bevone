@@ -26,7 +26,6 @@ Record::Record(QWidget *parent) :
     this->setGeometry(0,0,800,480);
 
     initVar();
-    initCurve();
     initWidget();
     initConnect();
 
@@ -49,17 +48,19 @@ Record::Record(QWidget *parent) :
     ui->tableWdt_record->setSelectionMode (QAbstractItemView::SingleSelection); //设置选择模式，选择单行
 
     QStringList headList;
-    ui->tableWdt_record->setColumnCount(5);
-    headList<<tr("通道")<<tr("地址")<<tr("类型")<<tr("时间")<<tr("详细地址");
+    ui->tableWdt_record->setColumnCount(7);
+    headList<<tr("通道")<<tr("地址")<<tr("类型")<<tr("状态")<<tr("数值")<<tr("时间")<<tr("详细地址");
     ui->tableWdt_record->setHorizontalHeaderLabels(headList);
     ui->tableWdt_record->horizontalHeader()->setFixedHeight(27);
 
 
     ui->tableWdt_record->setColumnWidth(0,50);
     ui->tableWdt_record->setColumnWidth(1,50);
-    ui->tableWdt_record->setColumnWidth(2,100);
-    ui->tableWdt_record->setColumnWidth(3,200);
-    ui->tableWdt_record->setColumnWidth(4,150);
+    ui->tableWdt_record->setColumnWidth(2,50);
+    ui->tableWdt_record->setColumnWidth(3,50);
+    ui->tableWdt_record->setColumnWidth(4,100);
+    ui->tableWdt_record->setColumnWidth(5,100);
+    ui->tableWdt_record->setColumnWidth(6,150);
 
 }
 
@@ -72,7 +73,7 @@ QString Record::setSelectSql(int item, bool net, bool id, QString &startTimer, Q
 {
     QString netStr;
     QString idStr;
-    QString sqlStr = "select net,id,type,time,address from RECORD where TIME >= "+startTimer+" and TIME <="+endTime;
+    QString sqlStr = "select net,id,type,stutas,value,time,address from RECORD where TIME >= "+startTimer+" and TIME <="+endTime;
 
     if(item == ALLDATA)
     {
@@ -155,14 +156,13 @@ void Record::initShow()
     ui->tableWdt_record->clearContents();
     ui->tableWdt_record->setRowCount(0);
     ui->dTEdit_end->setDateTime(QDateTime::currentDateTime());
-    //ui->dTEditCurve_end->setDateTime(QDateTime::currentDateTime());
     ui->lineEdit_address->setEnabled(false);
     ui->lineEdit_pass->setEnabled(false);
     ui->pBtn_downPage->setEnabled(false);
     ui->pBtn_upPage->setEnabled(false);
     ui->pBtn_jump->setEnabled(false);
     ui->lineEdit_pageNum->setEnabled(false);
-    //ui->tabWidget->setCurrentWidget(ui->tab_Record);
+
 }
 
 void Record::initWidget()
@@ -183,63 +183,11 @@ void Record::initWidget()
     //时间选择
     //ui->dTEdit_start->setDisplayFormat("yyyy-MM-dd hh:mm:ss");
     ui->dTEdit_end->setDateTime(QDateTime::currentDateTime());
-    ui->dTEdit_start->setDateTime(QDateTime(QDate(1970,1,1),QTime(0,0,1)));
+    ui->dTEdit_start->setDateTime(QDateTime(QDate(2000,1,1),QTime(0,0,1)));
 
-    //ui->tabWidget->hide();
+
 }
 
-void Record::initCurve()
-{
-
-//    ui->widget->resize(775, 375);
-//    QString results = "2016-06-01 08:00:00#36#"
-//                      "2016-06-01 12:00:00#37#"
-//                      "2016-06-01 18:00:00#37#"
-
-//                      "2016-06-02 08:00:00#36#"
-//                      "2016-06-02 12:00:00#37#"
-//                      "2016-06-02 18:00:00#37#"
-
-//                      "2016-06-03 08:00:00#36#"
-//                      "2016-06-03 12:00:00#35#"
-//                      "2016-06-03 18:00:00#37#"
-
-//                      "2016-06-04 08:00:00#36#"
-//                      "2016-06-04 12:00:00#37#"
-//                      "2016-06-04 18:00:00#37#"
-
-//                      "2016-06-05 08:00:00#36#"
-//                      "2016-06-05 12:00:00#37#"
-//                      "2016-06-05 18:00:00#36#"
-
-//                      "2016-06-06 08:00:00#37#"
-//                      "2016-06-06 12:00:00#36#"
-//                      "2016-06-06 18:00:00#37#"
-
-//                      "2016-06-07 08:00:00#37#"
-//                      "2016-06-07 12:00:00#37#"
-//                      "2016-06-07 18:00:00#36#";
-
-
-//    ui->widget->setLocale(QLocale(QLocale::Chinese, QLocale::China));
-//    ui->widget->addGraph();
-//    QPen pen;
-//    pen.setColor(QColor(0, 0, 255, 200));
-//    ui->widget->graph(0)->setLineStyle(QCPGraph::lsLine);//设置数据点由一条直线连接
-//    ui->widget->graph(0)->setPen(pen);
-
-//    ui->widget->addGraph(); // 红色点
-//    ui->widget->graph(1)->setPen(QPen(Qt::red));
-//    ui->widget->graph(1)->setLineStyle(QCPGraph::lsNone);
-//    ui->widget->graph(1)->setScatterStyle(QCPScatterStyle::ssDisc);
-//    // 显示图例
-//    ui->widget->graph(0)->setName(tr("漏电值"));
-//    ui->widget->graph(1)->setName(tr("具体数值"));
-//    ui->widget->legend->setVisible(true);
-
-//    //GraphDemo(results);//调用我们写的函并且将数据传给这个函数
-
-}
 
 void Record::initConnect()
 {
@@ -298,53 +246,6 @@ void Record::delPageData(int page)
     Q_UNUSED(page)
 }
 
-void Record::GraphDemo(QString results)
-{
-    Q_UNUSED(results)
-//    QStringList list = results.split("#");//假设数据
-//    int listSize = list.size();
-//    int max = listSize / 2;
-//    QVector<double> time(max), value(max);//给数组赋值，时间和数值 7*3=21个数据
-
-//    for(int i=0; i < max; ++i)
-//    {
-//        time[i] = QDateTime::fromString(list[2*i],"yyyy-MM-dd hh:mm:ss").toTime_t();
-//        temp = list.at(2*i+1);
-//        value[i] = temp.toInt();
-//    }
-
-//    ui->widget->graph(0)->setData(time, value);//设置数据
-//    ui->widget->graph(0)->rescaleValueAxis();
-//    ui->widget->graph(1)->addData(time, value);//设置点
-
-//    //配置下轴显示日期和时间，而不是数字：
-//    ui->widget->xAxis->setTickLabelType(QCPAxis::ltDateTime);
-//    ui->widget->xAxis->setDateTimeFormat("yyyy-MM-dd\nhh:mm:ss");
-//    // 设置一个更紧凑的字体大小为底部和左轴刻度标签：
-//    ui->widget->xAxis->setTickLabelFont(QFont(QFont().family(), 8));
-//    ui->widget->yAxis->setTickLabelFont(QFont(QFont().family(), 8));
-//    // 设置一天为固定的一个刻度
-//    ui->widget->xAxis->setAutoTickStep(false);
-//    ui->widget->xAxis->setTickStep(3600); // 一天的秒数
-//    //    ui->widget->xAxis->setTickStep(3600*24); // 一天的秒数
-//    ui->widget->xAxis->setSubTickCount(9);//一个大刻度包含4个小刻度
-//    // 设置轴标签
-//    ui->widget->xAxis->setLabel(tr("时间(h)"));
-//    ui->widget->yAxis->setLabel(tr("漏电(mA)"));
-//    // 设置上边和右边轴没有刻度和标签
-//    ui->widget->xAxis2->setVisible(true);
-//    ui->widget->yAxis2->setVisible(true);//坐标轴是否可见
-//    ui->widget->xAxis2->setTicks(false);//刻度是否可见
-//    ui->widget->yAxis2->setTicks(false);
-//    ui->widget->xAxis2->setTickLabels(false);//轴标签是否可见
-//    ui->widget->yAxis2->setTickLabels(false);
-
-//    // 设置轴范围和显示全部数据
-//    //    ui->widget->xAxis->setRange(time[0],time[0]+24*3600*7);
-//    ui->widget->xAxis->setRange(time[0],time[max-1]);
-//    ui->widget->yAxis->setRange(0, 1000);
-
-}
 
 uint Record::getPageCount(QString sql)
 {
@@ -381,6 +282,10 @@ void Record::setBtnEnable(bool enabel, int current, int maxPage)
     ui->lb_count->setText(QString::number(maxPage));
     ui->lb_current->setText(QString::number(current));
 }
+
+#define MODULE_CUR  2 //漏电
+#define MODULE_TEM  3 //温度
+
 //显示数据
 void Record::showData(QString sql,int currentPage)
 {
@@ -407,7 +312,7 @@ void Record::showData(QString sql,int currentPage)
         record = m_model->record(row);
 
         ui->tableWdt_record->setRowHeight(row,34);
-        for(int column = 0; column < 5; column++)
+        for(int column = 0; column < 7; column++)
         {
 
             item = new QTableWidgetItem;
@@ -428,6 +333,20 @@ void Record::showData(QString sql,int currentPage)
                 ui->tableWdt_record->setItem( row, column, item);
             }
             else if(column == 2)
+            {
+
+                if(MODULE_CUR == record.value(column))
+                {
+                    item->setText(tr("漏电"));
+                }
+                else if(MODULE_TEM == record.value(column))
+                {
+                    item->setText(tr("测温"));
+                }
+                ui->tableWdt_record->setItem( row, column, item);
+            }
+
+            else if(column == 3)
             {
                 if(POWER == record.value(column))
                 {
@@ -455,7 +374,12 @@ void Record::showData(QString sql,int currentPage)
                     ui->tableWdt_record->setItem( row, column, item);
                 }
             }
-            else if(column == 3)
+            else if(column == 4)
+            {
+                item->setText(record.value(column).toString());
+                ui->tableWdt_record->setItem( row, column, item);
+            }
+            else if(column == 5)
             {
                 int dt = record.value(column).toString().toUInt();
                 QDateTime datetime;
@@ -464,7 +388,7 @@ void Record::showData(QString sql,int currentPage)
                 item->setText(dtstr);
                 ui->tableWdt_record->setItem( row, column, item);
             }
-            else if(column == 4)
+            else if(column == 6)
             {
                 item->setText(record.value(column).toString());
                 ui->tableWdt_record->setItem( row, column, item);
@@ -668,7 +592,6 @@ void Record::setPrint(QTableWidget *tableWidget, MyPrint *myPrint, int row, int 
     QList <QString> printList;
     for(int column = 0;column < columnCount;column++)
     {
-
         QString str = tableWidget->item(row,column)->text();
         printList.insert(column,str);
     }
@@ -712,14 +635,14 @@ void Record::slotBtnPrint()
 
 void Record::slotpBtnCurveCheck()
 {
-//    QString idStr = ui->lineEditCurve_id->text();
-//    QString netStr = ui->lineEditCurve_net->text();
-//    uint startTime = ui->dTEditCurve_start->dateTime().toTime_t();
-//    uint endTime = ui->dTEditCurve_end->dateTime().toTime_t();
-//    QString startTimeStr = QString::number(startTime);
-//    QString endTimeStr   = QString::number(endTime);
-//    QString results = m_db.getCurveData(netStr,idStr,startTimeStr,endTimeStr);
-//    qDebug()<<results;
+    //    QString idStr = ui->lineEditCurve_id->text();
+    //    QString netStr = ui->lineEditCurve_net->text();
+    //    uint startTime = ui->dTEditCurve_start->dateTime().toTime_t();
+    //    uint endTime = ui->dTEditCurve_end->dateTime().toTime_t();
+    //    QString startTimeStr = QString::number(startTime);
+    //    QString endTimeStr   = QString::number(endTime);
+    //    QString results = m_db.getCurveData(netStr,idStr,startTimeStr,endTimeStr);
+    //    qDebug()<<results;
     //    GraphDemo(results);
 
 }

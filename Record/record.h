@@ -11,7 +11,8 @@
 
 #include "MyPrint/myprint.h"
 #include "MySqlite/mysqlite.h"
-#include "QCustomPlot/qcustomplot.h"
+
+
 /*    主要功能
  * 1.历史记录查询
  * 2.数据删除单条
@@ -66,14 +67,12 @@ private:
 
     void initVar();
     void initWidget();
-    void initCurve();
+
     void initConnect();
 
     void delAllData();
     void delRowData(QString netStr, QString idStr, QString timeStr);
     void delPageData(int page);
-
-    void GraphDemo(QString results);
 
     uint getPageCount(QString sql);
     void setBtnEnable(bool enabel,int current,int maxPage);
