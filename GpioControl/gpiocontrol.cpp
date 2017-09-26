@@ -1,4 +1,4 @@
-#include "gpiocontrol.h"
+﻿#include "gpiocontrol.h"
 
 #define POWER  4
 #define BPOWER 5
@@ -328,8 +328,8 @@ uint GpioControl::dealGPIO()
         {
             m_mainPowerDb = false;
             mainPowerFlag = true;
-            uint curiTime = QDateTime::currentDateTime().toTime_t();
-            m_db.insertAlarm(0,0,POWER,curiTime,QString(""));
+            //uint curiTime = QDateTime::currentDateTime().toTime_t();
+            //m_db.insertAlarm(0,0,POWER,curiTime,QString(""));
             writeGPIO(MainPowerRed,high);
         }
     }
@@ -352,8 +352,8 @@ uint GpioControl::dealGPIO()
         {
             m_backupPowerDb = false;
             backupPowerFlag = false;
-            uint curiTime = QDateTime::currentDateTime().toTime_t();
-            m_db.insertAlarm(0,0,BPOWER,curiTime,QString(""));
+            //uint curiTime = QDateTime::currentDateTime().toTime_t();
+            //m_db.insertAlarm(0,0,BPOWER,curiTime,QString(""));
             writeGPIO(BackupPowerRed,high);
         }
     }

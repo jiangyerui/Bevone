@@ -423,7 +423,7 @@ font: 13pt &quot;文泉驿等宽微米黑&quot;;
 background-color: rgb(255, 255, 255);</string>
      </property>
      <property name="text">
-      <string>网通道</string>
+      <string>通道</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="lineEdit_pass">
@@ -532,7 +532,7 @@ background-color: rgb(255, 255, 255);</string>
       <string>打印</string>
      </property>
      <property name="icon">
-      <iconset resource="../image.qrc">
+      <iconset>
        <normaloff>:/Image/print.png</normaloff>:/Image/print.png</iconset>
      </property>
      <property name="iconSize">
@@ -585,7 +585,7 @@ background-color: rgb(255, 255, 255);</string>
       <string>删除</string>
      </property>
      <property name="icon">
-      <iconset resource="../image.qrc">
+      <iconset>
        <normaloff>:/Image/recycle.png</normaloff>:/Image/recycle.png</iconset>
      </property>
      <property name="iconSize">
@@ -779,7 +779,7 @@ color: rgb(10, 10, 10);</string>
       <string>查询</string>
      </property>
      <property name="icon">
-      <iconset resource="../image.qrc">
+      <iconset>
        <normaloff>:/Image/search.png</normaloff>:/Image/search.png</iconset>
      </property>
      <property name="iconSize">
@@ -814,7 +814,7 @@ color: rgb(10, 10, 10);</string>
       <string>上一页</string>
      </property>
      <property name="icon">
-      <iconset resource="../image.qrc">
+      <iconset>
        <normaloff>:/Image/fore.png</normaloff>:/Image/fore.png</iconset>
      </property>
      <property name="iconSize">
@@ -855,7 +855,7 @@ color: rgb(10, 10, 10);</string>
       <string>下一页</string>
      </property>
      <property name="icon">
-      <iconset resource="../image.qrc">
+      <iconset>
        <normaloff>:/Image/back.png</normaloff>:/Image/back.png</iconset>
      </property>
      <property name="iconSize">
@@ -895,7 +895,7 @@ border-radius:13px;</string>
       <string>退出</string>
      </property>
      <property name="icon">
-      <iconset resource="../image.qrc">
+      <iconset>
        <normaloff>:/Image/quit.png</normaloff>:/Image/quit.png</iconset>
      </property>
      <property name="iconSize">
@@ -917,8 +917,6 @@ border-radius:13px;</string>
    </widget>
   </widget>
  </widget>
- <resources>
-  <include location="../image.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

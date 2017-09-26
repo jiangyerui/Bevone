@@ -126,12 +126,31 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                     {
                         mod[net][id].insertDrop = TRUE;
                         QString add = m_db->getNodeAddress(net,id);
+                        QString type,value;
+
+                        if(MODULE_CUR == mod[net][id].type)
+                        {
+                            type = tr("漏电");
+                            value = QString::number(mod[net][id].alarmData);
+                            m_db->insertAlarm(net,id,MODULE_CUR,DROP,"0",curTime,add);//插入历史报警
+                        }
+                        else if(MODULE_TEM == mod[net][id].type)
+                        {
+                            type = tr("温度");
+                            value = QString::number(mod[net][id].alarmTem);
+                            m_db->insertAlarm(net,id,MODULE_TEM,DROP,"0",curTime,add);//插入历史报警
+                        }
+
                         m_db->insertTemp(net,id,DROP,curTime);//插入临时故障
-                        m_db->insertAlarm(net,id,DROP,curTime,add);//插入历史报警
+
                         if(m_db->getPrintStyle())
                         {
-                            QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss");
-                            m_record->connectPrint(QString::number(net),QString::number(id),DROP,time,add);
+                            if(m_db->getPrintError())
+                            {
+
+                                QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss");
+                                m_record->connectPrint(QString::number(net),QString::number(id),type,tr("通讯故障"),value,time,add);
+                            }
                         }
                     }
                 }
@@ -147,12 +166,29 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                     {
                         mod[net][id].insertError = TRUE;
                         QString add = m_db->getNodeAddress(net,id);
+                        QString type,value;
+                        if(MODULE_CUR == mod[net][id].type)
+                        {
+                            type = tr("漏电");
+                            value = QString::number(mod[net][id].alarmData);
+                            m_db->insertAlarm(net,id,MODULE_CUR,ERROR,"0",curTime,add);
+                        }
+                        else if(MODULE_TEM == mod[net][id].type)
+                        {
+                            type = tr("温度");
+                            value = QString::number(mod[net][id].alarmTem);
+                            m_db->insertAlarm(net,id,MODULE_TEM,ERROR,"0",curTime,add);
+                        }
                         m_db->insertTemp(net,id,ERROR,curTime);//插入临时故障
-                        m_db->insertAlarm(net,id,ERROR,curTime,add);//插入历史报警
+
                         if(m_db->getPrintStyle())
                         {
-                            QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss");
-                            m_record->connectPrint(QString::number(net),QString::number(id),ERROR,time,add);
+                            if(m_db->getPrintError() )
+                            {
+
+                                QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss");
+                                m_record->connectPrint(QString::number(net),QString::number(id),type,tr("模块故障"),value,time,add);
+                            }
                         }
                     }
                 }
@@ -166,12 +202,28 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                     {
                         mod[net][id].insertAlarm = TRUE;
                         QString add = m_db->getNodeAddress(net,id);
+                        QString type,value;
+                        if(MODULE_CUR == mod[net][id].type)
+                        {
+                            type = tr("漏电");
+                            value = QString::number(mod[net][id].alarmData);
+                            m_db->insertAlarm(net,id,MODULE_CUR,ALARM,value,curTime,add);//插入历史报警
+                        }
+                        else if(MODULE_TEM == mod[net][id].type)
+                        {
+                            type = tr("温度");
+                            value = QString::number(mod[net][id].alarmTem);
+                            m_db->insertAlarm(net,id,MODULE_TEM,ALARM,value,curTime,add);//插入历史报警
+                        }
                         m_db->insertTemp(net,id,ALARM,curTime);//插入临时故障
-                        m_db->insertAlarm(net,id,ALARM,curTime,add);//插入历史报警
+
                         if(m_db->getPrintStyle())
                         {
-                            QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss");
-                            m_record->connectPrint(QString::number(net),QString::number(id),ALARM,time,add);
+                            if(m_db->getPrintAlarm())
+                            {
+                                QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss");
+                                m_record->connectPrint(QString::number(net),QString::number(id),type,tr("报警"),value,time,add);
+                            }
                         }
                     }
                     //发送报警短信

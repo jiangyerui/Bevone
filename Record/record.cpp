@@ -56,11 +56,11 @@ Record::Record(QWidget *parent) :
 
     ui->tableWdt_record->setColumnWidth(0,50);
     ui->tableWdt_record->setColumnWidth(1,50);
-    ui->tableWdt_record->setColumnWidth(2,50);
-    ui->tableWdt_record->setColumnWidth(3,50);
-    ui->tableWdt_record->setColumnWidth(4,100);
-    ui->tableWdt_record->setColumnWidth(5,100);
-    ui->tableWdt_record->setColumnWidth(6,150);
+    ui->tableWdt_record->setColumnWidth(2,60);
+    ui->tableWdt_record->setColumnWidth(3,80);
+    ui->tableWdt_record->setColumnWidth(4,80);
+    ui->tableWdt_record->setColumnWidth(5,180);
+    ui->tableWdt_record->setColumnWidth(6,180);
 
 }
 
@@ -73,7 +73,7 @@ QString Record::setSelectSql(int item, bool net, bool id, QString &startTimer, Q
 {
     QString netStr;
     QString idStr;
-    QString sqlStr = "select net,id,type,stutas,value,time,address from RECORD where TIME >= "+startTimer+" and TIME <="+endTime;
+    QString sqlStr = "select net,id,type,status,value,time,address from RECORD where TIME >= "+startTimer+" and TIME <="+endTime;
 
     if(item == ALLDATA)
     {
@@ -398,22 +398,9 @@ void Record::showData(QString sql,int currentPage)
     }
 }
 
-void Record::connectPrint(QString net, QString id, int type, QString time, QString address)
+void Record::connectPrint(QString net, QString id, QString type, QString status,QString value,QString time, QString address)
 {
-    QString typeStr;typeStr.clear();
-    if(ALARM == type)
-    {
-        typeStr = tr("火灾报警");
-    }
-    else if(ERROR == type)
-    {
-        typeStr = tr("模块故障");
-    }
-    else if(CAN == type)
-    {
-        typeStr = tr("通讯故障");
-    }
-    m_myPrint->printConnect(net, id,typeStr,time,address);
+    m_myPrint->printConnect(net, id,type,status,value,time,address);
 }
 
 void Record::slotSetNetEnable(bool enable)
@@ -595,15 +582,18 @@ void Record::setPrint(QTableWidget *tableWidget, MyPrint *myPrint, int row, int 
         QString str = tableWidget->item(row,column)->text();
         printList.insert(column,str);
     }
+
     //qDebug()<<"printList = "<<printList;
 
-    QString net  = printList.at(0);
-    QString id   = printList.at(1);
-    QString type = printList.at(2);
-    QString time = printList.at(3);
-    QString add  = printList.at(4);
+    QString net    = printList.at(0);
+    QString id     = printList.at(1);
+    QString type   = printList.at(2);
+    QString status = printList.at(3);
+    QString value  = printList.at(4);
+    QString time   = printList.at(5);
+    QString add    = printList.at(6);
 
-    myPrint->printConnect(net, id, type, time,add);
+    myPrint->printConnect(net, id, type,status,value, time,add);
     printList.clear();
 }
 
@@ -633,21 +623,4 @@ void Record::slotBtnPrint()
     }
 }
 
-void Record::slotpBtnCurveCheck()
-{
-    //    QString idStr = ui->lineEditCurve_id->text();
-    //    QString netStr = ui->lineEditCurve_net->text();
-    //    uint startTime = ui->dTEditCurve_start->dateTime().toTime_t();
-    //    uint endTime = ui->dTEditCurve_end->dateTime().toTime_t();
-    //    QString startTimeStr = QString::number(startTime);
-    //    QString endTimeStr   = QString::number(endTime);
-    //    QString results = m_db.getCurveData(netStr,idStr,startTimeStr,endTimeStr);
-    //    qDebug()<<results;
-    //    GraphDemo(results);
 
-}
-
-void Record::slotpBtnCurveQuit()
-{
-    this->hide();
-}

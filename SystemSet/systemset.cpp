@@ -14,6 +14,8 @@ SystemSet::SystemSet(QWidget *parent) :
     setWindowFlags(Qt::FramelessWindowHint);
     this->setGeometry(0,0,800,480);
 
+    ui->gBox_setSMS->hide();
+
     initVar();
     initConfigure();
     initConnect();
@@ -77,7 +79,7 @@ void SystemSet::systemShow()
     else if(MySqlite::SUPER == m_userType)
     {
         ui->gBox_node->setEnabled(true);
-         ui->gBox_setSMS->setEnabled(true);
+        ui->gBox_setSMS->setEnabled(true);
         ui->gBox_setTime->setEnabled(true);
         ui->gBox_setPrint->setEnabled(true);
         ui->gBox_setPasswd->setEnabled(true);
@@ -130,6 +132,9 @@ void SystemSet::initConnect()
     connect(ui->pBtn_stopSound,SIGNAL(clicked(bool)),this,SLOT(slotBtnStopSound()));
 
     connect(ui->pBtn_SMS,SIGNAL(clicked(bool)),this,SLOT(slotBtnSMS()));
+
+    connect(ui->comboBox_print,SIGNAL(currentIndexChanged(int)),this,SLOT(slotComboBoxPrint(int)));
+
 }
 
 void SystemSet::setPrintType(bool type)
@@ -179,6 +184,17 @@ void SystemSet::slotBtnPrintType()
         g_printType = false;
         QMessageBox::information(NULL,tr("操作提示"), tr("已设置为手动打印模式！"),tr("关闭"));
     }
+
+    if(ui->checkBox_printError->checkState() == true)
+        m_db.setPrintError(true);
+    else
+        m_db.setPrintError(false);
+
+    if(ui->checkBox_printAlarm->checkState() == true)
+        m_db.setPrintAlarm(true);
+    else
+        m_db.setPrintAlarm(false);;
+
     m_db.setPrintStyle(g_printType);
 }
 
@@ -307,12 +323,13 @@ void SystemSet::slotBtnCopyDB()
                                     tr("确定"),tr("取消"));
     if(ret == 0)
     {
-        if(system("wr rm Bevone.db"))
+        QString cmd_2;
+        cmd_2 = "wr cp /media/sda1/Bevone.db /opt/";
+        QProcess process;
+        int r = process.execute(cmd_2);
+        if(r == 0)
         {
-            if(system("wr cp /media/sda1/Bevone.db /opt/"))
-            {
-                QMessageBox::information(NULL,tr("操作提示"),tr("数据库烧录成功！！！"),tr("关闭"));
-            }
+            QMessageBox::information(NULL,tr("操作提示"),tr("数据库烧录成功！！！"),tr("关闭"));
         }
     }
     else
@@ -405,6 +422,21 @@ void SystemSet::slotBtnSMS()
 
     }
 }
+
+void SystemSet::slotComboBoxPrint(int index)
+{
+    if(index == 0)
+    {
+        ui->checkBox_printError->setEnabled(false);
+        ui->checkBox_printAlarm->setEnabled(false);
+    }
+    else if(index == 1)
+    {
+        ui->checkBox_printError->setEnabled(true);
+        ui->checkBox_printAlarm->setEnabled(true);
+    }
+}
+
 
 void SystemSet::setSerialNum(QString serialNum)
 {

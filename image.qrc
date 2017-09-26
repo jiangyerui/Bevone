@@ -20,5 +20,7 @@
         <file>Image/user.png</file>
         <file>Image/Style-1.png</file>
         <file>Image/mute.png</file>
+        <file>Image/checked.png</file>
+        <file>Image/uncheck.png</file>
     </qresource>
 </RCC>

@@ -393,10 +393,6 @@ int MainWindow::calculationPage(int regNum)
 //节点显示与隐藏
 void MainWindow::moduleStatus(int curPage)
 {
-    //    for(int i = 1;i<= 40;i++)
-    //    {
-    //        m_btnGroup->button(i)->setVisible(false);
-    //    }
 
     m_modeSts = 0;
     int i = (curPage - 1 ) * 40;
@@ -409,7 +405,6 @@ void MainWindow::moduleStatus(int curPage)
             QString text = QString::number(node[i]) + modType(type);
             m_btnGroup->button(index)->setText(text);
             m_btnGroup->button(index)->setVisible(true);
-            //int flag = mod[m_curNet][node[i]].flag;
             if(mod[m_curNet][node[i]].normalFlag == TRUE)
             {
                 m_modeSts = 0;
@@ -443,13 +438,12 @@ void MainWindow::moduleStatus(int curPage)
                 m_tcpServer->addNetData(type,m_curNet,node[i],m_modeSts,0,temp);
             }
 #endif
-
         }
-//        else
-//        {
-//            m_btnGroup->button(index)->setText("");
-//            m_btnGroup->button(index)->setVisible(false);
-//        }
+        else
+        {
+            m_btnGroup->button(index)->setText("");
+            m_btnGroup->button(index)->setVisible(false);
+        }
         i++;
     }
 }
@@ -841,6 +835,12 @@ void MainWindow::slotResetShow()
         uchar temp[1];
         temp[0] = CMD_SE_RESET;
         GlobalData::addCmd(m_curNet,ALLID,temp[0],temp,1);
+
+        QString styleSheet =m_styleSheet+"background-color: rgb(0, 255, 0);font: 14pt";
+        for(int i = 1;i<= 40;i++)
+        {
+            m_btnGroup->button(i)->setStyleSheet(styleSheet);
+        }
 
         for(int net = 0;net < NETNUM;net++)
         {

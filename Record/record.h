@@ -1,4 +1,4 @@
-#ifndef RECORD_H
+﻿#ifndef RECORD_H
 #define RECORD_H
 
 #include <QFont>
@@ -46,7 +46,7 @@ public:
 
     void initShow();
     QString setSelectSql(int item, bool net, bool id,QString &startTimer,QString &endTime);
-    void connectPrint(QString net, QString id, int type, QString time, QString address);
+    void connectPrint(QString net, QString id, QString type, QString status,QString value, QString time, QString address);
 
 private:
     Ui::Record *ui;
@@ -91,9 +91,6 @@ private slots:
     void slotBtnUpPage();
     void slotBtnDownPage();
     void slotBtnPrint();
-
-    void slotpBtnCurveCheck();
-    void slotpBtnCurveQuit();
 
 };
 

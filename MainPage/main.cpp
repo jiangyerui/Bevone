@@ -4,11 +4,11 @@
 #include "MySqlite/mysqlite.h"
 #include "Manager/manager.h"
 #include "Imframe/Imframe.h"
-//#include "ScreenSaver/screensaver.h"
+#include "ScreenSaver/screensaver.h"
 
 #define QUITTIME 30*1000
 
-//#define ON_ARM
+#define ON_ARM
 
 int main(int argc, char *argv[])
 {

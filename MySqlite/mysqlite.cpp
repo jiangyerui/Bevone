@@ -34,13 +34,15 @@ void MySqlite::insertTemp(int net, int id, int type,uint time)
     query.clear();
 }
 
-void MySqlite::insertAlarm(int net,int id,int type,uint time,QString address)
+void MySqlite::insertAlarm(int net,int id,int type,int status,QString value,uint time,QString address)
 {
     QString netStr  = QString::number(net);
     QString idStr   = QString::number(id);
     QString typeStr = QString::number(type);
     QString timeStr = QString::number(time);
-    QString sql = "insert into RECORD values("+netStr+","+idStr+","+typeStr+","+timeStr+","+"'"+address+"');";
+    QString staStr  = QString::number(status);
+    QString sql = "insert into RECORD values("+netStr+","+idStr+","+typeStr+","+staStr+","+value+","+timeStr+","+"'"+address+"');";
+    qDebug()<<"sql : "<<sql;
     m_db.transaction();
     QSqlQuery query(m_db);
     query.exec(sql);
@@ -180,6 +182,72 @@ QString MySqlite::getNodeAddress(int net, int id)
     query.clear();
     return addStr;
 
+}
+
+bool MySqlite::getPrintError()
+{
+    bool printFlag = false;
+    QString sql = "select ERROR from PRINT where rowid = 1;";
+    QSqlQuery query(m_db);
+    if(query.exec(sql))
+    {
+        if(query.next())
+        {
+            printFlag  = query.value(0).toBool();
+        }
+    }
+    query.clear();
+    return printFlag;
+}
+
+void MySqlite::setPrintError(bool model)
+{
+    QString sql;
+    sql.clear();
+    if(model == true)
+    {
+        sql = "update PRINT set ERROR = 1 where rowid = 1;";
+    }
+    else
+    {
+        sql = "update PRINT set ERROR = 0 where rowid = 1;";
+    }
+    QSqlQuery query(m_db);
+    query.exec(sql);
+    query.clear();
+}
+
+void MySqlite::setPrintAlarm(bool model)
+{
+    QString sql;
+    sql.clear();
+    if(model == true)
+    {
+        sql = "update PRINT set ALARM = 1 where rowid = 1;";
+    }
+    else
+    {
+        sql = "update PRINT set ALARM = 0 where rowid = 1;";
+    }
+    QSqlQuery query(m_db);
+    query.exec(sql);
+    query.clear();
+}
+
+bool MySqlite::getPrintAlarm()
+{
+    bool printFlag = false;
+    QString sql = "select ALARM from PRINT where rowid = 1;";
+    QSqlQuery query(m_db);
+    if(query.exec(sql))
+    {
+        if(query.next())
+        {
+            printFlag  = query.value(0).toBool();
+        }
+    }
+    query.clear();
+    return printFlag;
 }
 
 void MySqlite::setPrintStyle(bool model)

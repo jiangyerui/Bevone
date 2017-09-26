@@ -1400,7 +1400,34 @@ height:20px;
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true"/>
+    <string notr="true">QCheckBox#checkBox_printError{
+spacing: 10px;
+color: rgb(0, 0, 0);
+border:1px solid;
+border-radius:10px;
+background-color: rgb(240, 237, 39);
+}
+QCheckBox#checkBox_printAlarm{
+spacing: 10px;
+color: rgb(0, 0, 0);
+border:1px solid;
+border-radius:10px;
+background-color: rgb(217, 70, 38);
+}
+
+QCheckBox::indicator{
+width:12px;
+height:12px;
+margin-left:5px;
+image: url(:/Image/uncheck.png);
+}
+
+QCheckBox::indicator::unchecked {
+image: url(:/Image/uncheck.png);
+}
+QCheckBox::indicator::checked {
+image: url(:/Image/checked.png);
+}</string>
    </property>
    <property name="title">
     <string>打印设置</string>
@@ -1462,7 +1489,7 @@ height:20px;
      <string>确认设置</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="checkBox_net_2">
+   <widget class="QCheckBox" name="checkBox_printError">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -1483,15 +1510,11 @@ height:20px;
     <property name="focusPolicy">
      <enum>Qt::NoFocus</enum>
     </property>
-    <property name="styleSheet">
-     <string notr="true">color: rgb(0, 0, 0);
-background-color: rgb(255, 255, 255);</string>
-    </property>
     <property name="text">
      <string>故障</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="checkBox_net">
+   <widget class="QCheckBox" name="checkBox_printAlarm">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -1512,10 +1535,6 @@ background-color: rgb(255, 255, 255);</string>
     <property name="focusPolicy">
      <enum>Qt::NoFocus</enum>
     </property>
-    <property name="styleSheet">
-     <string notr="true">color: rgb(0, 0, 0);
-background-color: rgb(255, 255, 255);</string>
-    </property>
     <property name="text">
      <string>报警</string>
     </property>
@@ -1524,9 +1543,9 @@ background-color: rgb(255, 255, 255);</string>
   <widget class="QGroupBox" name="gBox_setScretkey">
    <property name="geometry">
     <rect>
-     <x>540</x>
-     <y>220</y>
-     <width>210</width>
+     <x>310</x>
+     <y>325</y>
+     <width>226</width>
      <height>96</height>
     </rect>
    </property>
@@ -1665,9 +1684,9 @@ background-color: rgb(255, 255, 255);</string>
   <widget class="QGroupBox" name="gBox_setSMS">
    <property name="geometry">
     <rect>
-     <x>310</x>
-     <y>320</y>
-     <width>226</width>
+     <x>540</x>
+     <y>220</y>
+     <width>216</width>
      <height>100</height>
     </rect>
    </property>
@@ -1681,7 +1700,27 @@ background-color: rgb(255, 255, 255);</string>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true"/>
+    <string notr="true">QCheckBox{
+spacing: 10px;
+color: rgb(0, 0, 0);
+border:1px solid;
+border-radius:10px;
+background-color: rgb(240, 237, 39);
+}
+
+QCheckBox::indicator{
+width:12px;
+height:12px;
+margin-left:5px;
+image: url(:/Image/uncheck.png);
+}
+
+QCheckBox::indicator::unchecked {
+image: url(:/Image/uncheck.png);
+}
+QCheckBox::indicator::checked {
+image: url(:/Image/checked.png);
+}</string>
    </property>
    <property name="title">
     <string>GSM设置</string>
@@ -1689,7 +1728,7 @@ background-color: rgb(255, 255, 255);</string>
    <widget class="QPushButton" name="pBtn_SMS">
     <property name="geometry">
      <rect>
-      <x>105</x>
+      <x>100</x>
       <y>60</y>
       <width>105</width>
       <height>30</height>
@@ -1714,7 +1753,7 @@ background-color: rgb(255, 255, 255);</string>
    <widget class="QComboBox" name="comboBox_sms">
     <property name="geometry">
      <rect>
-      <x>105</x>
+      <x>100</x>
       <y>20</y>
       <width>105</width>
       <height>30</height>
@@ -1755,7 +1794,7 @@ background-color: rgb(255, 255, 255);</string>
    <widget class="QCheckBox" name="checkBox_net_3">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>15</x>
       <y>60</y>
       <width>76</width>
       <height>30</height>
@@ -1784,7 +1823,7 @@ background-color: rgb(255, 255, 255);</string>
    <widget class="QCheckBox" name="checkBox_net_4">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>15</x>
       <y>20</y>
       <width>76</width>
       <height>30</height>

@@ -12,7 +12,7 @@ TARGET = Bevone
 TEMPLATE = app
 CONFIG += serialport
 
-#DEFINES += RUN_ON_ARM
+DEFINES += RUN_ON_ARM
 
 
 contains(DEFINES,RUN_ON_ARM){

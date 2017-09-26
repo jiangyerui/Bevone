@@ -89,6 +89,8 @@ private slots:
 
     void slotBtnSMS();
 
+    void slotComboBoxPrint(int index);
+
 
 private:
     Ui::SystemSet *ui;

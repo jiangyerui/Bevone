@@ -1,7 +1,7 @@
 ﻿#include "canmoudle.h"
 
 
-#define DataRead
+//#define DataRead
 #define DataWrite
 
 CanMoudle::CanMoudle(QObject *parent) : QObject(parent)
@@ -118,6 +118,7 @@ void CanMoudle::dealCanData(can_frame frame)
             //实时数据
             rtData  = frame.data[4]<<8;//高位数
             rtData |= frame.data[3];   //低位数
+
             //报警数值
             //取出低4位数
             alarmData = frame.data[6] & 0xF;
@@ -143,7 +144,7 @@ void CanMoudle::dealCanData(can_frame frame)
             break;
         case MODULE_TEM:
 
-            mod[m_net][canId].used = 1;
+            mod[m_net][canId].used = true;
             mod[m_net][canId].temData = frame.data[3];//实时数据
             mod[m_net][canId].baseData = 0;
             mod[m_net][canId].alarmTemSet = frame.data[5];//报警数值

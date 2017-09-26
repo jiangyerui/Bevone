@@ -63,7 +63,7 @@ public:
     void initDb();//初始化,链接数据库
 
     void insertTemp(int net, int id, int type, uint time);//插入临时数据据
-    void insertAlarm(int net, int id, int type, uint time, QString address);//插入报警数据
+    void insertAlarm(int net, int id, int type, int status, QString value, uint time, QString address);//插入报警数据
 
     QString getSerialNumber();//获取主机序列号
     bool insertSerialNumber(QString serialNO);//设置主机序列号
@@ -76,6 +76,12 @@ public:
     bool getLockStatus();//获取加锁状态
     bool setSuccess(bool stutas);//设置未解锁
     QString getNodeAddress(int net,int id);//获取节点地址
+
+    bool getPrintAlarm();
+    void setPrintAlarm(bool model);
+
+    bool getPrintError();
+    void setPrintError(bool model);
 
     bool getPrintStyle();//获取打印配置
     void setPrintStyle(bool model);//设置打印模式
