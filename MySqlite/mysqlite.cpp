@@ -29,6 +29,7 @@ void MySqlite::insertTemp(int net, int id, int type,uint time)
     QString typeStr = QString::number(type);
     QString timeStr = QString::number(time);
     QString sql = "insert into TEMP values("+netStr+","+idStr+","+typeStr+","+timeStr+");";
+    qDebug()<<"insertTemp = "<<sql;
     QSqlQuery query(m_db);
     query.exec(sql);
     query.clear();

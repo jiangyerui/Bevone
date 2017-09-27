@@ -1,6 +1,6 @@
 ﻿#include "calculanode.h"
 #include <QDebug>
-
+#include <QProcess>
 //#define DEBUG
 
 
@@ -22,6 +22,8 @@ CalculaNode::CalculaNode(QObject *parent) : QObject(parent)
     m_db = new MySqlite;
     m_db->getSmsDetail(m_center,m_strNum);
     m_record = new Record;
+
+    m_cmdFlag = false;
 
 //    m_gsm = QtSMS::getqtsms();
 //    m_gsm->OpenCom(QString("/dev/ttyUSB0"));
@@ -86,6 +88,10 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
     uint droped= 0;
     uint used  = 0;
 //    uint send  = 0;
+    m_used[1][0] = 0;
+    m_used[2][0] = 0;
+    m_droped[1][0] = 0;
+    m_droped[2][0] = 0;
 
     for(uint net = 1;net < netMax;net++)
     {
@@ -98,6 +104,8 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
             if(mod[net][id].used == TRUE)//当前节点存在
             {
                 used++;
+                m_used[net][0]++;
+
                 if(exeCmd[net][id].dropped == TRUE)//当前节点掉线
                 {
                     if(passTime >= PASSTIME && mod[net][id].dropFlag == false )
@@ -122,6 +130,7 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                 {
                     droped++;
                     error++;
+                    m_droped[net][0]++;
                     if(mod[net][id].insertDrop == FALSE)
                     {
                         mod[net][id].insertDrop = TRUE;
@@ -147,7 +156,7 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                         {
                             if(m_db->getPrintError())
                             {
-
+                                qDebug()<<"getPrintError";
                                 QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss");
                                 m_record->connectPrint(QString::number(net),QString::number(id),type,tr("通讯故障"),value,time,add);
                             }
@@ -207,15 +216,17 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                         {
                             type = tr("漏电");
                             value = QString::number(mod[net][id].alarmData);
+                            m_db->insertTemp(net,id,ALARM,curTime);//插入临时
                             m_db->insertAlarm(net,id,MODULE_CUR,ALARM,value,curTime,add);//插入历史报警
                         }
                         else if(MODULE_TEM == mod[net][id].type)
                         {
                             type = tr("温度");
                             value = QString::number(mod[net][id].alarmTem);
+                            m_db->insertTemp(net,id,ALARM,curTime);//插入临时
                             m_db->insertAlarm(net,id,MODULE_TEM,ALARM,value,curTime,add);//插入历史报警
                         }
-                        m_db->insertTemp(net,id,ALARM,curTime);//插入临时故障
+
 
                         if(m_db->getPrintStyle())
                         {
@@ -270,6 +281,12 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
 #endif
             }
         }
+    }
+
+    //重新注册can
+    if(m_used[1][0] == m_droped[1][0] || m_used[2][0] == m_droped[2][0])
+    {
+        ::system("source /etc/profile");
     }
     //控制指示灯,主机自检时不检测
     if(m_selfCheckFlag == false)

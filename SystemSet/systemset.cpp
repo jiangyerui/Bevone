@@ -144,13 +144,20 @@ void SystemSet::setPrintType(bool type)
         //自动打印
         ui->comboBox_print->setCurrentIndex(1);
         g_printType = true;
+        ui->checkBox_printError->setChecked(m_db.getPrintError());
+        ui->checkBox_printAlarm->setChecked(m_db.getPrintAlarm());
+
     }
     else
     {
         //手动打印
         ui->comboBox_print->setCurrentIndex(0);
         g_printType = false;
+        ui->checkBox_printAlarm->setEnabled(false);
+        ui->checkBox_printError->setEnabled(false);
+
     }
+
 }
 
 void SystemSet::setSmsType(bool type)
@@ -185,12 +192,12 @@ void SystemSet::slotBtnPrintType()
         QMessageBox::information(NULL,tr("操作提示"), tr("已设置为手动打印模式！"),tr("关闭"));
     }
 
-    if(ui->checkBox_printError->checkState() == true)
+    if(ui->checkBox_printError->checkState() == Qt::Checked)
         m_db.setPrintError(true);
     else
         m_db.setPrintError(false);
 
-    if(ui->checkBox_printAlarm->checkState() == true)
+    if(ui->checkBox_printAlarm->checkState() == Qt::Checked)
         m_db.setPrintAlarm(true);
     else
         m_db.setPrintAlarm(false);;

@@ -607,7 +607,7 @@ void Record::slotBtnPrint()
         int row = ui->tableWdt_record->currentRow();
         if(row >= 0)
         {
-            setPrint(ui->tableWdt_record,m_myPrint,row,5);
+            setPrint(ui->tableWdt_record,m_myPrint,row,7);
         }
     }
     else if(index == 1)
@@ -617,7 +617,7 @@ void Record::slotBtnPrint()
         {
             for(int row = 0;row < rowNum;row++)
             {
-                setPrint(ui->tableWdt_record,m_myPrint,row,5);
+                setPrint(ui->tableWdt_record,m_myPrint,row,7);
             }
         }
     }

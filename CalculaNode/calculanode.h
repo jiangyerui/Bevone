@@ -41,6 +41,9 @@ public:
     QString m_center;
     QString m_strNum;
     QString m_strSend;
+    bool m_cmdFlag;
+    uint m_used[3][1];
+    uint m_droped[3][1];
 
     void initVar(bool powerType);
     void setSound(bool flag);

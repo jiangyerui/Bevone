@@ -98,7 +98,6 @@ void CanMoudle::dealCanData(can_frame frame)
     for(int i = 0;i<8;i++)
     {
         qDebug()<<"data["<<i<<"] = "<<frame.data[i];
-
     }
     qDebug()<<"************************************";
 
@@ -135,7 +134,9 @@ void CanMoudle::dealCanData(can_frame frame)
             mod[m_net][canId].baseData = baseData;
             mod[m_net][canId].alarmDataSet = alarmData;
             mod[m_net][canId].type = frame.data[1];
+
             nodeStatus(m_net,canId,frame.data[2]);
+
             if(frame.data[2] == ALARM && mod[m_net][canId].alaDataLock == false)
             {
                 mod[m_net][canId].alaDataLock = true;
@@ -198,11 +199,13 @@ void CanMoudle::nodeStatus(int net, uint id, char status)
         mod[net][id].alarmFlag  = true;
         mod[net][id].normalFlag = false;
         mod[net][id].dropFlag   = false;
+        mod[net][id].insertDrop = false;
         break;
     case 2://error
         mod[net][id].errorFlag  = true;
         mod[net][id].normalFlag = false;
         mod[net][id].dropFlag   = false;
+        mod[net][id].insertDrop = false;
         break;
     default:
         break;

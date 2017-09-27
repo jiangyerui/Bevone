@@ -232,8 +232,6 @@ void MainWindow::initVar()
 
 void MainWindow::showData(QTableWidget *tableWidget,QSqlQueryModel *model,MySqlite *db, int type)
 {
-
-
     QString sql ;
     int countNum = 0;
     if(type == ERODATA)
@@ -241,6 +239,7 @@ void MainWindow::showData(QTableWidget *tableWidget,QSqlQueryModel *model,MySqli
         //error
         sql ="select net,id,time FROM TEMP WHERE type >= 2 and type <= 5 ORDER BY time DESC;";
         countNum = db->getRowCount(sql,model);//返回数据的总行数
+        m_errorNum = countNum;
         QString titleNum = tr("故障: ")+QString::number(countNum)+tr("个");
         ui->groupBox_Error->setTitle(titleNum);
 
@@ -252,8 +251,10 @@ void MainWindow::showData(QTableWidget *tableWidget,QSqlQueryModel *model,MySqli
         //alarm
         sql ="select net,id,time FROM TEMP WHERE type = 1 ORDER BY time DESC;";
         countNum = db->getRowCount(sql,model);//返回数据的总行数
+        m_alarmNum = countNum;
         QString titleNum = tr("报警: ")+QString::number(countNum)+tr("个");
         ui->groupBox_Alarm->setTitle(titleNum);
+
         m_itemAlarmList.clear();
         qDeleteAll(m_itemAlarmList);
     }
@@ -634,7 +635,7 @@ void MainWindow::slotBtnErrorDown()
 {
     m_errorIndex++;
     QString sql;
-    sql = "select count(*) from RECORD WHERE  type >= 2 and type <= 5;";
+    sql = "select count(*) from TEMP WHERE  type >= 2 and type <= 5;";
     int count = m_db->getRowCount(sql);
     if(count == m_errorIndex)
     {
@@ -661,7 +662,8 @@ void MainWindow::slotBtnAlarmDown()
 {
     m_alarmIndex++;
     QString sql;
-    sql = "select count(*) FROM RECORD WHERE type = 1;";
+    sql = "select count(*) FROM TEMP WHERE type = 1;";
+
     int count = m_db->getRowCount(sql);
     if(count == m_alarmIndex)
     {
@@ -680,7 +682,6 @@ void MainWindow::slotBtnJump()
     else
     {
         int page = ui->lineEdit->text().toInt();
-        qDebug()<<"page = "<<page;
         m_countPage = calculationPage(calculationNode(m_curNet));
         if(page > m_countPage && page != 0)
         {
@@ -839,17 +840,20 @@ void MainWindow::slotResetShow()
         QString styleSheet =m_styleSheet+"background-color: rgb(0, 255, 0);font: 14pt";
         for(int i = 1;i<= 40;i++)
         {
-            m_btnGroup->button(i)->setStyleSheet(styleSheet);
+            if(m_btnGroup->button(i)->isVisible())
+            {
+                m_btnGroup->button(i)->setStyleSheet(styleSheet);
+            }
         }
 
         for(int net = 0;net < NETNUM;net++)
         {
             for(int id = 0;id < IDNUM;id++)
             {
-                mod[net][id].used = false;
+                //mod[net][id].used = false;
                 mod[net][id].id = 0;
                 mod[net][id].net = 0;
-                mod[net][id].type = 0;
+                //mod[net][id].type = 0;
                 mod[net][id].alarmTem = 0;
                 mod[net][id].temData  = 0;
                 mod[net][id].rtData   = 0;
@@ -872,11 +876,11 @@ void MainWindow::slotResetShow()
         m_db->delData("delete from TEMP;");//删除临时记录
         ui->lb_curNodeNum->clear();
         slotBtnTailPage();
-        /*
-        m_curPage = 1;
-        ui->lb_countPage->setText("0");
-        ui->lb_curPage->setText("0");
-        */
+
+//        m_curPage = 1;
+//        ui->lb_countPage->setText("0");
+//        ui->lb_curPage->setText("0");
+
     }
     else
     {
