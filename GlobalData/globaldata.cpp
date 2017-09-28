@@ -9,6 +9,7 @@ bool g_printType = false;
 bool g_smsType = false;
 QString g_hostModel = "00";
 int g_cmdNum  = 0;
+bool g_resetCmd = false;
 uint idMax = 0;
 uint netMax = 0;
 uint cmdMax = 0;

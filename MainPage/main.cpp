@@ -6,7 +6,7 @@
 #include "Imframe/Imframe.h"
 #include "ScreenSaver/screensaver.h"
 
-#define QUITTIME 30*1000
+#define QUITTIME 180*1000
 
 #define ON_ARM
 

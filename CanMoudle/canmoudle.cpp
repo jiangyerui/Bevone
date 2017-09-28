@@ -2,7 +2,7 @@
 
 
 //#define DataRead
-#define DataWrite
+//#define DataWrite
 
 CanMoudle::CanMoudle(QObject *parent) : QObject(parent)
 {
@@ -86,7 +86,7 @@ void CanMoudle::slotCanRxTimeOut()
 void CanMoudle::dealCanData(can_frame frame)
 {
     int cmd = frame.data[CAN_CMD];
-    uint alarmData,rtData,baseData,canId;
+    quint16 alarmData,rtData,baseData,canId;
     canId = frame.can_id;
 
 #ifdef DataRead
@@ -119,13 +119,13 @@ void CanMoudle::dealCanData(can_frame frame)
             rtData |= frame.data[3];   //低位数
 
             //报警数值
-            //取出低4位数
-            alarmData = frame.data[6] & 0xF;
+            //取出高4位数
+            alarmData = frame.data[6] >> 4;
             alarmData <<= 8;
             alarmData |= frame.data[5];   //低位数
             //固有漏电
-            //取出高4位数
-            baseData =  frame.data[6] >> 4;
+            //取出低4位数
+            baseData =  frame.data[6] & 0xF;
             baseData <<= 8;
             baseData |= frame.data[7];//低位数
 
@@ -212,6 +212,20 @@ void CanMoudle::nodeStatus(int net, uint id, char status)
     }
 }
 
+void CanMoudle::controlTimer(bool flag)
+{
+    if(flag == true)
+    {
+        m_canTxTimer->start();
+        m_canRxTimer->start();
+    }
+    else
+    {
+        qDebug()<<"*****************************m_canRxTimer->stop()";
+        m_canRxTimer->stop();
+    }
+}
+
 void CanMoudle::getNodeNum(Exe_Cmd exeCmd[NETNUM][CMDEXENUM])
 {
     Q_UNUSED(exeCmd)
@@ -222,8 +236,22 @@ void CanMoudle::slotCanTxTimeOut()
     struct can_frame canFrame;
 
     m_id++;
+    //发送复位命令
+    if(g_resetCmd == true)
+    {
+        canFrame.can_id  = ALLID;
+        canFrame.can_dlc = 1;
+        canFrame.data[0] = CMD_SE_RESET;
+        for(uint k = 1;k<8;k++)
+        {
+            canFrame.data[k] = 0;
+        }
 
-    if(exeCmd[m_net][m_id].needExe == 1)
+        dataWrite(m_canfd,canFrame);
+        m_canTxTimer->stop();
+
+    }
+    else if(exeCmd[m_net][m_id].needExe == 1)
     {
         canFrame = exeCmd[m_net][m_id].canFrame;
         dataWrite(m_canfd,canFrame);

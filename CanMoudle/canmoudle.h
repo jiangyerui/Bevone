@@ -42,6 +42,7 @@ public:
 
     void dealCanData(struct can_frame frame);
     void nodeStatus(int net,uint id,char status);
+    void controlTimer(bool flag);
     uint m_id;
     int m_net;
     int m_canfd;

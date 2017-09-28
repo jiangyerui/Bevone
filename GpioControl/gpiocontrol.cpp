@@ -261,6 +261,10 @@ void GpioControl::slotTimeOut()
         writeGPIO(MainPowerGreen,low);
         writeGPIO(BackupPowerGreen,low);
     }
+    if(times == 4)
+    {
+        controlSound(2);
+    }
     if(times == 6)
     {
         times = 0;
@@ -299,7 +303,8 @@ uint GpioControl::readGPIO(int name)
 void GpioControl::selfCheck()
 {
     m_timer->start();
-    writeGPIO(Buzz,"0");
+    //writeGPIO(Buzz,"0");
+    controlSound(1);
 }
 
 uint GpioControl::dealGPIO()

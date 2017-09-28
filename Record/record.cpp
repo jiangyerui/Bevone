@@ -73,7 +73,7 @@ QString Record::setSelectSql(int item, bool net, bool id, QString &startTimer, Q
 {
     QString netStr;
     QString idStr;
-    QString sqlStr = "select net,id,type,status,value,time,address from RECORD where TIME >= "+startTimer+" and TIME <="+endTime;
+    QString sqlStr = "select net,id,type,status,value,time,address from RECORD where TIME >= "+startTimer+" and TIME <= "+endTime;
 
     if(item == ALLDATA)
     {
@@ -85,22 +85,22 @@ QString Record::setSelectSql(int item, bool net, bool id, QString &startTimer, Q
         {
             netStr = ui->lineEdit_pass->text();
             idStr  = ui->lineEdit_address->text();
-            sqlStr += " and net = "+ netStr +" and id = "+idStr+" and type = 1 ";
+            sqlStr += " and net = "+ netStr +" and id = "+idStr+" and status = 1 ";
         }
         else if(net == false && id == false)//获取所有探测器报警信息
         {
 
-            sqlStr += " and type = 1 ";
+            sqlStr += " and status = 1 ";
         }
         else if(net == true && id == false)//获取指定网络探测器报警信息
         {
             netStr = ui->lineEdit_pass->text();
-            sqlStr += " and net = "+ netStr +" and type = 1 ";
+            sqlStr += " and net = "+ netStr +" and status = 1 ";
         }
         else if(net == false && id == true)//获取指定节点探测器报警信息
         {
             idStr  = ui->lineEdit_address->text();
-            sqlStr += " and id = "+idStr+" and type = 1 ";
+            sqlStr += " and id = "+idStr+" and status = 1 ";
         }
     }
     else if(item == DROPPEDDATA)
@@ -109,22 +109,21 @@ QString Record::setSelectSql(int item, bool net, bool id, QString &startTimer, Q
         {
             netStr = ui->lineEdit_pass->text();
             idStr  = ui->lineEdit_address->text();
-            sqlStr += " and net = "+ netStr +" and id = "+idStr+" and type = 3 ";
+            sqlStr += " and net = "+ netStr +" and id = "+idStr+" and status = 3 ";
         }
         else if(net == false && id == false)//获取所有探测器故障信息
         {
-
-            sqlStr += " and type == 3 ";
+            sqlStr += " and status == 3 ";
         }
         else if(net == true && id == false)//获取指定网络探测器故障信息
         {
             netStr = ui->lineEdit_pass->text();
-            sqlStr += " and net = "+ netStr +" and type = 3 ";
+            sqlStr += " and net = "+ netStr +" and status = 3 ";
         }
         else if(net == false && id == true)//获取指定节点探测器故障信息
         {
             idStr  = ui->lineEdit_address->text();
-            sqlStr += " and id = "+idStr+" and type = 3 ";
+            sqlStr += " and id = "+idStr+" and status = 3 ";
         }
     }
 
@@ -419,7 +418,6 @@ void Record::slotBtnSearch()
     bool net = ui->checkBox_net->isChecked();
     bool  id = ui->checkBox_id->isChecked();
 
-
     uint starTime = ui->dTEdit_start->dateTime().toTime_t();
     uint endTime  = ui->dTEdit_end->dateTime().toTime_t();
 
@@ -440,15 +438,15 @@ void Record::slotBtnSearch()
 
         if(DROPPEDDATA == item)
         {
-            countSql = "select count(*) from RECORD WHERE type = 3;";
+            countSql = "select count(*) from RECORD WHERE status = 3;";
         }
         else if(ERROR == item)
         {
-            countSql = "select count(*) from RECORD WHERE type = 2;";
+            countSql = "select count(*) from RECORD WHERE status = 2;";
         }
         else if(ALARMDATA == item)
         {
-            countSql = "select count(*) from RECORD WHERE type = 1;";
+            countSql = "select count(*) from RECORD WHERE status = 1;";
         }
         else if(ALLDATA == item)
         {
@@ -460,6 +458,7 @@ void Record::slotBtnSearch()
 #ifdef  DEBUG
         qDebug()<<"net = "<<net;
         qDebug()<<"id  = "<<id;
+        qDebug()<<"countSql = "<<countSql;
         qDebug()<<"sqlStr = "<<sqlStr;
         qDebug()<<"m_maxPage     = "<<m_maxPage;
         qDebug()<<"m_currentPage = "<<m_currentPage;

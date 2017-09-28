@@ -120,6 +120,8 @@ void MainWindow::initVar()
     m_atimes = 0;
 
     m_screenColor = 0;
+    m_delayFlag = false;
+    m_delayNum = 0;
     //自检开关
     m_selfCheckFlag = false;
     m_kellLive = true;
@@ -607,6 +609,30 @@ void MainWindow::slotCurrentTime()
     Watchdog::kellLive();
 #endif
 
+    qDebug()<<"m_delayFlag = "<<m_delayFlag;
+    qDebug()<<"m_delayNum  = "<<m_delayNum;
+
+    if(m_delayFlag == true)
+    {
+        m_delayNum++;
+        if(m_delayNum == 10)
+        {
+            m_delayNum = 0;
+            if(netMax == 2)
+            {
+                m_can1->controlTimer(true);
+            }
+            else
+            {
+                m_can1->controlTimer(true);
+                m_can2->controlTimer(true);
+                qDebug()<<"controlTimer : true";
+            }
+            m_delayFlag = false;
+            g_resetCmd = false;
+        }
+    }
+
 }
 //检测按键复位状态
 void MainWindow::slotResetTimer()
@@ -833,9 +859,30 @@ void MainWindow::slotResetShow()
     int ret = QMessageBox::question(NULL,tr("复位操作"),tr("可以复位所有节点状态！"),tr("全部当前"),tr("取消"));
     if(ret == 0)
     {
+
+
         uchar temp[1];
         temp[0] = CMD_SE_RESET;
-        GlobalData::addCmd(m_curNet,ALLID,temp[0],temp,1);
+        //GlobalData::addCmd(m_curNet,ALLID,temp[0],temp,1);
+
+        if(m_delayFlag == false )
+        {
+            if(netMax == 2)
+            {
+                g_resetCmd = true;
+                m_can1->controlTimer(false);
+                //GlobalData::addCmd(1,ALLID,temp[0],temp,1);
+            }
+            else
+            {
+                g_resetCmd = true;
+                m_can1->controlTimer(false);
+                m_can2->controlTimer(false);
+                //GlobalData::addCmd(1,ALLID,temp[0],temp,1);
+                //GlobalData::addCmd(2,ALLID,temp[0],temp,1);
+            }
+        }
+
 
         QString styleSheet =m_styleSheet+"background-color: rgb(0, 255, 0);font: 14pt";
         for(int i = 1;i<= 40;i++)
@@ -877,9 +924,11 @@ void MainWindow::slotResetShow()
         ui->lb_curNodeNum->clear();
         slotBtnTailPage();
 
-//        m_curPage = 1;
-//        ui->lb_countPage->setText("0");
-//        ui->lb_curPage->setText("0");
+        //        m_curPage = 1;
+        //        ui->lb_countPage->setText("0");
+        //        ui->lb_curPage->setText("0");
+
+        m_delayFlag = true;
 
     }
     else

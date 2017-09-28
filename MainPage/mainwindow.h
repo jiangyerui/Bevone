@@ -125,7 +125,8 @@ public:
 
     CanMoudle *m_can2;
     CanMoudle *m_can1;
-
+    uint m_delayNum;
+    uint m_delayFlag;
 
     uint m_alarmNum;
     uint m_errorNum;
