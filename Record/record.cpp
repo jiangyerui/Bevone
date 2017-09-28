@@ -3,7 +3,7 @@
 
 #include <QSqlQueryModel>
 
-#define DEBUG
+//#define DEBUG
 #define ALLDATA    0
 #define ALARMDATA  1
 #define ERRORDATA  2
@@ -202,9 +202,6 @@ void Record::initConnect()
 
     connect(ui->pBtn_del,SIGNAL(clicked(bool)),this,SLOT(slotBtnDelData()));
     connect(ui->pBtn_pagePrint,SIGNAL(clicked(bool)),this,SLOT(slotBtnPrint()));
-
-    //connect(ui->pBtnCurve_check,SIGNAL(clicked(bool)),this,SLOT(slotpBtnCurveCheck()));
-    //connect(ui->pBtnCurve_quit,SIGNAL(clicked(bool)),this,SLOT(slotpBtnCurveQuit()));
 }
 
 void Record::delAllData()
@@ -438,19 +435,19 @@ void Record::slotBtnSearch()
 
         if(DROPPEDDATA == item)
         {
-            countSql = "select count(*) from RECORD WHERE status = 3;";
+            countSql = "select count(*) from RECORD WHERE status = 3 and TIME >= "+starTimeStr+" and TIME <= "+endTimeStr+";";
         }
         else if(ERROR == item)
         {
-            countSql = "select count(*) from RECORD WHERE status = 2;";
+            countSql = "select count(*) from RECORD WHERE status = 2 and  TIME >= "+starTimeStr+" and TIME <= "+endTimeStr+";";
         }
         else if(ALARMDATA == item)
         {
-            countSql = "select count(*) from RECORD WHERE status = 1;";
+            countSql = "select count(*) from RECORD WHERE status = 1 and TIME >= "+starTimeStr+" and TIME <= "+endTimeStr+";";
         }
         else if(ALLDATA == item)
         {
-            countSql = "select count(*) from RECORD;";
+            countSql = "select count(*) from RECORD WHERE status = 1 and TIME >= "+starTimeStr+" and TIME <= "+endTimeStr+";";
         }
 
         m_maxPage = getPageCount(countSql);
@@ -581,8 +578,6 @@ void Record::setPrint(QTableWidget *tableWidget, MyPrint *myPrint, int row, int 
         QString str = tableWidget->item(row,column)->text();
         printList.insert(column,str);
     }
-
-    //qDebug()<<"printList = "<<printList;
 
     QString net    = printList.at(0);
     QString id     = printList.at(1);

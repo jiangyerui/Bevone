@@ -11,7 +11,6 @@
 #define DEVICE      "/dev/watchdog"
 #define DEBUG
 //#define Memery
-
 //#define WatchDog  //看门狗
 #define TCP_IP    //网络传输
 //#define RS485     //RS485
@@ -73,7 +72,6 @@ void MainWindow::initConnect()
     connect(ui->pBtn_Record,SIGNAL(clicked(bool)),this,SLOT(slotRecordShow()));
     connect(ui->pBtn_User,SIGNAL(clicked(bool)),this,SLOT(slotUserLoginShow()));
     connect(ui->pBtn_Set,SIGNAL(clicked(bool)),this,SLOT(slotSystemSetShow()));
-    //connect(ui->pBtn_Shield,SIGNAL(clicked(bool)),this,SLOT(slotLogoutShow()));
     connect(ui->pBtn_Reset,SIGNAL(clicked(bool)),this,SLOT(slotResetShow()));
     connect(ui->pBtn_Check,SIGNAL(clicked(bool)),this,SLOT(slotSelfCheckShow()));
     connect(ui->pBtn_Voice,SIGNAL(clicked(bool)),this,SLOT(slotBtnSound()));
@@ -580,13 +578,9 @@ void MainWindow::slotCurrentTime()
 
     if(g_login)
     {
-        //隐藏所有界面
-        hideAllTopWidget();
-        //实现退出登录
-        slotLoginStatus(MySqlite::QUIT);
-        //设置退出值
-        emit sigLoginStatus(false);
-
+        hideAllTopWidget();//隐藏所有界面
+        slotLoginStatus(MySqlite::QUIT);//实现退出登录
+        emit sigLoginStatus(false);//设置退出值
     }
 
 
@@ -600,17 +594,13 @@ void MainWindow::slotCurrentTime()
     //自检操作是其他指示灯,蜂鸣器不受控制
     if(m_selfCheckFlag == true)
     {
-        //屏幕自检
-        selfCheckScreen();
+        selfCheckScreen();//屏幕自检
     }
 
 #ifdef WatchDog
     //看门口狗
     Watchdog::kellLive();
 #endif
-
-    qDebug()<<"m_delayFlag = "<<m_delayFlag;
-    qDebug()<<"m_delayNum  = "<<m_delayNum;
 
     if(m_delayFlag == true)
     {
@@ -626,7 +616,6 @@ void MainWindow::slotCurrentTime()
             {
                 m_can1->controlTimer(true);
                 m_can2->controlTimer(true);
-                qDebug()<<"controlTimer : true";
             }
             m_delayFlag = false;
             g_resetCmd = false;
@@ -637,7 +626,6 @@ void MainWindow::slotCurrentTime()
 //检测按键复位状态
 void MainWindow::slotResetTimer()
 {
-    //qDebug()<<"m_userType = "<<m_userType;
     if(m_gpio->dealReset() == true && m_userType != 1)
     {
         slotResetShow();
@@ -859,27 +847,18 @@ void MainWindow::slotResetShow()
     int ret = QMessageBox::question(NULL,tr("复位操作"),tr("可以复位所有节点状态！"),tr("全部当前"),tr("取消"));
     if(ret == 0)
     {
-
-
-        uchar temp[1];
-        temp[0] = CMD_SE_RESET;
-        //GlobalData::addCmd(m_curNet,ALLID,temp[0],temp,1);
-
         if(m_delayFlag == false )
         {
             if(netMax == 2)
             {
                 g_resetCmd = true;
                 m_can1->controlTimer(false);
-                //GlobalData::addCmd(1,ALLID,temp[0],temp,1);
             }
             else
             {
                 g_resetCmd = true;
                 m_can1->controlTimer(false);
                 m_can2->controlTimer(false);
-                //GlobalData::addCmd(1,ALLID,temp[0],temp,1);
-                //GlobalData::addCmd(2,ALLID,temp[0],temp,1);
             }
         }
 
@@ -897,10 +876,9 @@ void MainWindow::slotResetShow()
         {
             for(int id = 0;id < IDNUM;id++)
             {
-                //mod[net][id].used = false;
+
                 mod[net][id].id = 0;
                 mod[net][id].net = 0;
-                //mod[net][id].type = 0;
                 mod[net][id].alarmTem = 0;
                 mod[net][id].temData  = 0;
                 mod[net][id].rtData   = 0;
@@ -922,12 +900,7 @@ void MainWindow::slotResetShow()
         //
         m_db->delData("delete from TEMP;");//删除临时记录
         ui->lb_curNodeNum->clear();
-        slotBtnTailPage();
-
-        //        m_curPage = 1;
-        //        ui->lb_countPage->setText("0");
-        //        ui->lb_curPage->setText("0");
-
+        //slotBtnTailPage();
         m_delayFlag = true;
 
     }
