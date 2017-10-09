@@ -426,6 +426,7 @@ void CalculaNode::soundControl(int soundType, bool soundSwitch)
 
 void CalculaNode::slotTimeOut()
 {
+    qDebug()<<"slotTimeOut";
     //显示节点状态，计算机点个数，计算页面数量
     int nodeNum = calculationNode(m_curNet);
     int countPage = calculationPage(nodeNum);

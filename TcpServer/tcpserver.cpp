@@ -10,13 +10,37 @@
 #define CURL    5
 #define CURH    6
 #define TEM     7
-#define SIZE    8
+//未确定
+#define YEAR    8
+#define MONTH   9
+#define DAY     10
+#define HOUR    11
+#define MINUTE  12
+#define SECOND  13
+#define UNUSED_1   14
+#define UNUSED_2   15
+
+
+
+
+#define SIZE    16
+
+
+
+#define ALLSTS 0x01
+#define ONESTS 0x04
 
 #define SER     0x0B
 #define CMD     0x01
 
-#define ALLSTS 0x01
-#define ONESTS 0x04
+#define SERPID      0
+#define SERCMD      1
+#define SIZE_LIT    2
+#define SIZE_BIG    3
+#define COUNT_LIT   4
+#define COUNT_BIG   5
+#define HEADDATA    6
+
 
 //#define debug
 
@@ -88,10 +112,18 @@ void TcpServer::slotReceiveData()
 
 void TcpServer::slotSendData()
 {
-    uchar *netData = new uchar [m_listData.size()*SIZE+3] ;
-    netData[0] = SER;
-    netData[1] = CMD;
-    netData[2] = m_listData.count()*SIZE+2;
+    uchar *netData = new uchar [m_listData.count()*SIZE+HEADDATA];
+
+    quint16 dataSize  = m_listData.count()*SIZE+HEADDATA;
+    quint16 dataCount = m_listData.count();
+    netData[SERPID] = SER;
+    netData[SERCMD] = CMD;
+    netData[SIZE_LIT]  = dataSize & 0x0F;//取低八位
+    netData[SIZE_BIG]  = dataSize >> 8;  //取高八位
+    netData[COUNT_LIT] = dataCount & 0x0F;//取低八位
+    netData[COUNT_BIG] = dataCount >> 8;  //取高八位
+
+
     if(m_listData.count() == 0)
     {
         return;
@@ -101,9 +133,10 @@ void TcpServer::slotSendData()
     {
         for(int j = 0;j<SIZE;j++)
         {
-            netData[i*SIZE+j+3] = m_listData.at(i).data[j];
+            netData[i*SIZE+j+HEADDATA] = m_listData.at(i).data[j];
         }
     }
+
 #ifdef debug
     for(int i = 0;i< m_listData.count()*SIZE+3;i++)
     {
@@ -111,8 +144,7 @@ void TcpServer::slotSendData()
     }
 #endif
 
-    qint64 size = m_listData.count()*SIZE+3;
-    m_tcpSocket->write((char*)netData,size);
+    m_tcpSocket->write((char*)netData,dataSize);
     netData = NULL;
     delete netData;
     dataClear();

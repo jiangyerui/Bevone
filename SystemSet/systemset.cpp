@@ -43,11 +43,17 @@ void SystemSet::initVar()
     ui->lineEdit_oldPasswd->setValidator(new QRegExpValidator(regExpNum, this));
     ui->lineEdit_newPasswd->setValidator(new QRegExpValidator(regExpNum, this));
     //serialNum
-    ui->lineEdit_date->setValidator(new QRegExpValidator(regExpNum, this));
-    ui->lineEdit_times->setValidator(new QRegExpValidator(regExpNum, this));
-    ui->lineEdit_smallType->setValidator(new QRegExpValidator(regExpNum, this));
+    QRegExp regExpDate("^((20[0-9]{2})|(0[0-9]{2}[1-9]))(0[1-9]|1[0-2])$");
+    ui->lineEdit_date->setValidator(new QRegExpValidator(regExpDate, this));
+    QRegExp regExpTimes("^[0-9][0-9][1-9]$");
+    ui->lineEdit_times->setValidator(new QRegExpValidator(regExpTimes, this));
+    QRegExp regExpSmallType("^[1-2][1-6]$");
+    ui->lineEdit_smallType->setValidator(new QRegExpValidator(regExpSmallType, this));
 
     m_pastTime = new QTimer;
+    ui->pBtn_stopSound->hide();
+    ui->pBtn_startSound->hide();
+    ui->lineEdit_type->setEnabled(false);
 }
 
 void SystemSet::systemShow()
@@ -78,6 +84,7 @@ void SystemSet::systemShow()
     }
     else if(MySqlite::SUPER == m_userType)
     {
+
         ui->gBox_node->setEnabled(true);
         ui->gBox_setSMS->setEnabled(true);
         ui->gBox_setTime->setEnabled(true);
@@ -391,8 +398,8 @@ void SystemSet::slotBtnStopSound()
 void SystemSet::slotBtnStartSound()
 {
     uchar temp[1];
-    QString idStr    = ui->lineEdit_id->text();
-    QString netStr   = ui->lineEdit_net->text();
+    QString idStr  = ui->lineEdit_id->text();
+    QString netStr = ui->lineEdit_net->text();
     temp[0] = CMD_SE_ON;
     GlobalData::addCmd(netStr.toInt(),idStr.toInt(),temp[0],temp,1);
 }
@@ -442,6 +449,11 @@ void SystemSet::slotComboBoxPrint(int index)
         ui->checkBox_printError->setEnabled(true);
         ui->checkBox_printAlarm->setEnabled(true);
     }
+}
+
+void SystemSet::slotBtnCal()
+{
+
 }
 
 

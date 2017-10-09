@@ -14,7 +14,7 @@
 #define CMD_SE_SET      0X03//设置探测器
 #define CMD_SE_RESET    0X05//复位探测器
 #define CMD_SE_OFF      0X07//探测器单个静音关闭
-#define CMD_SE_ON       0X08//探测器全部静音开启
+#define CMD_SE_ON       0X08//探测器单个静音开启
 #define CMD_SE_ALLOFF   0X09//探测器全部静音关闭
 #define CMD_SE_ALLON    0X0A//探测器全部静音开启
 #define CMD_SE_CHECK    0X0B//探测器自检

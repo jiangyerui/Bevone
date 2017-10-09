@@ -7,7 +7,7 @@
 #define ALLDATA    0
 #define ALARMDATA  1
 #define ERRORDATA  2
-#define DROPPEDDATA  2
+#define DROPPEDDATA  3
 
 //record
 #define POWER  4
@@ -77,7 +77,22 @@ QString Record::setSelectSql(int item, bool net, bool id, QString &startTimer, Q
 
     if(item == ALLDATA)
     {
-        return sqlStr;
+        if(net == true && id == true)//获取指定的探测器报警信息
+        {
+            netStr = ui->lineEdit_pass->text();
+            idStr  = ui->lineEdit_address->text();
+            sqlStr += " and net = "+ netStr +" and id = "+idStr;
+        }
+        else if(net == true && id == false)//获取指定网络探测器报警信息
+        {
+            netStr = ui->lineEdit_pass->text();
+            sqlStr += " and net = "+ netStr;
+        }
+        else if(net == false && id == true)//获取指定节点探测器报警信息
+        {
+            idStr  = ui->lineEdit_address->text();
+            sqlStr += " and id = "+idStr;
+        }
     }
     else if(item == ALARMDATA)
     {
@@ -101,6 +116,30 @@ QString Record::setSelectSql(int item, bool net, bool id, QString &startTimer, Q
         {
             idStr  = ui->lineEdit_address->text();
             sqlStr += " and id = "+idStr+" and status = 1 ";
+        }
+    }
+    else if(item == ERRORDATA)
+    {
+        if(net == true && id == true)//获取指定的探测器报警信息
+        {
+            netStr = ui->lineEdit_pass->text();
+            idStr  = ui->lineEdit_address->text();
+            sqlStr += " and net = "+ netStr +" and id = "+idStr+" and status = 2 ";
+        }
+        else if(net == false && id == false)//获取所有探测器报警信息
+        {
+
+            sqlStr += " and status = 2 ";
+        }
+        else if(net == true && id == false)//获取指定网络探测器报警信息
+        {
+            netStr = ui->lineEdit_pass->text();
+            sqlStr += " and net = "+ netStr +" and status = 2 ";
+        }
+        else if(net == false && id == true)//获取指定节点探测器报警信息
+        {
+            idStr  = ui->lineEdit_address->text();
+            sqlStr += " and id = "+idStr+" and status = 2 ";
         }
     }
     else if(item == DROPPEDDATA)
@@ -415,6 +454,8 @@ void Record::slotBtnSearch()
     bool net = ui->checkBox_net->isChecked();
     bool  id = ui->checkBox_id->isChecked();
 
+
+
     uint starTime = ui->dTEdit_start->dateTime().toTime_t();
     uint endTime  = ui->dTEdit_end->dateTime().toTime_t();
 
@@ -433,36 +474,27 @@ void Record::slotBtnSearch()
         QString endTimeStr  = QString::number(endTime);
         QString sqlStr = setSelectSql(item,net,id,starTimeStr,endTimeStr);
 
-        if(DROPPEDDATA == item)
-        {
-            countSql = "select count(*) from RECORD WHERE status = 3 and TIME >= "+starTimeStr+" and TIME <= "+endTimeStr+";";
-        }
-        else if(ERROR == item)
-        {
-            countSql = "select count(*) from RECORD WHERE status = 2 and  TIME >= "+starTimeStr+" and TIME <= "+endTimeStr+";";
-        }
-        else if(ALARMDATA == item)
-        {
-            countSql = "select count(*) from RECORD WHERE status = 1 and TIME >= "+starTimeStr+" and TIME <= "+endTimeStr+";";
-        }
-        else if(ALLDATA == item)
-        {
-            countSql = "select count(*) from RECORD WHERE status = 1 and TIME >= "+starTimeStr+" and TIME <= "+endTimeStr+";";
-        }
-
+        QString str ="WHERE";
+        countSql = "select count(*) from RECORD WHERE" + sqlStr.mid(sqlStr.indexOf(str,0,Qt::CaseInsensitive)+5,sqlStr.size() - sqlStr.indexOf(str,0))+";";
         m_maxPage = getPageCount(countSql);
 
 #ifdef  DEBUG
-        qDebug()<<"net = "<<net;
-        qDebug()<<"id  = "<<id;
-        qDebug()<<"countSql = "<<countSql;
-        qDebug()<<"sqlStr = "<<sqlStr;
+        qDebug()<<"net           = "<<net;
+        qDebug()<<"id            = "<<id;
+        qDebug()<<"countSql      = "<<countSql;
+        qDebug()<<"sqlStr        = "<<sqlStr;
         qDebug()<<"m_maxPage     = "<<m_maxPage;
         qDebug()<<"m_currentPage = "<<m_currentPage;
 #endif
 
+        if(m_currentPage > m_maxPage )
+        {
+            m_currentPage = 1;
+        }
+
         if(m_maxPage > 0)
         {
+
             showData(sqlStr,m_currentPage);
             setBtnEnable(true,m_currentPage,m_maxPage);
         }
@@ -504,7 +536,7 @@ void Record::slotBtnDelData()
         //先删除数据
         QString netStr  = ui->tableWdt_record->item(row,0)->text();
         QString idStr   = ui->tableWdt_record->item(row,1)->text();
-        QString timeStr = ui->tableWdt_record->item(row,3)->text();
+        QString timeStr = ui->tableWdt_record->item(row,5)->text();
         uint second     = QDateTime::fromString(timeStr,"yyyy-MM-dd/hh:mm:ss").toTime_t();
         delRowData(netStr,idStr,QString::number(second));
         //查询数据
@@ -520,7 +552,7 @@ void Record::slotBtnDelData()
         {
             netStr  = ui->tableWdt_record->item(row,0)->text();
             idStr   = ui->tableWdt_record->item(row,1)->text();
-            timeStr = ui->tableWdt_record->item(row,3)->text();
+            timeStr = ui->tableWdt_record->item(row,5)->text();
             second  = QDateTime::fromString(timeStr,"yyyy-MM-dd/hh:mm:ss").toTime_t();
             delRowData(netStr,idStr,QString::number(second));
         }

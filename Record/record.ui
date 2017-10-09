@@ -104,6 +104,28 @@ font: 13pt &quot;文泉驿等宽微米黑&quot;;
       <height>80</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QCheckBox{
+spacing: 5px;
+color: rgb(0, 0, 0);
+border:1px solid;
+border-radius:10px;
+background-color: rgb(217, 70, 38);
+}
+QCheckBox::indicator{
+width:12px;
+height:12px;
+margin-left:5px;
+image: url(:/Image/uncheck.png);
+}
+
+QCheckBox::indicator::unchecked {
+image: url(:/Image/uncheck.png);
+}
+QCheckBox::indicator::checked {
+image: url(:/Image/checked.png);
+}</string>
+    </property>
     <property name="title">
      <string/>
     </property>
@@ -306,7 +328,7 @@ font: 13pt &quot;文泉驿等宽微米黑&quot;;
       </font>
      </property>
      <property name="text">
-      <string>删除记录:</string>
+      <string>记录选择:</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -378,7 +400,7 @@ font: 13pt &quot;文泉驿等宽微米黑&quot;;
      </property>
      <item>
       <property name="text">
-       <string>全部故障</string>
+       <string>全部记录</string>
       </property>
      </item>
      <item>
@@ -400,9 +422,9 @@ font: 13pt &quot;文泉驿等宽微米黑&quot;;
     <widget class="QCheckBox" name="checkBox_net">
      <property name="geometry">
       <rect>
-       <x>470</x>
+       <x>465</x>
        <y>17</y>
-       <width>55</width>
+       <width>70</width>
        <height>25</height>
       </rect>
      </property>
@@ -429,7 +451,7 @@ background-color: rgb(255, 255, 255);</string>
     <widget class="QLineEdit" name="lineEdit_pass">
      <property name="geometry">
       <rect>
-       <x>530</x>
+       <x>540</x>
        <y>15</y>
        <width>51</width>
        <height>28</height>
@@ -455,9 +477,9 @@ background-color: rgb(255, 255, 255);</string>
     <widget class="QCheckBox" name="checkBox_id">
      <property name="geometry">
       <rect>
-       <x>470</x>
+       <x>465</x>
        <y>47</y>
-       <width>55</width>
+       <width>70</width>
        <height>25</height>
       </rect>
      </property>
@@ -484,7 +506,7 @@ background-color: rgb(255, 255, 255);</string>
     <widget class="QLineEdit" name="lineEdit_address">
      <property name="geometry">
       <rect>
-       <x>530</x>
+       <x>540</x>
        <y>45</y>
        <width>51</width>
        <height>28</height>
@@ -510,7 +532,7 @@ background-color: rgb(255, 255, 255);</string>
     <widget class="QPushButton" name="pBtn_pagePrint">
      <property name="geometry">
       <rect>
-       <x>590</x>
+       <x>600</x>
        <y>25</y>
        <width>85</width>
        <height>40</height>
@@ -532,7 +554,7 @@ background-color: rgb(255, 255, 255);</string>
       <string>打印</string>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../image.qrc">
        <normaloff>:/Image/print.png</normaloff>:/Image/print.png</iconset>
      </property>
      <property name="iconSize">
@@ -545,7 +567,7 @@ background-color: rgb(255, 255, 255);</string>
     <widget class="QPushButton" name="pBtn_del">
      <property name="geometry">
       <rect>
-       <x>685</x>
+       <x>690</x>
        <y>25</y>
        <width>85</width>
        <height>40</height>
@@ -585,7 +607,7 @@ background-color: rgb(255, 255, 255);</string>
       <string>删除</string>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../image.qrc">
        <normaloff>:/Image/recycle.png</normaloff>:/Image/recycle.png</iconset>
      </property>
      <property name="iconSize">
@@ -779,7 +801,7 @@ color: rgb(10, 10, 10);</string>
       <string>查询</string>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../image.qrc">
        <normaloff>:/Image/search.png</normaloff>:/Image/search.png</iconset>
      </property>
      <property name="iconSize">
@@ -814,7 +836,7 @@ color: rgb(10, 10, 10);</string>
       <string>上一页</string>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../image.qrc">
        <normaloff>:/Image/fore.png</normaloff>:/Image/fore.png</iconset>
      </property>
      <property name="iconSize">
@@ -855,7 +877,7 @@ color: rgb(10, 10, 10);</string>
       <string>下一页</string>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../image.qrc">
        <normaloff>:/Image/back.png</normaloff>:/Image/back.png</iconset>
      </property>
      <property name="iconSize">
@@ -895,7 +917,7 @@ border-radius:13px;</string>
       <string>退出</string>
      </property>
      <property name="icon">
-      <iconset>
+      <iconset resource="../image.qrc">
        <normaloff>:/Image/quit.png</normaloff>:/Image/quit.png</iconset>
      </property>
      <property name="iconSize">
@@ -917,6 +939,8 @@ border-radius:13px;</string>
    </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../image.qrc"/>
+ </resources>
  <connections/>
 </ui>

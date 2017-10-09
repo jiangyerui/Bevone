@@ -2,7 +2,7 @@
 
 
 //#define DataRead
-//#define DataWrite
+#define DataWrite
 
 CanMoudle::CanMoudle(QObject *parent) : QObject(parent)
 {

@@ -90,6 +90,7 @@ private slots:
     void slotBtnSMS();
 
     void slotComboBoxPrint(int index);
+    void slotBtnCal();
 
 
 private:
