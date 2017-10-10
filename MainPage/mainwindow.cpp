@@ -9,7 +9,7 @@
 #define TIMEOUT     10
 #define GPIODEV     "/dev/gpio"
 #define DEVICE      "/dev/watchdog"
-#define DEBUG
+//#define DEBUG
 //#define Memery
 //#define WatchDog  //看门狗
 #define TCP_IP    //网络传输
@@ -149,6 +149,7 @@ void MainWindow::initVar()
     ui->pBtn_pass2->setStyleSheet(m_normalStyle);
     //设置跳转页面只能输入大于0<value<26
     QRegExp regExp("^([1-9]|[12][0-6])$");
+    //QRegExp regExp("^([1-9])|(1[0-9])|(2[0-6])$");
     ui->lineEdit->setValidator(new QRegExpValidator(regExp, this));
     ui->lineEdit->clear();
 
@@ -551,12 +552,12 @@ void MainWindow::selfCheckScreen()
 
 bool MainWindow::getPowerType(QString type)
 {
-    bool flag = true;
+    bool flag = false;
     if(type.isEmpty())
         return flag;
     if(type.mid(2,1) == "N")
     {
-        flag = false;
+        flag = true;
     }
     return flag;
 }

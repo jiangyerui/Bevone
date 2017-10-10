@@ -15,7 +15,12 @@
 #define ERROR  2
 #define CAN    3
 #define POWER  4
-#define BPOWER 5
+#define BPOWERBREAK 5
+#define BPOWERSHORT 6
+
+#define MODULE_CUR  2 //漏电
+#define MODULE_TEM  3 //温度
+#define MASTER      1 //主机
 
 Record::Record(QWidget *parent) :
     QWidget(parent),
@@ -328,8 +333,7 @@ void Record::setBtnEnable(bool enabel, int current, int maxPage)
     ui->lb_current->setText(QString::number(current));
 }
 
-#define MODULE_CUR  2 //漏电
-#define MODULE_TEM  3 //温度
+
 
 //显示数据
 void Record::showData(QString sql,int currentPage)
@@ -388,6 +392,10 @@ void Record::showData(QString sql,int currentPage)
                 {
                     item->setText(tr("测温"));
                 }
+                else if(MASTER == record.value(column))
+                {
+                    item->setText(tr("主机"));
+                }
                 ui->tableWdt_record->setItem( row, column, item);
             }
 
@@ -398,9 +406,14 @@ void Record::showData(QString sql,int currentPage)
                     item->setText(tr("主电故障"));
                     ui->tableWdt_record->setItem( row, column, item);
                 }
-                else if(BPOWER == record.value(column))
+                else if(BPOWERBREAK == record.value(column))
                 {
-                    item->setText(tr("备电故障"));
+                    item->setText(tr("备电断开"));
+                    ui->tableWdt_record->setItem( row, column, item);
+                }
+                else if(BPOWERSHORT == record.value(column))
+                {
+                    item->setText(tr("备电短路"));
                     ui->tableWdt_record->setItem( row, column, item);
                 }
                 else if(ALARM == record.value(column))

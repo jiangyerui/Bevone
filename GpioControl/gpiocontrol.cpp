@@ -1,8 +1,9 @@
 ﻿#include "gpiocontrol.h"
 
 #define POWER  4
-#define BPOWER 5
-
+#define BPOWERBREAK 5
+#define BPOWERSHORT 6
+#define MASTER      1 //主机
 #define TIMES  10
 
 //const char *exportPath = "/sys/class/gpio/export";
@@ -366,16 +367,6 @@ uint GpioControl::dealGPIO()
     }
     else
     {
-        m_backupPowerTimes++;
-        if(m_backupPowerTimes > TIMES && m_backupPowerDb ==  true)
-        {
-            m_backupPowerDb = false;
-            backupPowerFlag = false;
-            //uint curiTime = QDateTime::currentDateTime().toTime_t();
-            //m_db.insertAlarm(0,0,BPOWER,curiTime,QString(""));
-
-        }
-
         //备电短路，断路
         uint backBreak = readGPIO(BackupError);
         if(backBreak == '0')
@@ -385,8 +376,8 @@ uint GpioControl::dealGPIO()
             {
                 m_backupBreakDb = false;
                 backupBreakFlag = false;
-                //uint curiTime = QDateTime::currentDateTime().toTime_t();
-                //m_db.insertAlarm(0,0,BPOWER,curiTime,QString(""));
+                uint curiTime = QDateTime::currentDateTime().toTime_t();
+                m_db.insertAlarm(0,0,MASTER,BPOWERBREAK,0,curiTime,tr(" "));
             }
         }
         else
@@ -396,20 +387,15 @@ uint GpioControl::dealGPIO()
             {
                 m_backupShortDb = false;
                 backupShortFlag = false;
-                //uint curiTime = QDateTime::currentDateTime().toTime_t();
-                //m_db.insertAlarm(0,0,BPOWER,curiTime,QString(""));
+                uint curiTime = QDateTime::currentDateTime().toTime_t();
+                m_db.insertAlarm(0,0,MASTER,BPOWERSHORT,0,curiTime,tr(" "));
             }
         }
         writeGPIO(BackupPowerRed,high);
     }
 
-
-
-
-
-
     //检测主电和备电标志，如果是故障，指示灯，声音为故障
-    if(backupPowerFlag == false || mainPowerFlag == false || backupBreakFlag == false || backupShortFlag == false)
+    if(mainPowerFlag == false || backupBreakFlag == false || backupShortFlag == false)
     {
         systemFlag = 1;
     }
