@@ -68,6 +68,9 @@ public:
 
     void editClear();
 
+
+public slots:
+    void slotSuccess();
 private slots:
 
     void slotBtnUpdatePasswd();

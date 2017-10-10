@@ -68,6 +68,8 @@ void MainWindow::initConnect()
     connect(m_resetTimer,SIGNAL(timeout()),this,SLOT(slotResetTimer()));
     m_resetTimer->start(300);
 
+    connect(m_can1,SIGNAL(sigSuccess()),sys,SLOT(slotSuccess()));
+    connect(m_can2,SIGNAL(sigSuccess()),sys,SLOT(slotSuccess()));
     //网络操作信号槽
     connect(ui->pBtn_Record,SIGNAL(clicked(bool)),this,SLOT(slotRecordShow()));
     connect(ui->pBtn_User,SIGNAL(clicked(bool)),this,SLOT(slotUserLoginShow()));
@@ -480,10 +482,10 @@ QString MainWindow::modType(int type)
 void MainWindow::showNodeValue(int curNet, int curId)
 {
     lcdNumberClean();
-    if(mod[curNet][curId].errorFlag == TRUE || mod[curNet][curId].dropFlag == TRUE)
-    {
-        return;
-    }
+//    if(mod[curNet][curId].errorFlag == TRUE || mod[curNet][curId].dropFlag == TRUE)
+//    {
+//        return;
+//    }
 
     int alarmTemSet  = mod[curNet][curId].alarmTemSet;
     int temData      = mod[curNet][curId].temData;

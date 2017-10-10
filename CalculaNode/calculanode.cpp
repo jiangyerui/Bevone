@@ -44,9 +44,9 @@ int CalculaNode::calculationNode(int curNet)
         node[i] = 0;
     }
 
-    for(int net = 0;net < NETNUM;net++)
+    for(int net = 1;net < NETNUM;net++)
     {
-        for(int id = 0;id < IDNUM;id++)
+        for(int id = 1;id < IDNUM;id++)
         {
             if(mod[net][id].used == true)
             {
@@ -58,6 +58,7 @@ int CalculaNode::calculationNode(int curNet)
             }
         }
     }
+
     emit sigNode(node,regNum);
     return regNum;
 }
@@ -210,6 +211,10 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                     if(mod[net][id].insertAlarm == FALSE)
                     {
                         mod[net][id].insertAlarm = TRUE;
+
+                        m_db->delTemp(net,id,DROP); //删除掉线
+                        m_db->delTemp(net,id,ERROR);//删除故障
+
                         QString add = m_db->getNodeAddress(net,id);
                         QString type,value;
                         if(MODULE_CUR == mod[net][id].type)
@@ -226,7 +231,6 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                             m_db->insertTemp(net,id,ALARM,curTime);//插入临时
                             m_db->insertAlarm(net,id,MODULE_TEM,ALARM,value,curTime,add);//插入历史报警
                         }
-
 
                         if(m_db->getPrintStyle())
                         {
@@ -283,11 +287,23 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
         }
     }
 
-    //重新注册can
-    if(m_used[1][0] == m_droped[1][0] || m_used[2][0] == m_droped[2][0])
+    if(netMax == 3)
     {
-        ::system("source /etc/profile");
+        //重新注册can
+        if(m_used[1][0] == m_droped[1][0] || m_used[2][0] == m_droped[2][0])
+        {
+            ::system("source /etc/profile");
+        }
     }
+    else
+    {
+        //重新注册can
+        if(m_used[1][0] == m_droped[1][0])
+        {
+            ::system("source /etc/profile");
+        }
+    }
+
     //控制指示灯,主机自检时不检测
     if(m_selfCheckFlag == false)
     {

@@ -1,8 +1,8 @@
 ﻿#include "canmoudle.h"
 
 
-//#define DataRead
-#define DataWrite
+#define DataRead
+//#define DataWrite
 
 CanMoudle::CanMoudle(QObject *parent) : QObject(parent)
 {
@@ -15,6 +15,7 @@ CanMoudle::CanMoudle(const char *canName, int net, uint pollTime)
     initCan(canName);
     this->m_net = net;
     m_id = 0;
+    thread = new QThread;
     m_canRxTimer = new QTimer;
     connect(m_canRxTimer,SIGNAL(timeout()),this,SLOT(slotCanRxTimeOut()),Qt::DirectConnection);
     m_canRxTimer->start(pollTime);
@@ -133,6 +134,7 @@ void CanMoudle::dealCanData(can_frame frame)
             mod[m_net][canId].rtData = rtData;//
             mod[m_net][canId].baseData = baseData;
             mod[m_net][canId].alarmDataSet = alarmData;
+
             mod[m_net][canId].type = frame.data[1];
 
             nodeStatus(m_net,canId,frame.data[2]);
@@ -164,6 +166,30 @@ void CanMoudle::dealCanData(can_frame frame)
         break;
     case CMD_RE_SET:    //探测器回复设置
         GlobalData::deleteCmd(m_net,canId,CMD_SE_SET);
+
+        type = frame.data[1];
+        switch (type) {
+        case MODULE_CUR:
+            //报警数值
+            //取出高4位数
+            alarmData = frame.data[3] << 8;
+            alarmData |= frame.data[2];   //低位数
+            //固有漏电
+            //取出低4位数
+            baseData =  frame.data[5] << 8;
+            baseData |= frame.data[4];//低位数
+
+            mod[m_net][canId].baseData = baseData;
+            mod[m_net][canId].alarmDataSet = alarmData;
+
+            break;
+        case MODULE_TEM:
+            mod[m_net][canId].alarmTemSet = frame.data[2];//报警数值
+            break;
+        default:
+            break;
+        }
+        emit sigSuccess();
 
         break;
     case CMD_RE_RESET:  //探测器回复复位

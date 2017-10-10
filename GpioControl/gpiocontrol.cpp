@@ -3,6 +3,8 @@
 #define POWER  4
 #define BPOWER 5
 
+#define TIMES  10
+
 //const char *exportPath = "/sys/class/gpio/export";
 const char *out = "out";
 const char *in  = "in";
@@ -58,18 +60,19 @@ const char *ledRelay_2Direction = "/sys/class/gpio/gpio114/direction";
 /*
  *读操作引脚
 */
-//主电状态
+//主电状态  高电平正常，低电平故障
 const char *mainPower = "137";
 const char *mainPowerValue = "/sys/class/gpio/gpio137/value";
 const char *mainPowerDirection = "/sys/class/gpio/gpio137/direction";
-//备电状态
+//备电状态  低电平正常，高电平故障
 const char *backupPower = "133";
 const char *backupPowerValue = "/sys/class/gpio/gpio133/value";
 const char *backupPowerDirection = "/sys/class/gpio/gpio133/direction";
-//备电短路
+//备电短路  备电高电平故障 高电平断路，低电平短路
 const char *backupError = "68";
 const char *backupErrorValue = "/sys/class/gpio/gpio68/value";
 const char *backupErrorDirection = "/sys/class/gpio/gpio68/direction";
+
 //复位信号
 const char *btnReset = "40";
 const char *btnResetValue = "/sys/class/gpio/gpio40/value";
@@ -246,7 +249,7 @@ void GpioControl::slotTimeOut()
 
     times++;
     if(times%2 == 1)
-    { 
+    {
         writeGPIO(CanLed,low);
         writeGPIO(ErrorLed,low);
         writeGPIO(AlarmLed,low);
@@ -290,7 +293,7 @@ uint GpioControl::readGPIO(int name)
     case 3://备电短路
         m_backupError->GPIORead(buf,backupErrorValue);
         break;
-    case 4://复位短路
+    case 4://复位
         m_btnReset->GPIORead(buf,btnResetValue);
         break;
     default:
@@ -313,6 +316,8 @@ uint GpioControl::dealGPIO()
     //const char *low = "0";
     bool mainPowerFlag = false;
     bool backupPowerFlag = false;
+    bool backupBreakFlag = false;
+    bool backupShortFlag = false;
     uint systemFlag = 0;
     //主电检测
     uint mainPower = readGPIO(MainPower);
@@ -329,7 +334,7 @@ uint GpioControl::dealGPIO()
     else
     {
         m_mainPowerTimes++;
-        if(m_mainPowerTimes > 5 && m_mainPowerDb == true)
+        if(m_mainPowerTimes > TIMES && m_mainPowerDb == true)
         {
             m_mainPowerDb = false;
             mainPowerFlag = true;
@@ -345,31 +350,68 @@ uint GpioControl::dealGPIO()
         if(m_backupPowerDb == false)
         {
             m_backupPowerDb = true;
+            m_backupBreakDb = true;
+            m_backupShortDb = true;
+
             m_backupPowerTimes = 0;
+            m_backupBreakTimes = 0;
+            m_backupShortTimes = 0;
+
             backupPowerFlag = true;
+            backupBreakFlag = true;
+            backupShortFlag = true;
+
             writeGPIO(BackupPowerGreen,high);
         }
     }
     else
     {
         m_backupPowerTimes++;
-        if(m_backupPowerTimes > 10 && m_backupPowerDb ==  true)
+        if(m_backupPowerTimes > TIMES && m_backupPowerDb ==  true)
         {
             m_backupPowerDb = false;
             backupPowerFlag = false;
             //uint curiTime = QDateTime::currentDateTime().toTime_t();
             //m_db.insertAlarm(0,0,BPOWER,curiTime,QString(""));
-            writeGPIO(BackupPowerRed,high);
+
         }
+
+        //备电短路，断路
+        uint backBreak = readGPIO(BackupError);
+        if(backBreak == '0')
+        {
+            m_backupBreakTimes++;
+            if(m_backupBreakTimes > TIMES && m_backupBreakDb == true)
+            {
+                m_backupBreakDb = false;
+                backupBreakFlag = false;
+                //uint curiTime = QDateTime::currentDateTime().toTime_t();
+                //m_db.insertAlarm(0,0,BPOWER,curiTime,QString(""));
+            }
+        }
+        else
+        {
+            m_backupShortTimes++;
+            if(m_backupShortTimes > TIMES && m_backupShortDb == true)
+            {
+                m_backupShortDb = false;
+                backupShortFlag = false;
+                //uint curiTime = QDateTime::currentDateTime().toTime_t();
+                //m_db.insertAlarm(0,0,BPOWER,curiTime,QString(""));
+            }
+        }
+        writeGPIO(BackupPowerRed,high);
     }
+
+
+
+
+
+
     //检测主电和备电标志，如果是故障，指示灯，声音为故障
-    if(backupPowerFlag == false)
+    if(backupPowerFlag == false || mainPowerFlag == false || backupBreakFlag == false || backupShortFlag == false)
     {
-        systemFlag++;
-    }
-    if(mainPowerFlag == false)
-    {
-        systemFlag++;
+        systemFlag = 1;
     }
 
     return systemFlag;
@@ -382,11 +424,11 @@ bool GpioControl::dealReset()
     //qDebug()<<"reset = "<<reset;
     if(reset == '0')
     {
-//        m_resetTimes++;
-//        if(m_resetTimes == 10)
-//        {
-            resetFlag = true;
-//        }
+        //        m_resetTimes++;
+        //        if(m_resetTimes == 10)
+        //        {
+        resetFlag = true;
+        //        }
     }
     return resetFlag;
 }

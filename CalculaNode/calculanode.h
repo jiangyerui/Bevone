@@ -12,7 +12,7 @@
 #define TIMER 1000
 #define NODENUM 1200
 #define PAGEMAX 30
-#define PASSTIME  80
+#define PASSTIME  30
 
 class QTimer;
 class GpioControl;

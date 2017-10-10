@@ -24,7 +24,6 @@
 
 #include "GlobalData/globaldata.h"
 
-
 #define PF_CAN 29
 
 class CanMoudle : public QObject
@@ -35,7 +34,7 @@ public:
     CanMoudle(const char *canName,int net,uint pollTime);
     QTimer *m_canRxTimer;
     QTimer *m_canTxTimer;
-
+    QThread *thread;
     void  initCan(const char *canName);
     int dataWrite(int canfd, can_frame frame); //向串口写入数据
     int dataRead(int canfd, can_frame &frame);  //从串口读出数据
@@ -53,6 +52,7 @@ private:
     struct ifreq m_ifr;
     struct sockaddr_can m_addr;
 signals:
+    void sigSuccess();
 
 public slots:
     void slotCanRxTimeOut();

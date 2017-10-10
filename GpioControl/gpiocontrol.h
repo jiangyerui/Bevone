@@ -128,8 +128,12 @@ public:
 
     bool m_mainPowerDb;
     bool m_backupPowerDb;
+    bool m_backupShortDb;
+    bool m_backupBreakDb;
     uint m_mainPowerTimes;
     uint m_backupPowerTimes;
+    uint m_backupBreakTimes;
+    uint m_backupShortTimes;
 
     uint m_resetTimes;
 

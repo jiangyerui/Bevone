@@ -33,13 +33,18 @@ void SystemSet::initVar()
     ui->lineEdit_dayNum->setValidator(new QRegExpValidator(regExp, this));
     ui->lineEdit_pollTime->setValidator(new QRegExpValidator(regExp, this));
     //只能是数字
-    QRegExp regExpNum("^[0-9]*$");
-    ui->lineEdit_id->setValidator(new QRegExpValidator(regExpNum,this));
-    ui->lineEdit_net->setValidator(new QRegExpValidator(regExpNum,this));
-    ui->lineEdit_tem->setValidator(new QRegExpValidator(regExpNum, this));
-    ui->lineEdit_have->setValidator(new QRegExpValidator(regExpNum, this));
-    ui->lineEdit_alarm->setValidator(new QRegExpValidator(regExpNum, this));
+    QRegExp regExpNumId("^([1-9][0-9]{1,2})|(101[0-9])|(102[0-4])|0$");//1-1024
+    ui->lineEdit_id->setValidator(new QRegExpValidator(regExpNumId,this));
+    QRegExp regExpNumNet("^[1-2]$");//1-2
+    ui->lineEdit_net->setValidator(new QRegExpValidator(regExpNumNet,this));
+    QRegExp regExpNumTem("^(([5-9][5-9])|(1[0-3][0-9])|140)$");//55-140
+    ui->lineEdit_tem->setValidator(new QRegExpValidator(regExpNumTem, this));
+    QRegExp regExpNumHave("([1-9][0-9]{1,2})|1000|0$");//0-1000
+    ui->lineEdit_have->setValidator(new QRegExpValidator(regExpNumHave, this));
+    QRegExp regExpNumAlarm("^[2-9][0-9][0-9]|2000$");//200-2000
+    ui->lineEdit_alarm->setValidator(new QRegExpValidator(regExpNumAlarm, this));
     //code
+    QRegExp regExpNum("^[1-9][0-9]{1,5}$");//不是0开头的6位数字
     ui->lineEdit_oldPasswd->setValidator(new QRegExpValidator(regExpNum, this));
     ui->lineEdit_newPasswd->setValidator(new QRegExpValidator(regExpNum, this));
     //serialNum
@@ -356,10 +361,21 @@ void SystemSet::slotBtnNodeData()
 {
     uchar temp[6];
     QString idStr    = ui->lineEdit_id->text();
-    QString temStr   = ui->lineEdit_tem->text();
     QString netStr   = ui->lineEdit_net->text();
     QString haveStr  = ui->lineEdit_have->text();
+
+    QString temStr   = ui->lineEdit_tem->text();
+    if(temStr.toUInt() < 55)
+    {
+        QMessageBox::information(NULL,tr("错误提示"),tr("温度设定值不能小于200mA"),tr("关闭"));
+        return;
+    }
     QString alarmStr = ui->lineEdit_alarm->text();
+    if(alarmStr.toUInt() < 200)
+    {
+        QMessageBox::information(NULL,tr("错误提示"),tr("漏电设定值不能小于200mA"),tr("关闭"));
+        return;
+    }
     int index = ui->comboBox_type->currentIndex() + 2;
     if(index == MODULE_CUR)
     {
@@ -379,11 +395,6 @@ void SystemSet::slotBtnNodeData()
         temp[3] = temStr.toUInt() >> 8;
         GlobalData::addCmd(netStr.toInt(),idStr.toInt(),temp[0],temp,4);
     }
-
-    //for(int i = 0;i< 6;i++)
-    // qDebug()<<"temp["<<i<<"]= "<<temp[i];
-
-
 }
 
 void SystemSet::slotBtnStopSound()
@@ -419,7 +430,6 @@ void SystemSet::slotBtnSMS()
         {
             QMessageBox::information(NULL,tr("提示"),tr("短信功能关闭失败!"),tr("关闭"));
         }
-
     }
     else
     {
@@ -433,7 +443,6 @@ void SystemSet::slotBtnSMS()
         {
             QMessageBox::information(NULL,tr("提示"),tr("短信功能开启失败!"),tr("关闭"));
         }
-
     }
 }
 
@@ -474,6 +483,11 @@ void SystemSet::editClear()
     ui->lineEdit_net->clear();
     ui->lineEdit_have->clear();
     ui->lineEdit_alarm->clear();
+}
+
+void SystemSet::slotSuccess()
+{
+    QMessageBox::information(NULL,tr("设置提示"),tr("设置成功"),tr("关闭"));
 }
 
 void SystemSet::slotBtnUpdatePasswd()

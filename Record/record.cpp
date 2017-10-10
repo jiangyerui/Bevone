@@ -10,11 +10,12 @@
 #define DROPPEDDATA  3
 
 //record
-#define POWER  4
-#define BPOWER 5
+
 #define ALARM  1
 #define ERROR  2
 #define CAN    3
+#define POWER  4
+#define BPOWER 5
 
 Record::Record(QWidget *parent) :
     QWidget(parent),
@@ -29,6 +30,12 @@ Record::Record(QWidget *parent) :
     initWidget();
     initConnect();
 
+
+    //只能是数字
+    QRegExp regExpNumId("^([1-9][0-9]{1,2})|(101[0-9])|(102[0-4])|0$");//1-1024
+    ui->lineEdit_address->setValidator(new QRegExpValidator(regExpNumId,this));
+    QRegExp regExpNumNet("^[1-2]$");//1-2
+    ui->lineEdit_pass->setValidator(new QRegExpValidator(regExpNumNet,this));
 
 
     QString styleStr = "QHeaderView::section{"
@@ -52,6 +59,7 @@ Record::Record(QWidget *parent) :
     headList<<tr("通道")<<tr("地址")<<tr("类型")<<tr("状态")<<tr("数值")<<tr("时间")<<tr("详细地址");
     ui->tableWdt_record->setHorizontalHeaderLabels(headList);
     ui->tableWdt_record->horizontalHeader()->setFixedHeight(27);
+
 
 
     ui->tableWdt_record->setColumnWidth(0,50);
@@ -194,6 +202,8 @@ void Record::initShow()
     ui->tableWdt_record->clearContents();
     ui->tableWdt_record->setRowCount(0);
     ui->dTEdit_end->setDateTime(QDateTime::currentDateTime());
+    ui->checkBox_net->setCheckState(Qt::Unchecked);
+    ui->checkBox_id->setCheckState(Qt::Unchecked);
     ui->lineEdit_address->setEnabled(false);
     ui->lineEdit_pass->setEnabled(false);
     ui->pBtn_downPage->setEnabled(false);
