@@ -31,13 +31,14 @@ void SystemSet::initVar()
     //大于0的数字
     QRegExp regExp("^[1-9][0-9]*$");
     ui->lineEdit_dayNum->setValidator(new QRegExpValidator(regExp, this));
-    ui->lineEdit_pollTime->setValidator(new QRegExpValidator(regExp, this));
+    QRegExp regExpPollTime("^(1[5-9][0-9])|([2-4][0-9][0-9])|500$");
+    ui->lineEdit_pollTime->setValidator(new QRegExpValidator(regExpPollTime, this));
     //只能是数字
     QRegExp regExpNumId("^([1-9][0-9]{1,2})|(101[0-9])|(102[0-4])|0$");//1-1024
     ui->lineEdit_id->setValidator(new QRegExpValidator(regExpNumId,this));
     QRegExp regExpNumNet("^[1-2]$");//1-2
     ui->lineEdit_net->setValidator(new QRegExpValidator(regExpNumNet,this));
-    QRegExp regExpNumTem("^(([5-9][5-9])|(1[0-3][0-9])|140)$");//55-140
+    QRegExp regExpNumTem("^(([5-9][0-9])|(1[0-3][0-9])|140)$");//55-140
     ui->lineEdit_tem->setValidator(new QRegExpValidator(regExpNumTem, this));
     QRegExp regExpNumHave("([1-9][0-9]{1,2})|1000|0$");//0-1000
     ui->lineEdit_have->setValidator(new QRegExpValidator(regExpNumHave, this));
@@ -68,18 +69,22 @@ void SystemSet::systemShow()
     ui->lb_versionValue->hide();
     if(MySqlite::USER == m_userType)
     {
+
         ui->gBox_node->setEnabled(false);
+        ui->gBox_other->setEnabled(false);
         ui->gBox_setTime->setEnabled(true);
         ui->gBox_setSMS->setEnabled(false);
         ui->gBox_setPrint->setEnabled(true);
         ui->gBox_setPasswd->setEnabled(false);
         ui->gBox_setScretkey->setEnabled(false);
         ui->gBox_setSerialNum->setEnabled(false);
+
     }
     else if(MySqlite::ADMIN == m_userType)
     {
 
         ui->gBox_node->setEnabled(true);
+        ui->gBox_other->setEnabled(false);
         ui->gBox_setSMS->setEnabled(true);
         ui->gBox_setTime->setEnabled(true);
         ui->gBox_setPrint->setEnabled(true);
@@ -91,6 +96,7 @@ void SystemSet::systemShow()
     {
 
         ui->gBox_node->setEnabled(true);
+        ui->gBox_other->setEnabled(true);
         ui->gBox_setSMS->setEnabled(true);
         ui->gBox_setTime->setEnabled(true);
         ui->gBox_setPrint->setEnabled(true);
@@ -146,6 +152,7 @@ void SystemSet::initConnect()
     connect(ui->pBtn_SMS,SIGNAL(clicked(bool)),this,SLOT(slotBtnSMS()));
 
     connect(ui->comboBox_print,SIGNAL(currentIndexChanged(int)),this,SLOT(slotComboBoxPrint(int)));
+    connect(ui->pBtn_cal,SIGNAL(clicked(bool)),this,SLOT(slotBtnCal()));
 
 }
 
@@ -318,15 +325,20 @@ void SystemSet::slotPollTime()
     }
     else
     {
-        int ret = QMessageBox::information(NULL,tr("设置轮循时间"),tr("轮循时间设定为:")+pollTime+tr("秒"),
-                                           tr("确定"),tr("取消"));
+
+        if(pollTime.toUInt() < 150)
+        {
+            QMessageBox::information(NULL,tr("设置轮循时间"),tr("轮循时间设定不能小于150ms"),tr("关闭"));
+            return;
+        }
+
+        int ret = QMessageBox::information(NULL,tr("设置轮循时间"),tr("轮循时间设定为:")+pollTime+tr("秒"),tr("确定"),tr("取消"));
         if(ret == 0)
         {
             if(m_db.setPollTime(pollTime))
             {
                 QMessageBox::information(NULL,tr("设置轮循时间"),tr("设定生效"),tr("确定"));
             }
-
         }
         else
         {
@@ -362,23 +374,18 @@ void SystemSet::slotBtnNodeData()
     uchar temp[6];
     QString idStr    = ui->lineEdit_id->text();
     QString netStr   = ui->lineEdit_net->text();
-    QString haveStr  = ui->lineEdit_have->text();
 
-    QString temStr   = ui->lineEdit_tem->text();
-    if(temStr.toUInt() < 55)
-    {
-        QMessageBox::information(NULL,tr("错误提示"),tr("温度设定值不能小于200mA"),tr("关闭"));
-        return;
-    }
-    QString alarmStr = ui->lineEdit_alarm->text();
-    if(alarmStr.toUInt() < 200)
-    {
-        QMessageBox::information(NULL,tr("错误提示"),tr("漏电设定值不能小于200mA"),tr("关闭"));
-        return;
-    }
     int index = ui->comboBox_type->currentIndex() + 2;
     if(index == MODULE_CUR)
     {
+        QString haveStr  = ui->lineEdit_have->text();
+        QString alarmStr = ui->lineEdit_alarm->text();
+        if(alarmStr.toUInt() < 200)
+        {
+            QMessageBox::information(NULL,tr("错误提示"),tr("漏电设定值不能小于200mA"),tr("关闭"));
+            return;
+        }
+
         temp[0] = CMD_SE_SET;
         temp[1] = MODULE_CUR;
         temp[2] = alarmStr.toUInt() & 0xFF;//低八位
@@ -386,15 +393,26 @@ void SystemSet::slotBtnNodeData()
         temp[4] = haveStr.toUInt() & 0xFF;
         temp[5] = haveStr.toUInt() >> 8;
         GlobalData::addCmd(netStr.toInt(),idStr.toInt(),temp[0],temp,6);
+        g_modSetCmd = true;
     }
     else if(index == MODULE_TEM)
     {
+        QString temStr   = ui->lineEdit_tem->text();
+        if(temStr.toUInt() < 55)
+        {
+            QMessageBox::information(NULL,tr("错误提示"),tr("温度设定值不能小于200mA"),tr("关闭"));
+            return;
+        }
+
         temp[0] = CMD_SE_SET;
         temp[1] = MODULE_TEM;
         temp[2] = temStr.toUInt() & 0xFF;
         temp[3] = temStr.toUInt() >> 8;
         GlobalData::addCmd(netStr.toInt(),idStr.toInt(),temp[0],temp,4);
+        g_modSetCmd = true;
     }
+
+    qDebug()<<"SystemSet  g_modSetCmd : "<<g_modSetCmd;
 }
 
 void SystemSet::slotBtnStopSound()
@@ -462,7 +480,10 @@ void SystemSet::slotComboBoxPrint(int index)
 
 void SystemSet::slotBtnCal()
 {
-
+//    QProcess *process = new QProcess;
+//    QString cmd = "wr chmod -x /etc/init.d/S85qt && wr chmod +x /etc/init.d/S85Cal && reboot";
+//    process->execute(cmd);
+    ::system("wr chmod -x /etc/init.d/S85qt && wr chmod +x /etc/init.d/S85Cal && reboot");
 }
 
 

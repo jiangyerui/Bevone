@@ -9,14 +9,19 @@ bool g_printType = false;
 bool g_smsType = false;
 QString g_hostModel = "00";
 int g_cmdNum  = 0;
-bool g_resetCmd = false;
+bool g_resetCmd  = false;
+bool g_modSetCmd = false;
 uint idMax = 0;
 uint netMax = 0;
 uint cmdMax = 0;
+uint idNum = 0;
+uint modNum[3][1024];
 Exe_Cmd exeCmd[NETNUM][CMDEXENUM];
 Module mod[NETNUM][IDNUM];
 CmdNum cmdNum[NETNUM];
 
+bool g_powerStatus = false;
+bool g_bpowerStatus = false;
 SerialCmdNum serialCmdNum[NETNUM];
 SerialExeCmd serialExeCmd[NETNUM][CMDEXENUM];
 
@@ -79,6 +84,7 @@ void GlobalData::initCmdType(QString type)
     }
 
     uchar temp[1];
+
     for(uint net = 1;net < netMax; net++)
     {
         for(uint id = 0;id <= idMax; id++)
@@ -90,6 +96,7 @@ void GlobalData::initCmdType(QString type)
             if(db.getNodeNum(net ,id))
             {
                 addCmd(net,id,temp[0],temp,1);
+                modNum[net][idNum++] = id;
             }
             //初始化ZigBee巡检命令
             //addCmdSerial(net,id,CMD_SE_STATE,15);

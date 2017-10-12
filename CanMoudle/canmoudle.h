@@ -34,7 +34,7 @@ public:
     CanMoudle(const char *canName,int net,uint pollTime);
     QTimer *m_canRxTimer;
     QTimer *m_canTxTimer;
-    QThread *thread;
+
     void  initCan(const char *canName);
     int dataWrite(int canfd, can_frame frame); //向串口写入数据
     int dataRead(int canfd, can_frame &frame);  //从串口读出数据
@@ -45,6 +45,7 @@ public:
     uint m_id;
     int m_net;
     int m_canfd;
+    uint m_idNum;
 
     void getNodeNum(Exe_Cmd exeCmd[NETNUM][CMDEXENUM]);
 

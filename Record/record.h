@@ -47,6 +47,7 @@ public:
     void initShow();
     QString setSelectSql(int item, bool net, bool id,QString &startTimer,QString &endTime);
     void connectPrint(QString net, QString id, QString type, QString status,QString value, QString time, QString address);
+    void checkSelfPrint(QString nodeNum, QString alarmNum, QString errorNum, QString power, QString bpower);
 
 private:
     Ui::Record *ui;
@@ -79,6 +80,7 @@ private:
     void showData(QString sql, int currentPage);
 
     void setPrint(QTableWidget *tableWidget, MyPrint *myPrint, int row, int columnCount);
+
 
 private slots:
 

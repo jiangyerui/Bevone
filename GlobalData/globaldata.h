@@ -52,7 +52,9 @@ extern uint netMax;
 extern uint cmdMax;
 extern bool g_login;
 extern bool g_resetCmd;
-
+extern bool g_modSetCmd;
+extern bool g_powerStatus;
+extern bool g_bpowerStatus;
 //struct can_frame {
 //	  canid_t can_id;  /* 32 bit CAN_ID + EFF/RTR/ERR flags */
 //	  __u8    can_dlc; /* frame payload length in byte (0 .. CAN_MAX_DLEN) */
@@ -88,7 +90,8 @@ struct Module{
     bool insertNormal;
     bool sent;
 };
-
+extern uint idNum;
+extern uint modNum[3][1024];
 extern Module mod[NETNUM][IDNUM];
 //执行命令缓存
 struct Exe_Cmd

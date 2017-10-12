@@ -16,6 +16,7 @@
 #include <QTimer>
 #include "MySqlite/mysqlite.h"
 #include "GpioChip/gpiochip.h"
+#include "GlobalData/globaldata.h"
 
 #define	EXPORT_PATH	"/sys/class/gpio/export"	        // GPIO设备导出设备
 
@@ -134,6 +135,9 @@ public:
     uint m_backupPowerTimes;
     uint m_backupBreakTimes;
     uint m_backupShortTimes;
+    bool m_mainPowerFlag;
+    bool m_backupBreakFlag;
+    bool m_backupShortFlag;
 
     uint m_resetTimes;
 

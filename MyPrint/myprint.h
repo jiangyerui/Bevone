@@ -37,7 +37,7 @@ public:
     void initCom();
     static MyPrint *getPrint();
     static void deletePrint();
-
+    void checkSelfPrint(QString nodeNum,QString alarmNum, QString errorNum, QString power, QString bpower);
     void printConnect(QString net, QString id, QString type, QString status, QString value, QString time, QString address);
 
 signals:

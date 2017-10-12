@@ -1875,7 +1875,7 @@ background-color: rgb(255, 255, 255);</string>
     </property>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="gBox_setTime_2">
+  <widget class="QGroupBox" name="gBox_other">
    <property name="geometry">
     <rect>
      <x>45</x>

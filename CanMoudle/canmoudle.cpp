@@ -2,7 +2,7 @@
 
 
 #define DataRead
-//#define DataWrite
+#define DataWrite
 
 CanMoudle::CanMoudle(QObject *parent) : QObject(parent)
 {
@@ -15,7 +15,8 @@ CanMoudle::CanMoudle(const char *canName, int net, uint pollTime)
     initCan(canName);
     this->m_net = net;
     m_id = 0;
-    thread = new QThread;
+    m_idNum = 0;
+
     m_canRxTimer = new QTimer;
     connect(m_canRxTimer,SIGNAL(timeout()),this,SLOT(slotCanRxTimeOut()),Qt::DirectConnection);
     m_canRxTimer->start(pollTime);
@@ -92,20 +93,19 @@ void CanMoudle::dealCanData(can_frame frame)
 
 #ifdef DataRead
 
-    qDebug()<<"************ DataRead **************";
-    qDebug()<<"m_net  = "<<m_net;
-    qDebug()<<"canId  = "<<frame.can_id;
-    qDebug()<<"canLon = "<<frame.can_dlc;
+    qDebug()<<"                                           ************ DataRead **************";
+    qDebug()<<"                                               m_net  = "<<m_net;
+    qDebug()<<"                                               canId  = "<<frame.can_id;
+    qDebug()<<"                                               canLon = "<<frame.can_dlc;
     for(int i = 0;i<8;i++)
     {
-        qDebug()<<"data["<<i<<"] = "<<frame.data[i];
+        qDebug()<<"                                               data["<<i<<"] = "<<frame.data[i];
     }
-    qDebug()<<"************************************";
+    qDebug()<<"                                           ************************************";
 
 #endif
 
     uint type;
-
     switch (cmd) {
     case CMD_RE_STATE:  //探测器回复状态
 
@@ -118,7 +118,6 @@ void CanMoudle::dealCanData(can_frame frame)
             //实时数据
             rtData  = frame.data[4]<<8;//高位数
             rtData |= frame.data[3];   //低位数
-
             //报警数值
             //取出高4位数
             alarmData = frame.data[6] >> 4;
@@ -136,7 +135,6 @@ void CanMoudle::dealCanData(can_frame frame)
             mod[m_net][canId].alarmDataSet = alarmData;
 
             mod[m_net][canId].type = frame.data[1];
-
             nodeStatus(m_net,canId,frame.data[2]);
 
             if(frame.data[2] == ALARM && mod[m_net][canId].alaDataLock == false)
@@ -158,7 +156,6 @@ void CanMoudle::dealCanData(can_frame frame)
                 mod[m_net][canId].alaTemLock = true;
                 mod[m_net][canId].alarmTem = frame.data[3];;
             }
-
             break;
         default:
             break;
@@ -190,7 +187,6 @@ void CanMoudle::dealCanData(can_frame frame)
             break;
         }
         emit sigSuccess();
-
         break;
     case CMD_RE_RESET:  //探测器回复复位
         GlobalData::deleteCmd(m_net,canId,CMD_SE_RESET);
@@ -261,7 +257,7 @@ void CanMoudle::slotCanTxTimeOut()
 {
     struct can_frame canFrame;
 
-    m_id++;
+    m_id = modNum[m_net][m_idNum++];
     //发送复位命令
     if(g_resetCmd == true)
     {
@@ -276,6 +272,28 @@ void CanMoudle::slotCanTxTimeOut()
         dataWrite(m_canfd,canFrame);
         m_canTxTimer->stop();
 
+    }
+    else if(g_modSetCmd == true)//处理设置探测器命令
+    {
+        if(exeCmd[m_net][cmdNum[m_net].cmdNum-1].needExe == 1)
+        {
+            canFrame = exeCmd[m_net][cmdNum[m_net].cmdNum-1].canFrame;
+            dataWrite(m_canfd,canFrame);
+
+            if(exeCmd[m_net][cmdNum[m_net].cmdNum-1].canFrame.data[0] == CMD_SE_SET)
+            {
+                exeCmd[m_net][cmdNum[m_net].cmdNum-1].needExe = 0;
+                exeCmd[m_net][cmdNum[m_net].cmdNum-1].canFrame.can_id  = 0;
+                exeCmd[m_net][cmdNum[m_net].cmdNum-1].canFrame.can_dlc = 0;
+                for(int j = 0 ;j < 8;j++)
+                {
+                    exeCmd[m_net][cmdNum[m_net].cmdNum-1].canFrame.data[j] = 0;
+                }
+            }
+            g_modSetCmd = false;
+        }
+        qDebug()<<"idNum : "<<idNum;
+        qDebug()<<"CanMoudle  g_modSetCmd : "<<g_modSetCmd;
     }
     else if(exeCmd[m_net][m_id].needExe == 1)
     {
@@ -301,8 +319,9 @@ void CanMoudle::slotCanTxTimeOut()
         }
     }
 
-    if(m_id == cmdMax)
-        m_id = 0;
+    if(m_idNum == idNum)
+        m_idNum = 0;
+
 }
 
 

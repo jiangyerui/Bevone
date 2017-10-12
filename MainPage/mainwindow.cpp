@@ -70,6 +70,9 @@ void MainWindow::initConnect()
 
     connect(m_can1,SIGNAL(sigSuccess()),sys,SLOT(slotSuccess()));
     connect(m_can2,SIGNAL(sigSuccess()),sys,SLOT(slotSuccess()));
+    qDebug()<<"***********************";
+    qDebug()<<"m_can1 : "<<m_can1;
+    qDebug()<<"m_can2 : "<<m_can2;
     //网络操作信号槽
     connect(ui->pBtn_Record,SIGNAL(clicked(bool)),this,SLOT(slotRecordShow()));
     connect(ui->pBtn_User,SIGNAL(clicked(bool)),this,SLOT(slotUserLoginShow()));
@@ -202,6 +205,7 @@ void MainWindow::initVar()
     m_calNode->moveToThread(thread);
     m_calNode->initVar(m_powerType);
     thread->start();
+
     //ZigBee通讯
     //    QThread *serialThread = new QThread;
     //    m_serialHandle = new SerialHandle();
@@ -543,10 +547,27 @@ void MainWindow::selfCheckScreen()
         m_calNode->setSelfCheckFlag(m_selfCheckFlag);
 
         int nodeNum = calculationNode(1) + calculationNode(2);
-        QString result = tr("节点总数:")+QString::number(nodeNum)+
-                tr(" 报警总数:")+QString::number(m_alarmNum)+
-                tr(" 故障总数:")+QString::number(m_errorNum);
-        QMessageBox::information(NULL,tr("自检结果"),result,tr("确定"),tr("取消"));
+
+        QString nodeNumStr = QString::number(nodeNum);
+        QString alarmNumStr = QString::number(m_alarmNum);
+        QString errorNumStr = QString::number(m_errorNum);
+        QString power,bpower;
+        if(g_powerStatus == true)   power = tr("正常");
+        else    power = tr("故障");
+
+        if(g_bpowerStatus == true)  bpower = tr("正常");
+        else    bpower = tr("故障");
+
+        QString result = tr(" 节点总数:")+nodeNumStr+
+                         tr(" 报警总数:")+alarmNumStr+
+                         tr(" 故障总数:")+errorNumStr+
+                         tr(" 主电状态:")+power+
+                         tr(" 备电状态:")+bpower;
+        QMessageBox::information(NULL,tr("自检结果"),result,tr("确定"));
+
+        record->checkSelfPrint(nodeNumStr,alarmNumStr,errorNumStr,power,bpower);
+
+        qDebug()<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
     }
 }
 
@@ -608,7 +629,7 @@ void MainWindow::slotCurrentTime()
     if(m_delayFlag == true)
     {
         m_delayNum++;
-        if(m_delayNum == 10)
+        if(m_delayNum == 15)
         {
             m_delayNum = 0;
             if(netMax == 2)
@@ -915,19 +936,10 @@ void MainWindow::slotResetShow()
 
 void MainWindow::slotSelfCheckShow()
 {
-    int ret = QMessageBox::question(NULL,tr("自检操作"),tr("可以选择要自检的设备类型！"),tr("主机自检"),tr("取消"));
-    if(ret == 0)
-    {
-        m_selfCheckFlag = true;
-        m_screenCheck->show();
-        m_gpio->selfCheck();
-        m_calNode->setSelfCheckFlag(m_selfCheckFlag);
-    }
-    else
-    {
-        return;
-    }
-
+    m_selfCheckFlag = true;
+    m_screenCheck->show();
+    m_gpio->selfCheck();
+    m_calNode->setSelfCheckFlag(m_selfCheckFlag);
 }
 
 void MainWindow::slotDataShow(int type)

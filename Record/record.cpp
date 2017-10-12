@@ -178,9 +178,7 @@ QString Record::setSelectSql(int item, bool net, bool id, QString &startTimer, Q
             sqlStr += " and id = "+idStr+" and status = 3 ";
         }
     }
-
     return sqlStr;
-
 }
 
 void Record::initVar()
@@ -644,6 +642,11 @@ void Record::setPrint(QTableWidget *tableWidget, MyPrint *myPrint, int row, int 
 
     myPrint->printConnect(net, id, type,status,value, time,add);
     printList.clear();
+}
+
+void Record::checkSelfPrint(QString nodeNum,QString alarmNum, QString errorNum, QString power, QString bpower)
+{
+    m_myPrint->checkSelfPrint(nodeNum,alarmNum,errorNum,power,bpower);
 }
 
 void Record::slotBtnPrint()

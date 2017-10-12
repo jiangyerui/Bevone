@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 3.5.1, 2017-10-10T21:15:59. -->
+<!-- Written by QtCreator 3.5.1, 2017-10-12T15:19:45. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
-  <value type="QByteArray">{85927b09-1279-4b3b-9f3d-edb157ad2e54}</value>
+  <value type="QByteArray">{7ea8fdc8-33c9-451d-ab10-7849bd44b899}</value>
  </data>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -58,14 +58,14 @@
  <data>
   <variable>ProjectExplorer.Project.Target.0</variable>
   <valuemap type="QVariantMap">
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Qt 4.8.5 -static for arm</value>
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Qt 4.8.5 -static for arm</value>
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{1295ef99-afef-4870-9df9-c1d44a2210c4}</value>
-   <value type="int" key="ProjectExplorer.Target.ActiveBuildConfiguration">0</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">QTE-4.8.6-static</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">QTE-4.8.6-static</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{3e6c5883-23b5-4df7-89c7-60aa59c15f83}</value>
+   <value type="int" key="ProjectExplorer.Target.ActiveBuildConfiguration">1</value>
    <value type="int" key="ProjectExplorer.Target.ActiveDeployConfiguration">0</value>
    <value type="int" key="ProjectExplorer.Target.ActiveRunConfiguration">0</value>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.BuildConfiguration.0">
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/root/project/build-Bevone-Qt_4_8_5_static_for_arm-Debug</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/root/Bevone-Base/build-Bevone-QTE_4_8_6_static-Debug</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
@@ -126,7 +126,7 @@
     <value type="bool" key="Qt4ProjectManager.Qt4BuildConfiguration.UseShadowBuild">true</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.BuildConfiguration.1">
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/root/project/build-Bevone-Qt_4_8_5_static_for_arm-Release</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/root/Bevone-Base/build-Bevone-QTE_4_8_6_static-Release</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
@@ -240,7 +240,7 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">Bevone</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/root/project/Bevone/Bevone.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/root/Bevone-Base/Bevone/Bevone.pro</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"></value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.ProFile">Bevone.pro</value>
     <value type="bool" key="Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix">false</value>

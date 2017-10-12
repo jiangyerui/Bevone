@@ -81,6 +81,39 @@ void MyPrint::deletePrint()
     delete print;
 }
 
+void MyPrint::checkSelfPrint(QString nodeNum, QString alarmNum, QString errorNum, QString power, QString bpower)
+{
+    QByteArray byte;
+    QString company =   tr("****北京北元安达电子有限公司****");
+    byte = company.toLocal8Bit();
+    myCom->write(byte);
+    //节点总数
+    QString modValue =  tr("节点总数 : ") + nodeNum;
+    byte = modValue.toLocal8Bit();
+    myCom->write(byte);
+    myCom->write(lf,1);
+    //故障数目
+    QString modAddres = tr("故障数目 :") + alarmNum;
+    byte = modAddres.toLocal8Bit();
+    myCom->write(byte);
+    myCom->write(lf,1);
+    //报警数目
+    QString modTime =   tr("报警数目 : ") + errorNum;
+    byte = modTime.toLocal8Bit();
+    myCom->write(byte);
+    myCom->write(lf,1);
+    //主电状态
+    QString modStatus = tr("主电状态 : ") + power;
+    byte = modStatus.toLocal8Bit();
+    myCom->write(byte);
+    myCom->write(lf,1);
+    //备电状态
+    QString printType = tr("备电状态 : ") + bpower;
+    byte = printType.toLocal8Bit();
+    myCom->write(byte);
+    myCom->write(lf,1);
+}
+
 void MyPrint::printConnect(QString net, QString id, QString type,QString status,QString value, QString time, QString address)
 {
     QByteArray byte;

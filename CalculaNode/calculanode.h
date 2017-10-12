@@ -12,7 +12,7 @@
 #define TIMER 1000
 #define NODENUM 1200
 #define PAGEMAX 30
-#define PASSTIME  30
+#define PASSTIME  70
 
 class QTimer;
 class GpioControl;
@@ -28,7 +28,7 @@ public:
     Record *m_record;
 //    QtSMS  *m_gsm;
 
-    int m_curNet;
+    uint m_curNet;
 
     //报警,故障重新打开
     uint m_reError;
@@ -49,7 +49,7 @@ public:
     void setSound(bool flag);
     void setCurNet(int curNet);
     void setSelfCheckFlag(bool flag);
-    int calculationNode(int curNet);//计算网络节点个数
+    int calculationNode(uint curNet);//计算网络节点个数
     int calculationPage(int regNum);//计算总总页数
     void calculaNodeStatus(uint GPIOFlag);
     void dealLedAndSound(uint alarm , uint error, uint droped, uint used, uint GPIOFlag);

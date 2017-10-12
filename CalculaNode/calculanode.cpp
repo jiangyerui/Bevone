@@ -20,7 +20,7 @@ CalculaNode::CalculaNode(QObject *parent) : QObject(parent)
 
     m_gpio = new GpioControl;
     m_db = new MySqlite;
-    m_db->getSmsDetail(m_center,m_strNum);
+    //m_db->getSmsDetail(m_center,m_strNum);
     m_record = new Record;
 
     m_cmdFlag = false;
@@ -36,7 +36,7 @@ void CalculaNode::initVar(bool powerType)
     m_powerType = powerType;
 }
 
-int CalculaNode::calculationNode(int curNet)
+int CalculaNode::calculationNode(uint curNet)
 {
     int regNum = 0;
     for(int i=0;i<IDNUM;i++)
@@ -44,9 +44,9 @@ int CalculaNode::calculationNode(int curNet)
         node[i] = 0;
     }
 
-    for(int net = 1;net < NETNUM;net++)
+    for(uint net = 1;net < netMax;net++)
     {
-        for(int id = 1;id < IDNUM;id++)
+        for(uint id = 1;id < idMax;id++)
         {
             if(mod[net][id].used == true)
             {
@@ -79,6 +79,7 @@ int CalculaNode::calculationPage(int regNum)
             }
         }
     }
+    emit sigSetCountPageNum(countPage);
     return countPage;
 }
 
@@ -290,17 +291,23 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
     if(netMax == 3)
     {
         //重新注册can
-        if(m_used[1][0] == m_droped[1][0] || m_used[2][0] == m_droped[2][0])
+        if(m_used[1][0] != 0 && m_used[2][0] != 0)
         {
-            ::system("source /etc/profile");
+            if( m_used[1][0] == m_droped[1][0] ||  m_used[2][0] == m_droped[2][0])
+            {
+                ::system("source /etc/profile");
+            }
         }
     }
     else
     {
         //重新注册can
-        if(m_used[1][0] == m_droped[1][0])
+        if(m_used[1][0] != 0)
         {
-            ::system("source /etc/profile");
+            if(m_used[1][0] == m_droped[1][0])
+            {
+                ::system("source /etc/profile");
+            }
         }
     }
 
@@ -442,19 +449,9 @@ void CalculaNode::soundControl(int soundType, bool soundSwitch)
 
 void CalculaNode::slotTimeOut()
 {
-    qDebug()<<"slotTimeOut";
     //显示节点状态，计算机点个数，计算页面数量
-    int nodeNum = calculationNode(m_curNet);
-    int countPage = calculationPage(nodeNum);
-    emit sigSetCountPageNum(countPage);
-    if(m_powerType == true)
-    {
-        calculaNodeStatus(m_gpio->dealGPIO());
-    }
-    else
-    {
-        calculaNodeStatus(0);
-    }
+    calculationPage(calculationNode(m_curNet));
+    calculaNodeStatus(m_gpio->dealGPIO());
 
 }
 
