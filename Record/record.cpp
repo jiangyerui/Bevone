@@ -54,7 +54,7 @@ Record::Record(QWidget *parent) :
     ui->tableWdt_record->horizontalHeader()->setStretchLastSection(true);
     ui->tableWdt_record->horizontalHeader()->setHighlightSections(false);
 
-    //ui->tableWdt_record->verticalHeader()->setResizeMode(QHeaderView::Stretch);
+    ui->tableWdt_record->verticalHeader()->setResizeMode(QHeaderView::Stretch);
     ui->tableWdt_record->setEditTriggers(QTableWidget::NoEditTriggers);//单元格不可编
     ui->tableWdt_record->setSelectionBehavior (QAbstractItemView::SelectRows); //设置选择行为，以行为单位
     ui->tableWdt_record->setSelectionMode (QAbstractItemView::SingleSelection); //设置选择模式，选择单行
@@ -358,7 +358,7 @@ void Record::showData(QString sql,int currentPage)
     {
         record = m_model->record(row);
 
-        ui->tableWdt_record->setRowHeight(row,34);
+        ui->tableWdt_record->setRowHeight(row,29);
         for(int column = 0; column < 7; column++)
         {
 

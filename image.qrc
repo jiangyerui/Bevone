@@ -22,5 +22,8 @@
         <file>Image/mute.png</file>
         <file>Image/checked.png</file>
         <file>Image/uncheck.png</file>
+        <file>Image/backGround.png</file>
+        <file>Image/Bevone.png</file>
+        <file>Image/devGround.png</file>
     </qresource>
 </RCC>

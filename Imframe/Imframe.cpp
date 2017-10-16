@@ -71,14 +71,14 @@ void IMFrame::getcurrentwidget()
             //MainPage
             if("lineEdit"==objName)
             {
-               x=200;
+               x=170;
                y=260;
             }
             //login
             else if("lineEdit_passwd" == objName)
             {
-                x=200;
-                y=80;
+                x=170;
+                y=270;
             }
             //systemSet
             else if("lineEdit_day" == objName || "lineEdit_hour"==objName||
@@ -90,13 +90,13 @@ void IMFrame::getcurrentwidget()
                     "lineEdit_tem" == objName  || "lineEdit_smallType"==objName||
                     "lineEdit_type" == objName)
             {
-                x=200;
+                x=170;
                 y=250;
             }
             else if("lineEdit_dayNum" == objName || "lineEdit_pollTime"==objName||
                     "lineEdit_newPasswd" == objName || "lineEdit_oldPasswd" == objName)
             {
-                x=200;
+                x=170;
                 y=100;
             }
             //Record
@@ -104,7 +104,7 @@ void IMFrame::getcurrentwidget()
                     "lineEdit_address" == objName || "lineEdit_pageNum" == objName ||
                     "lineEdit_pass" == objName)
             {
-                x=100;
+                x=170;
                 y=150;
                 emit hideclearbutton();
             }

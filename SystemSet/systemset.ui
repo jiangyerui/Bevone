@@ -27,14 +27,14 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget#SystemSet{
-	background-color: rgb(0, 0, 0);
+background-color: rgb(0, 50, 105);
 }
 QLabel{
 color: rgb(255, 255, 255);
 }
 QGroupBox{
 font: 14pt &quot;文泉驿等宽微米黑&quot;;
-border: 1px solid white;
+border: 2px solid rgb(85, 170, 127);
 border-radius:8px;
 margin-top:10px;
 }
@@ -86,6 +86,9 @@ height:20px;
    </property>
    <property name="title">
     <string>探测器参数设置</string>
+   </property>
+   <property name="flat">
+    <bool>true</bool>
    </property>
    <widget class="QLineEdit" name="lineEdit_tem">
     <property name="geometry">
@@ -575,6 +578,12 @@ height:20px;
    <property name="title">
     <string>密码设置</string>
    </property>
+   <property name="flat">
+    <bool>true</bool>
+   </property>
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <widget class="QLineEdit" name="lineEdit_newPasswd">
     <property name="geometry">
      <rect>
@@ -833,6 +842,9 @@ height:20px;
    <property name="title">
     <string>主机序列号</string>
    </property>
+   <property name="flat">
+    <bool>true</bool>
+   </property>
    <widget class="QLineEdit" name="lineEdit_type">
     <property name="geometry">
      <rect>
@@ -1079,6 +1091,9 @@ height:20px;
    </property>
    <property name="title">
     <string>系统时间</string>
+   </property>
+   <property name="flat">
+    <bool>true</bool>
    </property>
    <widget class="QPushButton" name="pBtn_systemTime">
     <property name="geometry">
@@ -1407,6 +1422,9 @@ height:20px;
    </widget>
   </widget>
   <widget class="QGroupBox" name="gBox_setPrint">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>310</x>
@@ -1456,6 +1474,9 @@ image: url(:/Image/checked.png);
    </property>
    <property name="title">
     <string>打印设置</string>
+   </property>
+   <property name="flat">
+    <bool>true</bool>
    </property>
    <widget class="QComboBox" name="comboBox_print">
     <property name="geometry">
@@ -1588,6 +1609,9 @@ image: url(:/Image/checked.png);
    </property>
    <property name="title">
     <string>密钥设置</string>
+   </property>
+   <property name="flat">
+    <bool>true</bool>
    </property>
    <widget class="QLabel" name="lb_keyTime">
     <property name="geometry">
@@ -1750,6 +1774,9 @@ image: url(:/Image/checked.png);
    <property name="title">
     <string>GSM设置</string>
    </property>
+   <property name="flat">
+    <bool>true</bool>
+   </property>
    <widget class="QPushButton" name="pBtn_SMS">
     <property name="geometry">
      <rect>
@@ -1896,6 +1923,9 @@ background-color: rgb(255, 255, 255);</string>
    <property name="title">
     <string>其他操作</string>
    </property>
+   <property name="flat">
+    <bool>true</bool>
+   </property>
    <widget class="QLabel" name="lb_version">
     <property name="geometry">
      <rect>
@@ -2039,6 +2069,9 @@ background-color: rgb(255, 255, 255);</string>
    </widget>
   </widget>
   <widget class="QPushButton" name="pBtn_quit">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>630</x>

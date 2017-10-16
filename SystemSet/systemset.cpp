@@ -56,6 +56,20 @@ void SystemSet::initVar()
     QRegExp regExpSmallType("^[1-2][1-6]$");
     ui->lineEdit_smallType->setValidator(new QRegExpValidator(regExpSmallType, this));
 
+    QRegExp regExpYear("^20[1-3][0-9]$");
+    ui->lineEdit_year->setValidator(new QRegExpValidator(regExpYear, this));
+    QRegExp regExpYeMonth("^[1-9]|(1[0-2])$");
+    ui->lineEdit_month->setValidator(new QRegExpValidator(regExpYeMonth, this));
+    QRegExp regExpDay("^([1-9])|([1-2][0-9])|(3[0-1])$");
+    ui->lineEdit_day->setValidator(new QRegExpValidator(regExpDay, this));
+    QRegExp regExpYHour("^([0-9])|(1[0-9])|(2[0-3])$");
+    ui->lineEdit_hour->setValidator(new QRegExpValidator(regExpYHour, this));
+    QRegExp regExpminute("^([0-9])|([1-5][0-9])$");
+    ui->lineEdit_minute->setValidator(new QRegExpValidator(regExpminute, this));
+    QRegExp regExpSecond("^([0-9])|([1-5][0-9])$");
+    ui->lineEdit_second->setValidator(new QRegExpValidator(regExpSecond, this));
+
+
     m_pastTime = new QTimer;
     ui->pBtn_stopSound->hide();
     ui->pBtn_startSound->hide();
@@ -231,7 +245,14 @@ void SystemSet::slotBtnSysTime()
     m_setTime.date  = ui->lineEdit_day->text().toInt();
     m_setTime.hour  = ui->lineEdit_hour->text().toInt();
     m_setTime.minute= ui->lineEdit_minute->text().toInt();
-    m_setTime.second= ui->lineEdit_second->text().toInt();
+    if(ui->lineEdit_second->text().isEmpty() == true)
+    {
+        m_setTime.second = 0;
+    }
+    else
+    {
+        m_setTime.second = ui->lineEdit_second->text().toInt();
+    }
 
     time_t time;
     struct tm p;
@@ -400,7 +421,7 @@ void SystemSet::slotBtnNodeData()
         QString temStr   = ui->lineEdit_tem->text();
         if(temStr.toUInt() < 55)
         {
-            QMessageBox::information(NULL,tr("错误提示"),tr("温度设定值不能小于200mA"),tr("关闭"));
+            QMessageBox::information(NULL,tr("错误提示"),tr("温度设定值不能小于40℃"),tr("关闭"));
             return;
         }
 

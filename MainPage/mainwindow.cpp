@@ -288,7 +288,6 @@ void MainWindow::showData(QTableWidget *tableWidget,QSqlQueryModel *model,MySqli
         {
 
             item = new QTableWidgetItem;
-
             if(type == ERODATA)
             {
                 m_itemErrorList.append(item);
@@ -299,7 +298,7 @@ void MainWindow::showData(QTableWidget *tableWidget,QSqlQueryModel *model,MySqli
             }
             item->setFont(font);
             item->setTextAlignment(Qt::AlignCenter);
-            item->setTextColor(QColor(0,0,0));
+            item->setTextColor(QColor(255,255,255));
 
             if(column == 0)
             {
@@ -425,7 +424,7 @@ void MainWindow::moduleStatus(int curPage)
             }
             if(mod[m_curNet][node[i]].dropFlag == TRUE)
             {
-                m_modeSts = 4;
+                m_modeSts = 9;
                 m_btnGroup->button(index)->setStyleSheet(m_yellowStyle);
             }
             if(mod[m_curNet][node[i]].alarmFlag == TRUE)
@@ -434,7 +433,9 @@ void MainWindow::moduleStatus(int curPage)
                 m_btnGroup->button(index)->setStyleSheet(m_redStyle);
             }
 #ifdef TCP_IP
-            //网络传输数据
+
+
+//            //网络传输数据
             if(type == MODULE_CUR)
             {
                 uint data = mod[m_curNet][node[i]].rtData;
@@ -1052,16 +1053,18 @@ void MainWindow::initTableWidget(QTableWidget *tableWidget)
 {
     QStringList alrmHeadList;
     tableWidget->setColumnCount(2);
-    alrmHeadList<<tr("节点")<<tr("时间");
+    alrmHeadList<<tr("节   点")<<tr("时   间");
     tableWidget->setHorizontalHeaderLabels(alrmHeadList);
     tableWidget->horizontalHeader()->setFixedHeight(20);
     tableWidget->setColumnWidth(0,70);
     tableWidget->setColumnWidth(1,170);
 
-    QString horStyle = "QHeaderView::section {background-color:rgb(53, 156, 212);"
-                       "color: black;border: 1px solid #6c6c6c;}";
-    QString verStyle = "QHeaderView::section {""background-color:rgb(255,255,255);"
-                       "color: black;""padding-left: 4px;""border: 1px solid #6c6c6c;}";
+    QString horStyle = "QHeaderView::section{"
+                       "background-color:rgb(255,255,255);"
+                       "color: black;border: 1px solid #6c6c6c;}";;
+    QString verStyle = "QHeaderView::section {"
+                       "background-color:rgb(255,255,255);"
+                       "color: black;border: 1px solid #6c6c6c; padding-left: 4px;}";
     tableWidget->horizontalHeader()->setStyleSheet(horStyle);
     tableWidget->verticalHeader()->setStyleSheet(verStyle);
     tableWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

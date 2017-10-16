@@ -1,8 +1,8 @@
 ﻿#include "canmoudle.h"
 
 
-#define DataRead
-#define DataWrite
+//#define DataRead
+//#define DataWrite
 
 CanMoudle::CanMoudle(QObject *parent) : QObject(parent)
 {

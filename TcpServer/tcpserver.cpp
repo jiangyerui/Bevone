@@ -72,6 +72,7 @@ void TcpServer::addNetData(uchar type, uchar net, quint16 id, uchar sts, quint16
     netMeta.data[CURH] = current >> 8;
     netMeta.data[TEM]  = tem;
     m_listData.append(netMeta);
+
 }
 
 void TcpServer::delNetData(uchar net, quint16 id)
@@ -96,12 +97,13 @@ void TcpServer::slotReceiveData()
             if(tempData[i+1] == ALLSTS)
             {
                 //节点状态
-                moduleStatus();
+                //moduleStatus();
 #ifdef  debug
-                qDebug()<<"tempData[0] = "<<(uchar)tempData[i];
-                qDebug()<<"tempData[1] = "<<(uchar)tempData[i+1];
-                qDebug("**************************");
+                //qDebug()<<"tempData[0] = "<<(uchar)tempData[i];
+                //qDebug()<<"tempData[1] = "<<(uchar)tempData[i+1];
+
 #endif
+                //qDebug("**************************");
                 slotSendData();
             }
         }
@@ -116,6 +118,9 @@ void TcpServer::slotSendData()
 
     quint16 dataSize  = m_listData.count()*SIZE+HEADDATA;
     quint16 dataCount = m_listData.count();
+
+    qDebug()<<"dataSize : "<<dataSize;
+    qDebug()<<"dataCount: "<<dataCount;
     netData[SERPID] = SER;
     netData[SERCMD] = CMD;
     netData[SIZE_LIT]  = dataSize & 0x0F;//取低八位
@@ -138,9 +143,16 @@ void TcpServer::slotSendData()
     }
 
 #ifdef debug
-    for(int i = 0;i< m_listData.count()*SIZE+3;i++)
+    int j = 1;
+    for(int i = 6;i< m_listData.count()*SIZE+HEADDATA;i++)
     {
-        qDebug()<<"netData = "<<netData[i];
+
+        qDebug()<<"netData["<<j++<<"]="<<netData[i];
+        if(j == 17)
+        {
+            j = 1;
+        }
+
     }
 #endif
 
@@ -148,6 +160,7 @@ void TcpServer::slotSendData()
     netData = NULL;
     delete netData;
     dataClear();
+
 }
 
 void TcpServer::slotNewConnection()
@@ -167,7 +180,7 @@ void TcpServer::moduleStatus()
         {
             if(mod[net][id].used == false)
             {
-                return;
+                continue;
             }
 
             uchar modeSts = 0;
