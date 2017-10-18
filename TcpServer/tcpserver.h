@@ -4,12 +4,13 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QTcpServer>
+#include <QDateTime>
 class NetMeta{
 
 public:
     qint16 id;
     qint16 net;
-    uchar data[8];
+    uchar data[16];
 };
 
 class TcpServer : public QObject

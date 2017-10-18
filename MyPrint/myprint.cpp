@@ -87,6 +87,12 @@ void MyPrint::checkSelfPrint(QString nodeNum, QString alarmNum, QString errorNum
     QString company =   tr("****北京北元安达电子有限公司****");
     byte = company.toLocal8Bit();
     myCom->write(byte);
+
+    //自检完成
+    QString compelet =  tr("自检完成");
+    byte = compelet.toLocal8Bit();
+    myCom->write(byte);
+    myCom->write(lf,1);
     //节点总数
     QString modValue =  tr("节点总数 : ") + nodeNum;
     byte = modValue.toLocal8Bit();

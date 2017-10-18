@@ -304,7 +304,7 @@ QString MySqlite::getUserPasswd(int userType)
         if(query.next())
         {
             passwd = query.value(0).toString();
-            //            qDebug()<<"passwd = "<<passwd;
+            //qDebug()<<"passwd = "<<passwd;
         }
     }
     query.clear();
@@ -462,7 +462,6 @@ uint MySqlite::getRowCount()
         {
             count = query.value(0).toUInt();
         }
-
     }
     else
     {

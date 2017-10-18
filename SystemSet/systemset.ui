@@ -605,9 +605,6 @@ height:20px;
     <property name="focusPolicy">
      <enum>Qt::ClickFocus</enum>
     </property>
-    <property name="styleSheet">
-     <string notr="true">color: rgb(182, 188, 190);</string>
-    </property>
     <property name="text">
      <string/>
     </property>
@@ -618,7 +615,7 @@ height:20px;
      <enum>QLineEdit::Password</enum>
     </property>
     <property name="placeholderText">
-     <string>请输入6位数字</string>
+     <string>请输入1-6位数字</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pBtn_updatePasswd">
@@ -805,7 +802,7 @@ height:20px;
      <enum>Qt::ClickFocus</enum>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: rgb(182, 188, 190);</string>
+     <string notr="true"/>
     </property>
     <property name="maxLength">
      <number>6</number>
@@ -814,7 +811,7 @@ height:20px;
      <enum>QLineEdit::Password</enum>
     </property>
     <property name="placeholderText">
-     <string>请输入6位数字</string>
+     <string>请输入1-6位数字</string>
     </property>
    </widget>
   </widget>

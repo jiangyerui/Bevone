@@ -42,7 +42,7 @@
 #define HEADDATA    6
 
 
-//#define debug
+#define debug
 
 TcpServer::TcpServer(QObject *parent) : QObject(parent)
 {
@@ -60,6 +60,7 @@ void TcpServer::dataClear()
 
 void TcpServer::addNetData(uchar type, uchar net, quint16 id, uchar sts, quint16 current, uchar tem)
 {
+    QString dateStr = QDateTime::currentDateTime().toString("yyMMddhhmmss");
     NetMeta netMeta;
     netMeta.id  = id;
     netMeta.net = net;
@@ -71,6 +72,14 @@ void TcpServer::addNetData(uchar type, uchar net, quint16 id, uchar sts, quint16
     netMeta.data[CURL] = current & 0xFF;
     netMeta.data[CURH] = current >> 8;
     netMeta.data[TEM]  = tem;
+    netMeta.data[YEAR]   = dateStr.left(2).toUInt();
+    netMeta.data[MONTH]  = dateStr.mid(2,2).toUInt();
+    netMeta.data[DAY]    = dateStr.mid(4,2).toUInt();
+    netMeta.data[HOUR]   = dateStr.mid(6,2).toUInt();
+    netMeta.data[MINUTE] = dateStr.mid(8,2).toUInt();
+    netMeta.data[SECOND] = dateStr.right(2).toUInt();
+    netMeta.data[UNUSED_1] = 0;
+    netMeta.data[UNUSED_2] = 0;
     m_listData.append(netMeta);
 
 }
@@ -97,7 +106,7 @@ void TcpServer::slotReceiveData()
             if(tempData[i+1] == ALLSTS)
             {
                 //节点状态
-                //moduleStatus();
+                moduleStatus();
 #ifdef  debug
                 //qDebug()<<"tempData[0] = "<<(uchar)tempData[i];
                 //qDebug()<<"tempData[1] = "<<(uchar)tempData[i+1];
@@ -127,7 +136,6 @@ void TcpServer::slotSendData()
     netData[SIZE_BIG]  = dataSize >> 8;  //取高八位
     netData[COUNT_LIT] = dataCount & 0x0F;//取低八位
     netData[COUNT_BIG] = dataCount >> 8;  //取高八位
-
 
     if(m_listData.count() == 0)
     {
@@ -174,43 +182,41 @@ void TcpServer::slotNewConnection()
 void TcpServer::moduleStatus()
 {
     dataClear();
-    for(int net = 1;net <3;net++)
+    for(uint net = 1;net <netMax;net++)
     {
-        for(int id = 1;id < 1025;id++)
+        for(uint id = 1;id < idMax;id++)
         {
-            if(mod[net][id].used == false)
+            if(mod[net][id].used == true)
             {
-                continue;
-            }
+                uchar modeSts = 0;
+                if(mod[net][id].normalFlag == TRUE)
+                {
+                    modeSts = 0;
+                }
+                if(mod[net][id].errorFlag == TRUE)
+                {
+                    modeSts = 2;
+                }
+                if(mod[net][id].dropFlag == TRUE)
+                {
+                    modeSts = 9;
+                }
+                if(mod[net][id].alarmFlag == TRUE)
+                {
+                    modeSts = 1;
+                }
 
-            uchar modeSts = 0;
-            if(mod[net][id].normalFlag == TRUE)
-            {
-                modeSts = 0;
-            }
-            if(mod[net][id].errorFlag == TRUE)
-            {
-                modeSts = 2;
-            }
-            if(mod[net][id].dropFlag == TRUE)
-            {
-                modeSts = 4;
-            }
-            if(mod[net][id].alarmFlag == TRUE)
-            {
-                modeSts = 1;
-            }
-
-            int type = mod[net][id].type;
-            if(type == MODULE_CUR)
-            {
-                uint data = mod[net][id].rtData;
-                addNetData(type,net,id,modeSts,data,0);
-            }
-            else if(type == MODULE_TEM)
-            {
-                uint temp = mod[net][id].temData;
-                addNetData(type,net,id,modeSts,0,temp);
+                int type = mod[net][id].type;
+                if(type == MODULE_CUR)
+                {
+                    uint data = mod[net][id].rtData;
+                    addNetData(type,net,id,modeSts,data,0);
+                }
+                else if(type == MODULE_TEM)
+                {
+                    uint temp = mod[net][id].temData;
+                    addNetData(type,net,id,modeSts,0,temp);
+                }
             }
         }
     }

@@ -433,19 +433,17 @@ void MainWindow::moduleStatus(int curPage)
                 m_btnGroup->button(index)->setStyleSheet(m_redStyle);
             }
 #ifdef TCP_IP
-
-
 //            //网络传输数据
-            if(type == MODULE_CUR)
-            {
-                uint data = mod[m_curNet][node[i]].rtData;
-                m_tcpServer->addNetData(type,m_curNet,node[i],m_modeSts,data,0);
-            }
-            else if(type == MODULE_TEM)
-            {
-                uint temp = mod[m_curNet][node[i]].temData;
-                m_tcpServer->addNetData(type,m_curNet,node[i],m_modeSts,0,temp);
-            }
+//            if(type == MODULE_CUR)
+//            {
+//                uint data = mod[m_curNet][node[i]].rtData;
+//                m_tcpServer->addNetData(type,m_curNet,node[i],m_modeSts,data,0);
+//            }
+//            else if(type == MODULE_TEM)
+//            {
+//                uint temp = mod[m_curNet][node[i]].temData;
+//                m_tcpServer->addNetData(type,m_curNet,node[i],m_modeSts,0,temp);
+//            }
 #endif
         }
         else
