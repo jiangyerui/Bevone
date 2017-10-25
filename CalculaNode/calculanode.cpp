@@ -10,6 +10,7 @@ CalculaNode::CalculaNode(QObject *parent) : QObject(parent)
     connect(m_timer,SIGNAL(timeout()),this,SLOT(slotTimeOut()));
     m_timer->start(TIMER);
 
+    m_ioFlag = 0;
     m_reError = 0;
     m_reAlarm = 0;
     m_reDropped = 0;
@@ -25,8 +26,8 @@ CalculaNode::CalculaNode(QObject *parent) : QObject(parent)
 
     m_cmdFlag = false;
 
-//    m_gsm = QtSMS::getqtsms();
-//    m_gsm->OpenCom(QString("/dev/ttyUSB0"));
+    //    m_gsm = QtSMS::getqtsms();
+    //    m_gsm->OpenCom(QString("/dev/ttyUSB0"));
 
 
 }
@@ -89,7 +90,7 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
     uint error = 0;
     uint droped= 0;
     uint used  = 0;
-//    uint send  = 0;
+    //    uint send  = 0;
     m_used[1][0] = 0;
     m_used[2][0] = 0;
     m_droped[1][0] = 0;
@@ -206,7 +207,6 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                 //节点报警
                 if(mod[net][id].alarmFlag == TRUE)
                 {
-
                     alarm++;
 
                     if(mod[net][id].insertAlarm == FALSE)
@@ -244,36 +244,36 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                     }
                     //发送报警短信
                     //说明:短信发送一次,复位后自重新发送
-//                    if(g_smsType == true)
-//                    {
-//                        //判断设备是否可用
-//                        if(mod[net][id].sent == FALSE)
-//                        {
-//                            send++;
-//                            mod[net][id].sent = TRUE;
+                    //if(g_smsType == true)
+                    //{
+                    //    //判断设备是否可用
+                    //    if(mod[net][id].sent == FALSE)
+                    //    {
+                    //        send++;
+                    //        mod[net][id].sent = TRUE;
 
-//                            QString typeStr;
-//                            switch (mod[net][id].type) {
-//                            case 2:
-//                                typeStr = "漏电报警";
-//                                break;
-//                            case 3:
-//                                typeStr = "温度报警";
-//                                break;
-//                            default:
-//                                break;
-//                            }
-//                            QString idStr = QString::number(id);
-//                            m_strSend +="地址:"+idStr+","+typeStr+";";
+                    //        QString typeStr;
+                    //        switch (mod[net][id].type) {
+                    //        case 2:
+                    //            typeStr = "漏电报警";
+                    //            break;
+                    //        case 3:
+                    //            typeStr = "温度报警";
+                    //            break;
+                    //        default:
+                    //            break;
+                    //        }
+                    //        QString idStr = QString::number(id);
+                    //        m_strSend +="地址:"+idStr+","+typeStr+";";
 
-//                            if(send == 6)
-//                            {
-//                                send = 0;
-//                                m_gsm->SendSms(m_strSend);
-//                                m_strSend.clear();
-//                            }
-//                        }
-//                    }
+                    //        if(send == 6)
+                    //        {
+                    //            send = 0;
+                    //            m_gsm->SendSms(m_strSend);
+                    //            m_strSend.clear();
+                    //        }
+                    //    }
+                    //}
 
                 }
 #ifdef DEBUG
@@ -363,7 +363,7 @@ void CalculaNode::dealLedAndSound(uint alarm, uint error, uint droped, uint used
     else
     {
         //如果当前有报警的,新的故障也是发出报警声音
-        if(droped > m_reDropped || error > m_reError)
+        if(droped > m_reDropped || error > m_reError || GPIOFlag != m_ioFlag)
         {
             if(alarm > 0)
             {
@@ -393,6 +393,10 @@ void CalculaNode::dealLedAndSound(uint alarm, uint error, uint droped, uint used
     if(error <= m_reError)
     {
         m_reError = error;
+    }
+    if(GPIOFlag != m_ioFlag)
+    {
+        m_ioFlag = GPIOFlag;
     }
 
     //声音控制

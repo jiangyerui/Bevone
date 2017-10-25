@@ -187,6 +187,7 @@ void Record::initVar()
     m_font.setPointSize(9);
     m_id= 1;
     m_currentPage = 1;
+    m_userType = 1;
     m_model = new QSqlQueryModel();
 
     m_myPrint = MyPrint::getPrint();
@@ -198,7 +199,14 @@ void Record::initShow()
 {
     this->show();
     m_currentPage = 1;
-
+    if(m_userType < 3)
+    {
+        ui->pBtn_del->setEnabled(false);
+    }
+    else
+    {
+        ui->pBtn_del->setEnabled(true);
+    }
     ui->lb_count->setText("0");
     ui->lb_current->setText("0");
     ui->lineEdit_pageNum->clear();

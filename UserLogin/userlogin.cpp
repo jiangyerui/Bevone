@@ -59,7 +59,8 @@ void UserLogin::loginShow()
     ui->lb_serialNO->setText(m_db.getSerialNumber());
 
     //获取外部版本
-    ui->lb_EVNValue->setText(m_db.getEVN());
+
+    //ui->lb_EVNValue->setText(m_db.getEVN());
 
     ui->lb_msg->setFocus();
     ui->lineEdit_passwd->clear();

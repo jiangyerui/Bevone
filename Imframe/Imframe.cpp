@@ -97,7 +97,7 @@ void IMFrame::getcurrentwidget()
                     "lineEdit_newPasswd" == objName || "lineEdit_oldPasswd" == objName)
             {
                 x=170;
-                y=100;
+                y=50;
             }
             //Record
             else if("dTEdit_start" == objName || "dTEdit_end" == objName ||

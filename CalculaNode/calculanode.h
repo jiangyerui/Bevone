@@ -31,6 +31,7 @@ public:
     uint m_curNet;
 
     //报警,故障重新打开
+    uint m_ioFlag;
     uint m_reError;
     uint m_reAlarm;
     uint m_reDropped;

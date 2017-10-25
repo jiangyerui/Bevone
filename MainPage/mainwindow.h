@@ -213,6 +213,7 @@ public slots:
     void slotBtnJump();  //跳转到指定页
     void slotBtnPass_1();//网络切换1
     void slotBtnPass_2();//网络切换2
+
     void slotBtnFirstPage();//首页
     void slotBtnTailPage(); //尾页
     void slotBtnLastPage(); //上一页

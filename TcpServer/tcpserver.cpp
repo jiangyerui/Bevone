@@ -2,8 +2,8 @@
 #include "GlobalData/globaldata.h"
 
 #define CMDALL 0x01
-#define TYPE    0
-#define NET     1
+#define DATATYPE    0
+#define DATANET     1
 #define CANL    2
 #define CANH    3
 #define STS     4
@@ -31,7 +31,7 @@
 #define ONESTS 0x04
 
 #define SER     0x0B
-#define CMD     0x01
+#define DATACMD     0x01
 
 #define SERPID      0
 #define SERCMD      1
@@ -42,7 +42,7 @@
 #define HEADDATA    6
 
 
-#define debug
+//#define debug
 
 TcpServer::TcpServer(QObject *parent) : QObject(parent)
 {
@@ -64,8 +64,8 @@ void TcpServer::addNetData(uchar type, uchar net, quint16 id, uchar sts, quint16
     NetMeta netMeta;
     netMeta.id  = id;
     netMeta.net = net;
-    netMeta.data[TYPE] = type;
-    netMeta.data[NET]  = net;
+    netMeta.data[DATATYPE] = type;
+    netMeta.data[DATANET]  = net;
     netMeta.data[CANL] = id & 0XFF;
     netMeta.data[CANH] = id >> 8;
     netMeta.data[STS]  = sts;
@@ -82,6 +82,37 @@ void TcpServer::addNetData(uchar type, uchar net, quint16 id, uchar sts, quint16
     netMeta.data[UNUSED_2] = 0;
     m_listData.append(netMeta);
 
+}
+
+void TcpServer::addData(uchar net, quint16 id, uchar type, uchar flag, quint16 leakCur,
+                        quint16 leakSet, quint16 leakBase,quint16 temCur,quint16 temSet)
+{
+    NetMeta netMeta;
+    netMeta.data[HEAD_AA] = 0xAA;
+    netMeta.data[HEAD_00] = 0x00;
+    netMeta.data[CMD]     = 0x02;
+    netMeta.data[NET]     = net;
+    netMeta.data[ADD_L]   = id & 0xFF;
+    netMeta.data[ADD_H]   = id >> 8;
+    netMeta.data[LONG]    = 10;
+    netMeta.data[TYPE]    = type;
+    netMeta.data[STATE]   = flag;
+    netMeta.data[CUR_L]   = leakCur & 0xFF;
+    netMeta.data[CUR_H]   = leakCur >> 8;
+    netMeta.data[ALA_L]   = leakSet & 0xFF;
+    netMeta.data[ALA_H]   = leakSet >> 8;
+    netMeta.data[BASE_L]  = leakBase & 0xFF;
+    netMeta.data[BASE_H]  = leakBase >> 8;
+    netMeta.data[TEM_CUR] = temCur;
+    netMeta.data[TEM_SET] = temSet;
+
+    uchar crc = 0;
+    for(int i = CMD;i<CRC;i++)
+    {
+        crc += netMeta.data[i];
+    }
+    netMeta.data[CRC] = crc;
+    m_listData.append(netMeta);
 }
 
 void TcpServer::delNetData(uchar net, quint16 id)
@@ -103,7 +134,7 @@ void TcpServer::slotReceiveData()
     {
         if(tempData[i] == 0x0A)
         {
-            if(tempData[i+1] == ALLSTS)
+            if(tempData[i+1] == 0x01)
             {
                 //节点状态
                 moduleStatus();
@@ -112,8 +143,9 @@ void TcpServer::slotReceiveData()
                 //qDebug()<<"tempData[1] = "<<(uchar)tempData[i+1];
 
 #endif
-                //qDebug("**************************");
-                slotSendData();
+                qDebug("**************************");
+                slotSendDataNew();
+                //slotSendData();
             }
         }
     }
@@ -131,7 +163,7 @@ void TcpServer::slotSendData()
     qDebug()<<"dataSize : "<<dataSize;
     qDebug()<<"dataCount: "<<dataCount;
     netData[SERPID] = SER;
-    netData[SERCMD] = CMD;
+    netData[SERCMD] = DATACMD;
     netData[SIZE_LIT]  = dataSize & 0x0F;//取低八位
     netData[SIZE_BIG]  = dataSize >> 8;  //取高八位
     netData[COUNT_LIT] = dataCount & 0x0F;//取低八位
@@ -169,6 +201,28 @@ void TcpServer::slotSendData()
     delete netData;
     dataClear();
 
+}
+
+void TcpServer::slotSendDataNew()
+{
+    qint64 dataSize = m_listData.count() * DATASIZE;
+    uchar *netData = new uchar [dataSize];
+
+    if(m_listData.count() == 0)
+    {
+        return;
+    }
+
+    for(int i = 0;i < m_listData.count();i++)
+    {
+        for(int j = 0;j<DATASIZE;j++)
+        {
+            netData[i * DATASIZE + j] = m_listData.at(i).data[j];
+            qDebug()<<"netData["<<j<<"]="<<netData[j];
+        }
+    }
+    m_tcpSocket->write((char*)netData,dataSize);
+    delete [] netData;
 }
 
 void TcpServer::slotNewConnection()
@@ -209,13 +263,27 @@ void TcpServer::moduleStatus()
                 int type = mod[net][id].type;
                 if(type == MODULE_CUR)
                 {
-                    uint data = mod[net][id].rtData;
-                    addNetData(type,net,id,modeSts,data,0);
+                    qint16 leakCur  = mod[net][id].rtData;
+                    qint16 leakSet  = mod[net][id].alarmDataSet;
+                    qint16 leakBase = mod[net][id].baseData;
+
+                    qDebug()<<"leakCur  = "<<leakCur;
+                    qDebug()<<"leakSet  = "<<leakSet;
+                    qDebug()<<"leakBase = "<<leakBase;
+                    qDebug()<<"$$$$$$$$$$$$$$$$$$$$$$$$";
+                    //addNetData(type,net,id,modeSts,data,0);
+                    addData(net,id,type,modeSts,leakCur,leakSet,leakBase,0,0);
                 }
                 else if(type == MODULE_TEM)
                 {
-                    uint temp = mod[net][id].temData;
-                    addNetData(type,net,id,modeSts,0,temp);
+
+                    quint16 temSet = mod[net][id].alarmTemSet;
+                    quint16 temCur = mod[net][id].temData;
+                    qDebug()<<"temCur = "<<temCur;
+                    qDebug()<<"temSet = "<<temSet;
+
+                    //addNetData(type,net,id,modeSts,0,temp);
+                    addData(net,id,type,modeSts,0,0,0,temCur,temSet);
                 }
             }
         }

@@ -254,35 +254,47 @@ void GpioControl::controlSound(int type)
 
 void GpioControl::slotTimeOut()
 {
-
     times++;
-    if(times%2 == 1)
-    {
-        writeGPIO(CanLed,low);
-        writeGPIO(ErrorLed,low);
-        writeGPIO(AlarmLed,low);
-        writeGPIO(MainPowerRed,high);
-        writeGPIO(BackupPowerRed,high);
-    }
-    else
-    {
-        writeGPIO(CanLed,high);
-        writeGPIO(ErrorLed,high);
-        writeGPIO(AlarmLed,high);
-        writeGPIO(MainPowerGreen,low);
-        writeGPIO(BackupPowerGreen,low);
-    }
-    if(times == 4)
-    {
+    switch (times) {
+    case 1:
         controlSound(2);
-    }
-    if(times == 6)
-    {
+        writeGPIO(MainPowerRed,high);
+        break;
+    case 2:
+        writeGPIO(MainPowerGreen,low);
+        break;
+    case 3:
+        writeGPIO(BackupPowerRed,high);
+        break;
+    case 4:
+        writeGPIO(BackupPowerGreen,low);
+        break;
+    case 5:
+        writeGPIO(CanLed,low);
+        break;
+    case 6:
+        controlSound(1);
+        writeGPIO(CanLed,high);
+        break;
+    case 7:
+        writeGPIO(ErrorLed,low);
+        break;
+    case 8:
+        writeGPIO(ErrorLed,high);
+
+        break;
+    case 9:
+        writeGPIO(AlarmLed,low);
+        break;
+    case 10:
+        writeGPIO(AlarmLed,high);
         times = 0;
         m_timer->stop();
         writeGPIO(Buzz,high);
+        break;
+    default:
+        break;
     }
-
 }
 
 uint GpioControl::readGPIO(int name)

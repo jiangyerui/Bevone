@@ -48,7 +48,7 @@ public:
     QString setSelectSql(int item, bool net, bool id,QString &startTimer,QString &endTime);
     void connectPrint(QString net, QString id, QString type, QString status,QString value, QString time, QString address);
     void checkSelfPrint(QString nodeNum, QString alarmNum, QString errorNum, QString power, QString bpower);
-
+    int m_userType;
 private:
     Ui::Record *ui;
 
@@ -65,6 +65,7 @@ private:
     int m_id;
 
     QFont m_font;
+
 
     void initVar();
     void initWidget();

@@ -88,8 +88,8 @@ void SystemSet::systemShow()
         ui->gBox_other->setEnabled(false);
         ui->gBox_setTime->setEnabled(true);
         ui->gBox_setSMS->setEnabled(false);
-        ui->gBox_setPrint->setEnabled(true);
-        ui->gBox_setPasswd->setEnabled(false);
+        ui->gBox_setPrint->setEnabled(false);
+        ui->gBox_setPasswd->setEnabled(true);
         ui->gBox_setScretkey->setEnabled(false);
         ui->gBox_setSerialNum->setEnabled(false);
 
@@ -97,12 +97,12 @@ void SystemSet::systemShow()
     else if(MySqlite::ADMIN == m_userType)
     {
 
-        ui->gBox_node->setEnabled(true);
+        ui->gBox_node->setEnabled(false);
         ui->gBox_other->setEnabled(false);
         ui->gBox_setSMS->setEnabled(true);
         ui->gBox_setTime->setEnabled(true);
         ui->gBox_setPrint->setEnabled(true);
-        ui->gBox_setPasswd->setEnabled(false);
+        ui->gBox_setPasswd->setEnabled(true);
         ui->gBox_setScretkey->setEnabled(false);
         ui->gBox_setSerialNum->setEnabled(false);
     }
@@ -316,8 +316,17 @@ void SystemSet::slotBtnStopSecret()
 
 void SystemSet::slotBtnRecoverPasswd()
 {
-    m_db.recoverPasswd();
-    QMessageBox::information(NULL,tr("操作提示"),tr("已经恢复出厂密码"),tr("关闭"));
+    if(m_userType < 3)
+    {
+        QMessageBox::information(NULL,tr("操作提示"),tr("当前操作权限受限！！！"),tr("关闭"));
+        return;
+    }
+    else
+    {
+        m_db.recoverPasswd();
+        QMessageBox::information(NULL,tr("操作提示"),tr("已经恢复出厂密码"),tr("关闭"));
+    }
+
 }
 
 void SystemSet::slotPastTime()
@@ -421,7 +430,7 @@ void SystemSet::slotBtnNodeData()
         QString temStr   = ui->lineEdit_tem->text();
         if(temStr.toUInt() < 55)
         {
-            QMessageBox::information(NULL,tr("错误提示"),tr("温度设定值不能小于40℃"),tr("关闭"));
+            QMessageBox::information(NULL,tr("错误提示"),tr("温度设定值不能小于55℃"),tr("关闭"));
             return;
         }
 
@@ -541,6 +550,12 @@ void SystemSet::slotBtnUpdatePasswd()
     *操作员只能改自己的密码
     */
     int userType =  ui->comboBox_userType->currentIndex()+1;
+    if(userType > m_userType)
+    {
+        QMessageBox::information(NULL,tr("操作提示"),tr("权限不足！！！"),tr("关闭"));
+        return;
+    }
+
     QString oldPasswd = ui->lineEdit_oldPasswd->text();
     QString newPasswd = ui->lineEdit_newPasswd->text();
     if(newPasswd.isEmpty())

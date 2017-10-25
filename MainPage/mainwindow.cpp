@@ -53,9 +53,9 @@ void MainWindow::initCan_2(const char *canName,int net,uint pollTime)
 void MainWindow::initConfigure()
 {
 
-    ui->pBtn_Set->setEnabled(false);
-    ui->pBtn_Reset->setEnabled(false);
-    ui->pBtn_Check->setEnabled(false);
+    ui->tBtn_Set->setEnabled(false);
+    ui->tBtn_Reset->setEnabled(false);
+    ui->tBtn_Check->setEnabled(false);
 }
 
 void MainWindow::initConnect()
@@ -74,12 +74,12 @@ void MainWindow::initConnect()
     qDebug()<<"m_can1 : "<<m_can1;
     qDebug()<<"m_can2 : "<<m_can2;
     //网络操作信号槽
-    connect(ui->pBtn_Record,SIGNAL(clicked(bool)),this,SLOT(slotRecordShow()));
-    connect(ui->pBtn_User,SIGNAL(clicked(bool)),this,SLOT(slotUserLoginShow()));
-    connect(ui->pBtn_Set,SIGNAL(clicked(bool)),this,SLOT(slotSystemSetShow()));
-    connect(ui->pBtn_Reset,SIGNAL(clicked(bool)),this,SLOT(slotResetShow()));
-    connect(ui->pBtn_Check,SIGNAL(clicked(bool)),this,SLOT(slotSelfCheckShow()));
-    connect(ui->pBtn_Voice,SIGNAL(clicked(bool)),this,SLOT(slotBtnSound()));
+    connect(ui->tBtn_Record,SIGNAL(clicked(bool)),this,SLOT(slotRecordShow()));
+    connect(ui->tBtn_User,SIGNAL(clicked(bool)),this,SLOT(slotUserLoginShow()));
+    connect(ui->tBtn_Set,SIGNAL(clicked(bool)),this,SLOT(slotSystemSetShow()));
+    connect(ui->tBtn_Reset,SIGNAL(clicked(bool)),this,SLOT(slotResetShow()));
+    connect(ui->tBtn_Check,SIGNAL(clicked(bool)),this,SLOT(slotSelfCheckShow()));
+    connect(ui->tBtn_Voice,SIGNAL(clicked(bool)),this,SLOT(slotBtnSound()));
 
     connect(m_btnGroup,SIGNAL(buttonClicked(int)),this,SLOT(slotBtnClick(int)));
 
@@ -341,8 +341,8 @@ void MainWindow::setCountPageNum(int countPage)
 void MainWindow::slotSound()
 {
     m_soundFlag = TRUE;
-    ui->lb_Voice->setText(tr("蜂  鸣"));
-    ui->pBtn_Voice->setIcon(QIcon(":/Image/sound.png"));
+    ui->tBtn_Voice->setText(tr("蜂 鸣"));
+    ui->tBtn_Voice->setIcon(QIcon(":/Image/sound.png"));
 }
 
 void MainWindow::setCurPageNum(int curPage)
@@ -532,13 +532,13 @@ void MainWindow::hideAllTopWidget()
 
 void MainWindow::selfCheckScreen()
 {
-    if(m_screenColor <= 5)
+    if(m_screenColor <= 10)
     {
         m_screenColor++;
-        m_screenCheck->setColor(m_screenColor);
+        m_screenCheck->setColor((m_screenColor % 5) +1);
     }
 
-    if(m_screenColor == 6)
+    if(m_screenColor == 11)
     {
         m_screenColor = 0;
         m_screenCheck->hide();
@@ -828,14 +828,14 @@ void MainWindow::slotBtnSound()
     if(m_soundFlag == TRUE)
     {
         m_soundFlag = FALSE;
-        ui->lb_Voice->setText(tr("静  音"));
-        ui->pBtn_Voice->setIcon(QIcon(":/Image/mute.png"));
+        ui->tBtn_Voice->setText(tr("静 音"));
+        ui->tBtn_Voice->setIcon(QIcon(":/Image/mute.png"));
     }
     else
     {
         m_soundFlag = TRUE;
-        ui->lb_Voice->setText(tr("蜂  鸣"));
-        ui->pBtn_Voice->setIcon(QIcon(":/Image/sound.png"));
+        ui->tBtn_Voice->setText(tr("蜂 鸣"));
+        ui->tBtn_Voice->setIcon(QIcon(":/Image/sound.png"));
     }
     m_calNode->setSound(m_soundFlag);
 }
@@ -958,39 +958,42 @@ void MainWindow::slotLoginStatus(int type)
 
     if(type == MySqlite::USER)
     {
-        ui->lb_User->setText(tr("操作员"));
-        ui->pBtn_Set->setEnabled(true);
-        ui->pBtn_Reset->setEnabled(false);
-        ui->pBtn_Check->setEnabled(false);
+        ui->tBtn_User->setText(tr("操作员"));
+        ui->tBtn_Set->setEnabled(true);
+        ui->tBtn_Reset->setEnabled(false);
+        ui->tBtn_Check->setEnabled(false);
         sys->m_userType = type;
+        record->m_userType = type;
         m_userType = type;
     }
     else if(type == MySqlite::ADMIN)
     {
-        ui->lb_User->setText(tr("管理员"));
-        ui->pBtn_Set->setEnabled(true);
-        ui->pBtn_Reset->setEnabled(true);
-        ui->pBtn_Check->setEnabled(true);
+        ui->tBtn_User->setText(tr("管理员"));
+        ui->tBtn_Set->setEnabled(true);
+        ui->tBtn_Reset->setEnabled(true);
+        ui->tBtn_Check->setEnabled(true);
         sys->m_userType = type;
+        record->m_userType = type;
         m_userType = type;
     }
     else if(type == MySqlite::SUPER)
     {
-        ui->lb_User->setText(tr("超级用户"));
+        ui->tBtn_User->setText(tr("超级用户"));
         m_userType = type;
         sys->m_userType = type;
-        ui->pBtn_Set->setEnabled(true);
-        ui->pBtn_Reset->setEnabled(true);
-        ui->pBtn_Check->setEnabled(true);
+        record->m_userType = type;
+        ui->tBtn_Set->setEnabled(true);
+        ui->tBtn_Reset->setEnabled(true);
+        ui->tBtn_Check->setEnabled(true);
     }
     else if(type == MySqlite::QUIT)
     {
         m_userType = 1;
-        ui->lb_User->setText(tr("用  户"));
-        ui->pBtn_Set->setEnabled(false);
-        ui->pBtn_Reset->setEnabled(false);
-        ui->pBtn_Reset->setEnabled(false);
-        ui->pBtn_Check->setEnabled(false);
+        ui->tBtn_User->setText(tr("用 户"));
+        ui->tBtn_Set->setEnabled(false);
+        ui->tBtn_Reset->setEnabled(false);
+        ui->tBtn_Reset->setEnabled(false);
+        ui->tBtn_Check->setEnabled(false);
         g_login = false;
     }
 }

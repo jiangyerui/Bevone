@@ -3158,239 +3158,32 @@ background-color: rgb(0, 255, 0);</string>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">QPushButton{
+     <string notr="true">QToolButton{
+font: 14pt &quot;文泉驿等宽微米黑&quot;;
+color: rgb(255, 255, 255);
 border:2px solid;
 border-radius:8px;
 border-color: rgb(53, 156, 212);
+	
 }
 QLabel{
 color: rgb(255, 255, 255);
 }</string>
     </property>
-    <widget class="QPushButton" name="pBtn_Reset">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>0</y>
-       <width>50</width>
-       <height>40</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>文泉驿等宽微米黑</family>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::NoFocus</enum>
-     </property>
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../image.qrc">
-       <normaloff>:/Image/reset.png</normaloff>:/Image/reset.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>30</width>
-       <height>30</height>
-      </size>
-     </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
-    </widget>
-    <widget class="QLabel" name="lb_Voice">
+    <widget class="QToolButton" name="tBtn_User">
      <property name="geometry">
       <rect>
        <x>5</x>
-       <y>270</y>
+       <y>380</y>
        <width>60</width>
-       <height>25</height>
+       <height>60</height>
       </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>文泉驿等宽微米黑</family>
-       <pointsize>15</pointsize>
-      </font>
      </property>
      <property name="styleSheet">
       <string notr="true"/>
      </property>
      <property name="text">
-      <string>蜂  鸣</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLabel" name="lb_Check">
-     <property name="geometry">
-      <rect>
-       <x>5</x>
-       <y>196</y>
-       <width>60</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>文泉驿等宽微米黑</family>
-       <pointsize>15</pointsize>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <property name="text">
-      <string>自  检</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLabel" name="lb_User">
-     <property name="geometry">
-      <rect>
-       <x>5</x>
-       <y>418</y>
-       <width>60</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>文泉驿等宽微米黑</family>
-       <pointsize>15</pointsize>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <property name="locale">
-      <locale language="Chinese" country="China"/>
-     </property>
-     <property name="text">
-      <string>用  户</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLabel" name="lb_Record">
-     <property name="geometry">
-      <rect>
-       <x>5</x>
-       <y>344</y>
-       <width>60</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>文泉驿等宽微米黑</family>
-       <pointsize>15</pointsize>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <property name="text">
-      <string>记  录</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLabel" name="lb_Reset">
-     <property name="geometry">
-      <rect>
-       <x>5</x>
-       <y>46</y>
-       <width>60</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>文泉驿等宽微米黑</family>
-       <pointsize>15</pointsize>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true"/>
-     </property>
-     <property name="text">
-      <string>复  位</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pBtn_Check">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>146</y>
-       <width>50</width>
-       <height>40</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>文泉驿等宽微米黑</family>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::NoFocus</enum>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../image.qrc">
-       <normaloff>:/Image/check.png</normaloff>:/Image/check.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>30</width>
-       <height>30</height>
-      </size>
-     </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pBtn_User">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>372</y>
-       <width>50</width>
-       <height>40</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>文泉驿等宽微米黑</family>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::NoFocus</enum>
-     </property>
-     <property name="text">
-      <string/>
+      <string>用 户</string>
      </property>
      <property name="icon">
       <iconset resource="../image.qrc">
@@ -3398,132 +3191,28 @@ color: rgb(255, 255, 255);
      </property>
      <property name="iconSize">
       <size>
-       <width>30</width>
-       <height>30</height>
+       <width>35</width>
+       <height>35</height>
       </size>
      </property>
-     <property name="flat">
-      <bool>false</bool>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextUnderIcon</enum>
      </property>
     </widget>
-    <widget class="QPushButton" name="pBtn_Voice">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>222</y>
-       <width>50</width>
-       <height>40</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>文泉驿等宽微米黑</family>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::NoFocus</enum>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../image.qrc">
-       <normaloff>:/Image/sound.png</normaloff>:/Image/sound.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>30</width>
-       <height>30</height>
-      </size>
-     </property>
-    </widget>
-    <widget class="QLabel" name="lb_Set">
+    <widget class="QToolButton" name="tBtn_Record">
      <property name="geometry">
       <rect>
        <x>5</x>
-       <y>120</y>
+       <y>308</y>
        <width>60</width>
-       <height>25</height>
+       <height>60</height>
       </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>文泉驿等宽微米黑</family>
-       <pointsize>15</pointsize>
-      </font>
      </property>
      <property name="styleSheet">
       <string notr="true"/>
      </property>
      <property name="text">
-      <string>设  置</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pBtn_Set">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>74</y>
-       <width>50</width>
-       <height>40</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>文泉驿等宽微米黑</family>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::NoFocus</enum>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="icon">
-      <iconset resource="../image.qrc">
-       <normaloff>:/Image/set.png</normaloff>:/Image/set.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>30</width>
-       <height>30</height>
-      </size>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pBtn_Record">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>296</y>
-       <width>50</width>
-       <height>40</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>文泉驿等宽微米黑</family>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::NoFocus</enum>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string/>
+      <string>记 录</string>
      </property>
      <property name="icon">
       <iconset resource="../image.qrc">
@@ -3531,9 +3220,128 @@ color: rgb(255, 255, 255);
      </property>
      <property name="iconSize">
       <size>
-       <width>30</width>
-       <height>30</height>
+       <width>35</width>
+       <height>35</height>
       </size>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextUnderIcon</enum>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="tBtn_Voice">
+     <property name="geometry">
+      <rect>
+       <x>5</x>
+       <y>236</y>
+       <width>60</width>
+       <height>60</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string>蜂 鸣</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../image.qrc">
+       <normaloff>:/Image/sound.png</normaloff>:/Image/sound.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>35</width>
+       <height>35</height>
+      </size>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextUnderIcon</enum>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="tBtn_Check">
+     <property name="geometry">
+      <rect>
+       <x>5</x>
+       <y>162</y>
+       <width>60</width>
+       <height>60</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string>自 检</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../image.qrc">
+       <normaloff>:/Image/check.png</normaloff>:/Image/check.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>35</width>
+       <height>35</height>
+      </size>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextUnderIcon</enum>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="tBtn_Set">
+     <property name="geometry">
+      <rect>
+       <x>5</x>
+       <y>88</y>
+       <width>60</width>
+       <height>60</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string>设 置</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../image.qrc">
+       <normaloff>:/Image/set.png</normaloff>:/Image/set.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>35</width>
+       <height>35</height>
+      </size>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextUnderIcon</enum>
+     </property>
+    </widget>
+    <widget class="QToolButton" name="tBtn_Reset">
+     <property name="geometry">
+      <rect>
+       <x>5</x>
+       <y>15</y>
+       <width>60</width>
+       <height>60</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string>复 位</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../image.qrc">
+       <normaloff>:/Image/reset.png</normaloff>:/Image/reset.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>35</width>
+       <height>35</height>
+      </size>
+     </property>
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonTextUnderIcon</enum>
      </property>
     </widget>
    </widget>
