@@ -12,7 +12,7 @@
 #define TIMER 1000
 #define NODENUM 1200
 #define PAGEMAX 30
-#define PASSTIME  70
+#define PASSTIME  60
 
 class QTimer;
 class GpioControl;
@@ -23,12 +23,14 @@ class CalculaNode : public QObject
 public:
     explicit CalculaNode(QObject *parent = 0);
     QTimer *m_timer;
+    QTimer *m_ledtimer;
     GpioControl *m_gpio;
     MySqlite *m_db;
     Record *m_record;
 //    QtSMS  *m_gsm;
 
     uint m_curNet;
+    uint m_passTime;
 
     //报警,故障重新打开
     uint m_ioFlag;
@@ -38,7 +40,7 @@ public:
     bool m_soundFlag;
     bool m_powerType;
     bool m_selfCheckFlag;
-    int node[NODENUM];
+    int node[1024];
     QString m_center;
     QString m_strNum;
     QString m_strSend;
@@ -46,12 +48,16 @@ public:
     uint m_used[3][1];
     uint m_droped[3][1];
 
+
+    bool led;
+    bool m_canFlag;
+
     void initVar(bool powerType);
     void setSound(bool flag);
     void setCurNet(int curNet);
     void setSelfCheckFlag(bool flag);
-    int calculationNode(uint curNet);//计算网络节点个数
-    int calculationPage(int regNum);//计算总总页数
+    //int calculationNode(uint curNet);//计算网络节点个数
+    void calculationPage(uint curNet);//计算总总页数
     void calculaNodeStatus(uint GPIOFlag);
     void dealLedAndSound(uint alarm , uint error, uint droped, uint used, uint GPIOFlag);
     void soundControl(int soundType, bool soundSwitch);
@@ -60,9 +66,12 @@ signals:
     void sigNode(int *node,int size);
     void sigBtnSound();
     void sigSetCountPageNum(int);
+    void sigNodePage(int *node,int size,int pageCount);
 
 public slots:
+    void slotLedTimeOut();
     void slotTimeOut();
+    void slotReceiveLed();
 
 };
 

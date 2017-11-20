@@ -6,9 +6,26 @@
 #include "Imframe/Imframe.h"
 #include "ScreenSaver/screensaver.h"
 
+
 #define QUITTIME 180*1000
 
 #define ON_ARM
+
+//#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+//void customMessageHandler(QtMsgType type, const QMessageLogContext &, const QString & str)
+//{
+//    QString txt=str;
+//#else
+//void customMessageHandler(QtMsgType type, const char *msg)
+//{
+//    QString txt(msg);
+//#endif
+//    QFile outFile("debug.log");
+//    outFile.open(QIODevice::WriteOnly | QIODevice::Append);
+//    QTextStream ts(&outFile);
+//    ts << txt << endl;
+//}
+
 
 int main(int argc, char *argv[])
 {
@@ -19,6 +36,13 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("GBk"));
     QApplication a(argc, argv,QApplication::GuiServer);
 
+//#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+//    qInstallMessageHandler(customMessageHandler);
+//#else
+//    qInstallMsgHandler(customMessageHandler);
+//#endif
+
+
 #ifdef ON_ARM
     IMFrame* im = IMFrame::getIMFrame();
     QWSServer::setCurrentInputMethod(im);
@@ -27,8 +51,6 @@ int main(int argc, char *argv[])
     QWSServer::setScreenSaver(screenSaver);
     QWSServer::setScreenSaverInterval(QUITTIME);  //设置退出事件
 #endif
-    QFont font;
-    font.setPointSize(15);
 
     MySqlite db;
     db.initDb();//初始化数据库
@@ -39,3 +61,8 @@ int main(int argc, char *argv[])
 
     return a.exec();
 }
+
+
+
+
+

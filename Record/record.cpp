@@ -54,7 +54,7 @@ Record::Record(QWidget *parent) :
     ui->tableWdt_record->horizontalHeader()->setStretchLastSection(true);
     ui->tableWdt_record->horizontalHeader()->setHighlightSections(false);
 
-    ui->tableWdt_record->verticalHeader()->setResizeMode(QHeaderView::Stretch);
+    //ui->tableWdt_record->verticalHeader()->setResizeMode(QHeaderView::Stretch);
     ui->tableWdt_record->setEditTriggers(QTableWidget::NoEditTriggers);//单元格不可编
     ui->tableWdt_record->setSelectionBehavior (QAbstractItemView::SelectRows); //设置选择行为，以行为单位
     ui->tableWdt_record->setSelectionMode (QAbstractItemView::SingleSelection); //设置选择模式，选择单行
@@ -165,7 +165,7 @@ QString Record::setSelectSql(int item, bool net, bool id, QString &startTimer, Q
         }
         else if(net == false && id == false)//获取所有探测器故障信息
         {
-            sqlStr += " and status == 3 ";
+            sqlStr += " and status = 3 ";
         }
         else if(net == true && id == false)//获取指定网络探测器故障信息
         {
@@ -199,13 +199,14 @@ void Record::initShow()
 {
     this->show();
     m_currentPage = 1;
+
     if(m_userType < 3)
     {
-        ui->pBtn_del->setEnabled(false);
+        ui->pBtn_del->setVisible(false);
     }
     else
     {
-        ui->pBtn_del->setEnabled(true);
+        ui->pBtn_del->setVisible(true);
     }
     ui->lb_count->setText("0");
     ui->lb_current->setText("0");
@@ -542,7 +543,7 @@ void Record::slotBtnJump()
     int num = ui->lineEdit_pageNum->text().toInt();
     if(num > m_maxPage)
     {
-        QMessageBox::question( NULL, tr("提示信息"), tr("不能超过最页数!"), tr("确定"));
+        QMessageBox::question( NULL, tr("提示信息"), tr("不能超过最大页数!"), tr("确定"));
         ui->lineEdit_pageNum->setText(QString::number(m_maxPage));
     }
     else
@@ -654,6 +655,8 @@ void Record::setPrint(QTableWidget *tableWidget, MyPrint *myPrint, int row, int 
 
 void Record::checkSelfPrint(QString nodeNum,QString alarmNum, QString errorNum, QString power, QString bpower)
 {
+    qDebug()<<"alarmNum = "<<alarmNum;
+    qDebug()<<"errorNum = "<<errorNum;
     m_myPrint->checkSelfPrint(nodeNum,alarmNum,errorNum,power,bpower);
 }
 

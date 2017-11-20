@@ -12,18 +12,23 @@ CanMoudle::CanMoudle(QObject *parent) : QObject(parent)
 CanMoudle::CanMoudle(const char *canName, int net, uint pollTime)
 {
 
+    Q_UNUSED(pollTime)
     initCan(canName);
-    this->m_net = net;
+
+    m_can_1 = 0;
+    m_can_2 = 0;
     m_id = 0;
+    m_net = net;
     m_idNum = 0;
+
 
     m_canRxTimer = new QTimer;
     connect(m_canRxTimer,SIGNAL(timeout()),this,SLOT(slotCanRxTimeOut()),Qt::DirectConnection);
-    m_canRxTimer->start(pollTime);
+    m_canRxTimer->start(80);
 
     m_canTxTimer = new QTimer;
     connect(m_canTxTimer,SIGNAL(timeout()),this,SLOT(slotCanTxTimeOut()),Qt::DirectConnection);
-    m_canTxTimer->start(pollTime);
+    m_canTxTimer->start(30);
 
 }
 
@@ -32,7 +37,7 @@ void CanMoudle::initCan(const char *canName)
     m_canfd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
     if(m_canfd == -1)
     {
-        qDebug("socket");
+        qDebug("socket error");
     }
     else
     {
@@ -40,6 +45,7 @@ void CanMoudle::initCan(const char *canName)
         if(ioctl(m_canfd, SIOCGIFINDEX, &m_ifr))
         {
             qDebug()<<"ioctl error";
+            return;
         }
 
         m_addr.can_family = PF_CAN;
@@ -47,6 +53,7 @@ void CanMoudle::initCan(const char *canName)
         if(bind(m_canfd, (struct sockaddr *)&m_addr, sizeof(m_addr)) < 0)
         {
             qDebug()<<"bind error";
+            return;
         }
         qDebug()<<"**** Open "<<canName<<" OK **** ";
     }
@@ -78,15 +85,21 @@ int CanMoudle::dataRead(int canfd, can_frame &frame)
 void CanMoudle::slotCanRxTimeOut()
 {
     struct can_frame frame;
-    int ret = dataRead(m_canfd,frame);
-    if(ret > 0)
+    for(uint i = 0;i <= 50;i++)
     {
-        dealCanData(frame);
+        if(dataRead(m_canfd,frame) > 0)
+        {
+            //收到数据
+            emit sigReceiveLed();
+            dealCanData(frame);
+        }
     }
+
 }
 
 void CanMoudle::dealCanData(can_frame frame)
 {
+
     int cmd = frame.data[CAN_CMD];
     quint16 alarmData,rtData,baseData,canId;
     canId = frame.can_id;
@@ -109,9 +122,7 @@ void CanMoudle::dealCanData(can_frame frame)
     switch (cmd) {
     case CMD_RE_STATE:  //探测器回复状态
 
-        exeCmd[m_net][canId].dropped = FALSE;
-        exeCmd[m_net][canId].sendTime = QDateTime::currentDateTime().toTime_t();
-
+        mod[m_net][canId].dropTimes = 0;
         type = frame.data[1];
         switch (type) {
         case MODULE_CUR:
@@ -129,19 +140,34 @@ void CanMoudle::dealCanData(can_frame frame)
             baseData <<= 8;
             baseData |= frame.data[7];//低位数
 
-            mod[m_net][canId].used = TRUE;
+            mod[m_net][canId].used = true;
             mod[m_net][canId].rtData = rtData;//
             mod[m_net][canId].baseData = baseData;
             mod[m_net][canId].alarmDataSet = alarmData;
-
             mod[m_net][canId].type = frame.data[1];
-            nodeStatus(m_net,canId,frame.data[2]);
 
-            if(frame.data[2] == ALARM && mod[m_net][canId].alaDataLock == false)
+            if(frame.data[2] == 0x01)
             {
-                mod[m_net][canId].alaDataLock = true;
-                mod[m_net][canId].alarmData = rtData;
+                mod[m_net][canId].leakTimes++;
+                if(mod[m_net][canId].leakTimes > 2)
+                {
+                    mod[m_net][canId].leakTimes = 0;
+
+                    nodeStatus(m_net,canId,frame.data[2]);
+
+                    if(mod[m_net][canId].alaDataLock == false)
+                    {
+                        mod[m_net][canId].alaDataLock = true;
+                        mod[m_net][canId].alarmData = rtData;
+                    }
+                }
+
             }
+            else
+            {
+                nodeStatus(m_net,canId,frame.data[2]);
+            }
+
             break;
         case MODULE_TEM:
 
@@ -150,11 +176,24 @@ void CanMoudle::dealCanData(can_frame frame)
             mod[m_net][canId].baseData = 0;
             mod[m_net][canId].alarmTemSet = frame.data[5];//报警数值
             mod[m_net][canId].type = frame.data[1];
-            nodeStatus(m_net,canId,frame.data[2]);
-            if(frame.data[2] == ALARM && mod[m_net][canId].alaTemLock == false)
+
+            if(frame.data[2] == 0x01)
             {
-                mod[m_net][canId].alaTemLock = true;
-                mod[m_net][canId].alarmTem = frame.data[3];;
+                mod[m_net][canId].tempTimes++;
+                if(mod[m_net][canId].tempTimes > 2)
+                {
+                    mod[m_net][canId].tempTimes = 0;
+                    nodeStatus(m_net,canId,frame.data[2]);
+                    if(mod[m_net][canId].alaTemLock == false)
+                    {
+                        mod[m_net][canId].alaTemLock = true;
+                        mod[m_net][canId].alarmTem = frame.data[3];;
+                    }
+                }
+            }
+            else
+            {
+                nodeStatus(m_net,canId,frame.data[2]);
             }
             break;
         default:
@@ -162,38 +201,43 @@ void CanMoudle::dealCanData(can_frame frame)
         }
         break;
     case CMD_RE_SET:    //探测器回复设置
-        GlobalData::deleteCmd(m_net,canId,CMD_SE_SET);
 
-        type = frame.data[1];
-        switch (type) {
-        case MODULE_CUR:
-            //报警数值
-            //取出高4位数
-            alarmData = frame.data[3] << 8;
-            alarmData |= frame.data[2];   //低位数
-            //固有漏电
-            //取出低4位数
-            baseData =  frame.data[5] << 8;
-            baseData |= frame.data[4];//低位数
+        if(CurNet == m_net)
+        {
+            g_modSetCmd[m_net] = false;
+            type = frame.data[1];
+            switch (type) {
+            case MODULE_CUR:
+                //报警数值
+                //取出高4位数
+                alarmData = frame.data[3] << 8;
+                alarmData |= frame.data[2];   //低位数
+                //固有漏电
+                //取出低4位数
+                baseData =  frame.data[5] << 8;
+                baseData |= frame.data[4];//低位数
 
-            mod[m_net][canId].baseData = baseData;
-            mod[m_net][canId].alarmDataSet = alarmData;
+                mod[m_net][canId].baseData = baseData;
+                mod[m_net][canId].alarmDataSet = alarmData;
+                //g_modLeak = false;
+                emit sigSuccess();
 
-            break;
-        case MODULE_TEM:
-            mod[m_net][canId].alarmTemSet = frame.data[2];//报警数值
-            break;
-        default:
-            break;
+                break;
+            case MODULE_TEM:
+                mod[m_net][canId].alarmTemSet = frame.data[2];//报警数值
+                //g_modTemp[m_net] = false;
+                emit sigSuccess();
+                break;
+            default:
+                break;
+            }
         }
-        emit sigSuccess();
         break;
     case CMD_RE_RESET:  //探测器回复复位
         GlobalData::deleteCmd(m_net,canId,CMD_SE_RESET);
 
         break;
     case CMD_RE_OFF:    //探测器回复单个静音关闭成功
-
         GlobalData::deleteCmd(m_net,canId,CMD_SE_OFF);
 
         break;
@@ -209,19 +253,22 @@ void CanMoudle::nodeStatus(int net, uint id, char status)
 {
     switch (status) {
     case 0://normal
-        mod[net][id].normalFlag = true;
-        mod[net][id].alarmFlag = false;
-        mod[net][id].errorFlag = false;
-        mod[net][id].dropFlag = false;
+        mod[net][id].normalFlag  = true;
+        mod[net][id].alarmFlag   = false;
+        mod[net][id].errorFlag   = false;
+        mod[net][id].dropFlag    = false;
         mod[net][id].insertAlarm = false;
         mod[net][id].insertError = false;
-        mod[net][id].insertDrop = false;
+        mod[net][id].insertDrop  = false;
         break;
     case 1://alarm
         mod[net][id].alarmFlag  = true;
         mod[net][id].normalFlag = false;
+        mod[net][id].errorFlag  = false;
         mod[net][id].dropFlag   = false;
         mod[net][id].insertDrop = false;
+        mod[net][id].insertError = false;
+
         break;
     case 2://error
         mod[net][id].errorFlag  = true;
@@ -243,7 +290,6 @@ void CanMoudle::controlTimer(bool flag)
     }
     else
     {
-        qDebug()<<"*****************************m_canRxTimer->stop()";
         m_canRxTimer->stop();
     }
 }
@@ -255,12 +301,10 @@ void CanMoudle::getNodeNum(Exe_Cmd exeCmd[NETNUM][CMDEXENUM])
 
 void CanMoudle::slotCanTxTimeOut()
 {
-    struct can_frame canFrame;
-
-    m_id = modNum[m_net][m_idNum++];
     //发送复位命令
-    if(g_resetCmd == true)
+    if(g_resetCmd[m_net] == true)
     {
+        struct can_frame canFrame;
         canFrame.can_id  = ALLID;
         canFrame.can_dlc = 1;
         canFrame.data[0] = CMD_SE_RESET;
@@ -270,58 +314,63 @@ void CanMoudle::slotCanTxTimeOut()
         }
 
         dataWrite(m_canfd,canFrame);
-        m_canTxTimer->stop();
-
+        g_resetCmd[m_net] = false;
     }
-    else if(g_modSetCmd == true)//处理设置探测器命令
+    else if(g_modSetCmd[m_net] == true)//处理设置探测器命令
     {
-        if(exeCmd[m_net][cmdNum[m_net].cmdNum-1].needExe == 1)
+        struct can_frame canFrame;
+        if(g_modLeak[m_net] == true)
         {
-            canFrame = exeCmd[m_net][cmdNum[m_net].cmdNum-1].canFrame;
+
+            canFrame.can_id  = leakData[CurNet].can_id;
+            canFrame.can_dlc = leakData[CurNet].can_dlc;
+
+            for(uint k = 0;k < 8;k++)
+            {
+                canFrame.data[k] = leakData[CurNet].data[k];
+            }
+            g_modLeak[m_net] = false;
+
+        }
+        else if(g_modTemp[m_net] == true)
+        {
+            canFrame.can_id  = tempData[CurNet].can_id;
+            canFrame.can_dlc = tempData[CurNet].can_dlc;
+
+            for(uint k = 0;k < 8;k++)
+            {
+                canFrame.data[k] = tempData[CurNet].data[k];
+            }
+            g_modTemp[m_net] = false;
+        }
+        dataWrite(m_canfd,canFrame);
+    }
+    else
+    {
+        if(m_net == 1)
+        {
+            m_can_1++;
+            if(m_can_1 == canCmd_1_List.count())
+            {
+                m_can_1 = 0;
+            }
+            struct can_frame canFrame;
+            canFrame = canCmd_1_List.at(m_can_1);
             dataWrite(m_canfd,canFrame);
 
-            if(exeCmd[m_net][cmdNum[m_net].cmdNum-1].canFrame.data[0] == CMD_SE_SET)
-            {
-                exeCmd[m_net][cmdNum[m_net].cmdNum-1].needExe = 0;
-                exeCmd[m_net][cmdNum[m_net].cmdNum-1].canFrame.can_id  = 0;
-                exeCmd[m_net][cmdNum[m_net].cmdNum-1].canFrame.can_dlc = 0;
-                for(int j = 0 ;j < 8;j++)
-                {
-                    exeCmd[m_net][cmdNum[m_net].cmdNum-1].canFrame.data[j] = 0;
-                }
-            }
-            g_modSetCmd = false;
         }
-        qDebug()<<"idNum : "<<idNum;
-        qDebug()<<"CanMoudle  g_modSetCmd : "<<g_modSetCmd;
-    }
-    else if(exeCmd[m_net][m_id].needExe == 1)
-    {
-        canFrame = exeCmd[m_net][m_id].canFrame;
-        dataWrite(m_canfd,canFrame);
-
-        //处理检测状态，检测通讯时间和标志位
-        if(exeCmd[m_net][m_id].canFrame.data[0] == CMD_SE_STATE && exeCmd[m_net][m_id].dropped == FALSE)
+        else if(m_net == 2)
         {
-            exeCmd[m_net][m_id].dropped  = TRUE;//设置为掉线
-            exeCmd[m_net][m_id].sendTime = QDateTime::currentDateTime().toTime_t();//记录发送时间
-        }
-        //处理复位命令，发送后立即删除
-        if(exeCmd[m_net][m_id].canFrame.data[0] == CMD_SE_RESET)
-        {
-            exeCmd[m_net][m_id].needExe = 0;
-            exeCmd[m_net][m_id].canFrame.can_id  = 0;
-            exeCmd[m_net][m_id].canFrame.can_dlc = 0;
-            for(int j = 0 ;j < 8;j++)
+            m_can_2++;
+            if(m_can_2 == canCmd_2_List.count())
             {
-                exeCmd[m_net][m_id].canFrame.data[j] = 0;
+                m_can_2 = 0;
             }
+            struct can_frame canFrame;
+            canFrame = canCmd_2_List.at(m_can_2);
+            dataWrite(m_canfd,canFrame);
         }
     }
-
-    if(m_idNum == idNum)
-        m_idNum = 0;
-
 }
 
 

@@ -95,9 +95,9 @@ public:
     void lcdNumberClean();//清空数据
     void setCurPageNum(int curPage);//设置当前页
 //    void setCountPageNum(int countPage);//设置总数页
-    void moduleStatus(int curPage); //检测节点状态
-    int  calculationNode(int curNet);//计算网络节点个数
-    int  calculationPage(int regNum);//计算总总页数
+    void moduleStatus(int *node,int nodeNum,int curPage); //检测节点状态
+    //int  calculationNode(int curNet);//计算网络节点个数
+    //int  calculationPage(int regNum);//计算总总页数
 
     QString modType(int type);//探测器类型
     QString intToString(int number);//显示格式化
@@ -172,6 +172,8 @@ private:
     uint m_reDropped;
     uint m_reGPIO;
 
+    uint m_nodeNum;
+
     QList<QTableWidgetItem *> m_itemAlarmList;
     QList<QTableWidgetItem *> m_itemErrorList;
 
@@ -230,10 +232,10 @@ public slots:
     void slotSelfCheckShow();//自检界面
     void slotDataShow(int type);//显示报警-故障数据
     void slotLoginStatus(int type);//登陆类型
-    void slotChangeNodeColor(int id, int net);//改变节点颜色
 
-    void slotNodeData(int *node,int size);
-    void setCountPageNum(int countPage);//设置总数页
+
+    void slotNodeData(int *node, int size, int countPage);
+
     void slotSound();
 
 };

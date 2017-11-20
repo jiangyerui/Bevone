@@ -42,6 +42,14 @@
 
 #define ALLID 0
 
+struct setNodeData{
+    uint  can_id;
+    uchar can_dlc;
+    uchar data[8];
+};
+extern int CurNet;
+extern setNodeData leakData[3];
+extern setNodeData tempData[3];
 
 extern bool g_printType;
 extern bool g_smsType;
@@ -51,8 +59,10 @@ extern uint idMax;
 extern uint netMax;
 extern uint cmdMax;
 extern bool g_login;
-extern bool g_resetCmd;
-extern bool g_modSetCmd;
+extern bool g_resetCmd[3];
+extern bool g_modSetCmd[3];
+extern bool g_modTemp[3];
+extern bool g_modLeak[3];
 extern bool g_powerStatus;
 extern bool g_bpowerStatus;
 //struct can_frame {
@@ -89,6 +99,12 @@ struct Module{
     bool insertError;
     bool insertNormal;
     bool sent;
+
+    uint dropTimes;
+    uint leakTimes;
+    uint tempTimes;
+
+
 };
 extern uint idNum;
 extern uint modNum[3][1024];
@@ -98,9 +114,13 @@ struct Exe_Cmd
 {
     bool dropped;
     uint sendTime;
+    uint curTime;
+    uint passTime;
     uchar needExe;
     struct can_frame canFrame;
 };
+
+
 extern Exe_Cmd exeCmd[NETNUM][CMDEXENUM];
 struct CmdNum{
     int cmdNum;
@@ -108,7 +128,8 @@ struct CmdNum{
 extern CmdNum cmdNum[NETNUM];
 //发送缓存
 typedef struct can_frame CanFrame;
-
+extern QList<CanFrame> canCmd_1_List;
+extern QList<CanFrame> canCmd_2_List;
 //ZigBee数据结构
 struct SerialExeCmd
 {

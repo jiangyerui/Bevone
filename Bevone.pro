@@ -43,7 +43,7 @@ SOURCES += MainPage/main.cpp\
     Imframe/Imframe.cpp \
     CalculaNode/calculanode.cpp \
 #    SMS/SMS.cpp \
-#    SerialZigBee/serialhandle.cpp \
+    SerialZigBee/serialhandle.cpp \
     CanMoudle/canmoudle.cpp\
     ScreenSaver/screensaver.cpp
 
@@ -72,7 +72,7 @@ HEADERS  += MainPage/mainwindow.h \
     Imframe/Imframe.h \
     CalculaNode/calculanode.h \
 #    SMS/SMS.h \
-#    SerialZigBee/serialhandle.h \
+    SerialZigBee/serialhandle.h \
     CanMoudle/canmoudle.h\
     ScreenSaver/screensaver.h
 
@@ -108,7 +108,7 @@ SOURCES += MainPage/main.cpp\
     TcpServer/tcpserver.cpp \
     CalculaNode/calculanode.cpp \
 #    SMS/SMS.cpp \
-#    SerialZigBee/serialhandle.cpp \
+    SerialZigBee/serialhandle.cpp \
     CanMoudle/canmoudle.cpp
 
 
@@ -135,7 +135,7 @@ HEADERS  += MainPage/mainwindow.h \
     TcpServer/tcpserver.h \
     CalculaNode/calculanode.h \
 #    SMS/SMS.h \
-#    SerialZigBee/serialhandle.h \
+    SerialZigBee/serialhandle.h \
     CanMoudle/canmoudle.h
 
 FORMS    += MainPage/mainwindow.ui \

@@ -93,7 +93,7 @@ height:20px;
    <widget class="QLineEdit" name="lineEdit_tem">
     <property name="geometry">
      <rect>
-      <x>470</x>
+      <x>540</x>
       <y>25</y>
       <width>30</width>
       <height>30</height>
@@ -121,7 +121,7 @@ height:20px;
    <widget class="QLineEdit" name="lineEdit_alarm">
     <property name="geometry">
      <rect>
-      <x>275</x>
+      <x>355</x>
       <y>25</y>
       <width>45</width>
       <height>30</height>
@@ -149,7 +149,7 @@ height:20px;
    <widget class="QLineEdit" name="lineEdit_net">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>195</x>
       <y>25</y>
       <width>51</width>
       <height>30</height>
@@ -177,7 +177,7 @@ height:20px;
    <widget class="QLineEdit" name="lineEdit_have">
     <property name="geometry">
      <rect>
-      <x>275</x>
+      <x>355</x>
       <y>60</y>
       <width>45</width>
       <height>30</height>
@@ -205,9 +205,9 @@ height:20px;
    <widget class="QLabel" name="lb_alarmTem">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>445</x>
       <y>25</y>
-      <width>100</width>
+      <width>90</width>
       <height>30</height>
      </rect>
     </property>
@@ -227,9 +227,9 @@ height:20px;
    <widget class="QLabel" name="lb_alramCurrent">
     <property name="geometry">
      <rect>
-      <x>175</x>
+      <x>260</x>
       <y>25</y>
-      <width>100</width>
+      <width>90</width>
       <height>30</height>
      </rect>
     </property>
@@ -249,9 +249,9 @@ height:20px;
    <widget class="QLabel" name="lb_haveCurrent">
     <property name="geometry">
      <rect>
-      <x>175</x>
+      <x>260</x>
       <y>60</y>
-      <width>100</width>
+      <width>90</width>
       <height>30</height>
      </rect>
     </property>
@@ -271,7 +271,7 @@ height:20px;
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
-      <x>325</x>
+      <x>405</x>
       <y>60</y>
       <width>25</width>
       <height>30</height>
@@ -293,7 +293,7 @@ height:20px;
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>325</x>
+      <x>405</x>
       <y>25</y>
       <width>25</width>
       <height>30</height>
@@ -315,7 +315,7 @@ height:20px;
    <widget class="QLabel" name="lb_address">
     <property name="geometry">
      <rect>
-      <x>50</x>
+      <x>145</x>
       <y>60</y>
       <width>50</width>
       <height>30</height>
@@ -334,11 +334,11 @@ height:20px;
      <string>地址：</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pBtn_node">
+   <widget class="QPushButton" name="pBtn_write">
     <property name="geometry">
      <rect>
-      <x>550</x>
-      <y>40</y>
+      <x>615</x>
+      <y>60</y>
       <width>80</width>
       <height>30</height>
      </rect>
@@ -356,13 +356,13 @@ height:20px;
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="text">
-     <string>参数设置</string>
+     <string>写入参数</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>500</x>
+      <x>570</x>
       <y>25</y>
       <width>20</width>
       <height>30</height>
@@ -387,7 +387,7 @@ height:20px;
    <widget class="QLabel" name="lb_pass">
     <property name="geometry">
      <rect>
-      <x>50</x>
+      <x>145</x>
       <y>25</y>
       <width>50</width>
       <height>30</height>
@@ -412,7 +412,7 @@ height:20px;
    <widget class="QLineEdit" name="lineEdit_id">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>195</x>
       <y>60</y>
       <width>51</width>
       <height>30</height>
@@ -440,9 +440,9 @@ height:20px;
    <widget class="QComboBox" name="comboBox_type">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>20</x>
       <y>60</y>
-      <width>151</width>
+      <width>106</width>
       <height>30</height>
      </rect>
     </property>
@@ -477,6 +477,53 @@ height:20px;
       <string>温度</string>
      </property>
     </item>
+   </widget>
+   <widget class="QPushButton" name="pBtn_read">
+    <property name="geometry">
+     <rect>
+      <x>615</x>
+      <y>25</y>
+      <width>80</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>文泉驿等宽微米黑</family>
+      <pointsize>15</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="text">
+     <string>读取参数</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lb_alramCurrent_2">
+    <property name="geometry">
+     <rect>
+      <x>35</x>
+      <y>25</y>
+      <width>81</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>文泉驿等宽微米黑</family>
+      <pointsize>15</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>选择类型</string>
+    </property>
    </widget>
   </widget>
   <widget class="QGroupBox" name="gBox_setPasswd">
@@ -1854,7 +1901,7 @@ background-color: rgb(255, 255, 255);</string>
    <widget class="QLabel" name="lb_version">
     <property name="geometry">
      <rect>
-      <x>335</x>
+      <x>230</x>
       <y>18</y>
       <width>66</width>
       <height>30</height>
@@ -1876,7 +1923,7 @@ background-color: rgb(255, 255, 255);</string>
    <widget class="QLabel" name="lb_versionValue">
     <property name="geometry">
      <rect>
-      <x>405</x>
+      <x>300</x>
       <y>18</y>
       <width>76</width>
       <height>30</height>
@@ -1892,7 +1939,7 @@ background-color: rgb(255, 255, 255);</string>
      </font>
     </property>
     <property name="text">
-     <string>V-1.0.6</string>
+     <string>V-1.0.12</string>
     </property>
    </widget>
    <widget class="QLabel" name="lb_day_3">
@@ -1965,31 +2012,6 @@ background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="text">
      <string>轮询时间</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pBtn_copyDB">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>18</y>
-      <width>96</width>
-      <height>30</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>文泉驿等宽微米黑</family>
-      <pointsize>15</pointsize>
-      <weight>50</weight>
-      <italic>false</italic>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::NoFocus</enum>
-    </property>
-    <property name="text">
-     <string>传送数据库</string>
     </property>
    </widget>
   </widget>
@@ -2126,7 +2148,7 @@ border-color: rgb(226, 79, 79);
 border-radius:13px;</string>
    </property>
    <property name="text">
-    <string>退出</string>
+    <string>返回</string>
    </property>
    <property name="icon">
     <iconset resource="../image.qrc">

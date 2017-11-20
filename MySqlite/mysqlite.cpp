@@ -29,7 +29,7 @@ void MySqlite::insertTemp(int net, int id, int type,uint time)
     QString typeStr = QString::number(type);
     QString timeStr = QString::number(time);
     QString sql = "insert into TEMP values("+netStr+","+idStr+","+typeStr+","+timeStr+");";
-    qDebug()<<"insertTemp = "<<sql;
+    //qDebug()<<"insertTemp = "<<sql;
     QSqlQuery query(m_db);
     query.exec(sql);
     query.clear();
@@ -43,7 +43,7 @@ void MySqlite::insertAlarm(int net,int id,int type,int status,QString value,uint
     QString timeStr = QString::number(time);
     QString staStr  = QString::number(status);
     QString sql = "insert into RECORD values("+netStr+","+idStr+","+typeStr+","+staStr+","+value+","+timeStr+","+"'"+address+"');";
-    qDebug()<<"sql : "<<sql;
+    //qDebug()<<"sql : "<<sql;
     m_db.transaction();
     QSqlQuery query(m_db);
     query.exec(sql);
@@ -528,7 +528,7 @@ uint MySqlite::getNodeNum(uint net, uint id)
     uint exsit = 0;
 
     QString sql = "select count(*) from NODE WHERE net = "+QString::number(net)+" and id = "+QString::number(id)+";";
-    qDebug()<<"getNodeNum slq"<<sql;
+    //qDebug()<<"getNodeNum slq"<<sql;
     QSqlQuery query(m_db);
 
     if(query.exec(sql))
@@ -536,6 +536,7 @@ uint MySqlite::getNodeNum(uint net, uint id)
         if(query.next())
         {
             exsit = query.value(0).toUInt();
+            //qDebug()<<"exsit = "<<exsit;
         }
     }
     query.clear();

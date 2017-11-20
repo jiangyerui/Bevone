@@ -170,7 +170,7 @@ void GpioControl::initGPIOChip()
 void GpioControl::defaultStatus()
 {
     writeGPIO(GpioControl::Buzz,high);
-    writeGPIO(GpioControl::CanLed,high);
+    writeGPIO(GpioControl::CanLed,low);
     writeGPIO(GpioControl::ErrorLed,low);
     writeGPIO(GpioControl::AlarmLed,low);
     writeGPIO(GpioControl::OutControl_1,low);
@@ -261,13 +261,13 @@ void GpioControl::slotTimeOut()
         writeGPIO(MainPowerRed,high);
         break;
     case 2:
-        writeGPIO(MainPowerGreen,low);
+        writeGPIO(MainPowerGreen,high);
         break;
     case 3:
-        writeGPIO(BackupPowerRed,high);
+        writeGPIO(BackupPowerGreen,high);
         break;
     case 4:
-        writeGPIO(BackupPowerGreen,low);
+        writeGPIO(BackupPowerRed,high);
         break;
     case 5:
         writeGPIO(CanLed,low);
@@ -326,8 +326,6 @@ uint GpioControl::readGPIO(int name)
 void GpioControl::selfCheck()
 {
     m_timer->start();
-    //writeGPIO(Buzz,"0");
-    controlSound(1);
 }
 
 uint GpioControl::dealGPIO()
@@ -345,20 +343,21 @@ uint GpioControl::dealGPIO()
         writeGPIO(MainPowerGreen,low);
 
         g_powerStatus = true;
-
-
     }
     else
     {
         m_mainPowerTimes++;
-        if(m_mainPowerTimes > TIMES && m_mainPowerDb == true)
+        if(m_mainPowerTimes > TIMES  )
         {
-            g_bpowerStatus = true;
-            m_mainPowerDb = false;
-            m_mainPowerFlag = false;
-            uint curiTime = QDateTime::currentDateTime().toTime_t();
-            m_db.insertAlarm(0,0,MASTER,POWER,"0",curiTime,tr("消防中控室"));
             writeGPIO(MainPowerRed,high);
+            if(m_mainPowerDb == true)
+            {
+                g_powerStatus = false;
+                m_mainPowerDb = false;
+                m_mainPowerFlag = false;
+                uint curiTime = QDateTime::currentDateTime().toTime_t();
+                m_db.insertAlarm(0,0,MASTER,POWER,"0",curiTime,tr("消防中控室"));
+            }
         }
     }
     //备电检测
@@ -394,31 +393,35 @@ uint GpioControl::dealGPIO()
         if(backError == '1')
         {
             m_backupBreakTimes++;
-            if(m_backupBreakTimes > TIMES && m_backupBreakDb == true)
+            if(m_backupBreakTimes > TIMES )
             {
-                g_bpowerStatus = false;
-                m_backupBreakDb = false;
-                m_backupBreakFlag = false;
-                uint curiTime = QDateTime::currentDateTime().toTime_t();
-                m_db.insertAlarm(0,0,MASTER,BPOWERBREAK,"0",curiTime,tr("消防中控室"));
-
                 writeGPIO(BackupPowerRed,high);
+                if(m_backupBreakDb == true)
+                {
+                    g_bpowerStatus = false;
+                    m_backupBreakDb = false;
+                    m_backupBreakFlag = false;
+                    uint curiTime = QDateTime::currentDateTime().toTime_t();
+                    m_db.insertAlarm(0,0,MASTER,BPOWERBREAK,"0",curiTime,tr("消防中控室"));
+                }
             }
         }
         else
         {
             m_backupShortTimes++;
-            if(m_backupShortTimes > TIMES && m_backupShortDb == true)
+            if(m_backupShortTimes > TIMES )
             {
-                g_bpowerStatus = false;
-                m_backupShortDb = false;
-                m_backupShortFlag = false;
-                uint curiTime = QDateTime::currentDateTime().toTime_t();
-                m_db.insertAlarm(0,0,MASTER,BPOWERSHORT,"0",curiTime,tr("消防中控室"));
                 writeGPIO(BackupPowerRed,high);
+                if(m_backupShortDb == true)
+                {
+                    g_bpowerStatus = false;
+                    m_backupShortDb = false;
+                    m_backupShortFlag = false;
+                    uint curiTime = QDateTime::currentDateTime().toTime_t();
+                    m_db.insertAlarm(0,0,MASTER,BPOWERSHORT,"0",curiTime,tr("消防中控室"));
+                }
             }
         }
-
     }
 
     //检测主电和备电标志，如果是故障，指示灯，声音为故障

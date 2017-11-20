@@ -143,9 +143,8 @@ void TcpServer::slotReceiveData()
                 //qDebug()<<"tempData[1] = "<<(uchar)tempData[i+1];
 
 #endif
-                qDebug("**************************");
+                //qDebug("**************************");
                 slotSendDataNew();
-                //slotSendData();
             }
         }
     }
@@ -218,7 +217,7 @@ void TcpServer::slotSendDataNew()
         for(int j = 0;j<DATASIZE;j++)
         {
             netData[i * DATASIZE + j] = m_listData.at(i).data[j];
-            qDebug()<<"netData["<<j<<"]="<<netData[j];
+            //qDebug()<<"netData["<<j<<"]="<<netData[j];
         }
     }
     m_tcpSocket->write((char*)netData,dataSize);
@@ -236,9 +235,9 @@ void TcpServer::slotNewConnection()
 void TcpServer::moduleStatus()
 {
     dataClear();
-    for(uint net = 1;net <netMax;net++)
+    for(uint net = 1;net < netMax;net++)
     {
-        for(uint id = 1;id < idMax;id++)
+        for(uint id = 1;id <= idMax;id++)
         {
             if(mod[net][id].used == true)
             {
@@ -260,6 +259,7 @@ void TcpServer::moduleStatus()
                     modeSts = 1;
                 }
 
+
                 int type = mod[net][id].type;
                 if(type == MODULE_CUR)
                 {
@@ -267,10 +267,10 @@ void TcpServer::moduleStatus()
                     qint16 leakSet  = mod[net][id].alarmDataSet;
                     qint16 leakBase = mod[net][id].baseData;
 
-                    qDebug()<<"leakCur  = "<<leakCur;
-                    qDebug()<<"leakSet  = "<<leakSet;
-                    qDebug()<<"leakBase = "<<leakBase;
-                    qDebug()<<"$$$$$$$$$$$$$$$$$$$$$$$$";
+                    //qDebug()<<"leakCur  = "<<leakCur;
+                    //qDebug()<<"leakSet  = "<<leakSet;
+                    //qDebug()<<"leakBase = "<<leakBase;
+                    //qDebug()<<"$$$$$$$$$$$$$$$$$$$$$$$$";
                     //addNetData(type,net,id,modeSts,data,0);
                     addData(net,id,type,modeSts,leakCur,leakSet,leakBase,0,0);
                 }
@@ -279,9 +279,8 @@ void TcpServer::moduleStatus()
 
                     quint16 temSet = mod[net][id].alarmTemSet;
                     quint16 temCur = mod[net][id].temData;
-                    qDebug()<<"temCur = "<<temCur;
-                    qDebug()<<"temSet = "<<temSet;
-
+                    //qDebug()<<"temCur = "<<temCur;
+                    //qDebug()<<"temSet = "<<temSet;
                     //addNetData(type,net,id,modeSts,0,temp);
                     addData(net,id,type,modeSts,0,0,0,temCur,temSet);
                 }

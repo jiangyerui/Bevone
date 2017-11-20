@@ -84,8 +84,9 @@ private slots:
     void slotBtnRecoverPasswd();
     void slotPastTime();
     void slotPollTime();
-    void slotBtnCopyDB();
-    void slotBtnNodeData();
+
+    void slotBtnReadNode();
+    void slotBtnWriteData();
 
     void slotBtnStopSound();
     void slotBtnStartSound();
@@ -93,7 +94,10 @@ private slots:
     void slotBtnSMS();
 
     void slotComboBoxPrint(int index);
+    void slotComboBoxType(int index);
     void slotBtnCal();
+
+
 
 
 private:

@@ -31,7 +31,10 @@ void SystemSet::initVar()
     //大于0的数字
     QRegExp regExp("^[1-9][0-9]*$");
     ui->lineEdit_dayNum->setValidator(new QRegExpValidator(regExp, this));
-    QRegExp regExpPollTime("^(1[5-9][0-9])|([2-4][0-9][0-9])|500$");
+
+//    QRegExp regExpPollTime("^(1[5-9][0-9])|([2-4][0-9][0-9])|500$");
+//    ui->lineEdit_pollTime->setValidator(new QRegExpValidator(regExpPollTime, this));
+    QRegExp regExpPollTime("^(1[5-9])|([2-8][0-9])$");
     ui->lineEdit_pollTime->setValidator(new QRegExpValidator(regExpPollTime, this));
     //只能是数字
     QRegExp regExpNumId("^([1-9][0-9]{1,2})|(101[0-9])|(102[0-4])|0$");//1-1024
@@ -42,7 +45,7 @@ void SystemSet::initVar()
     ui->lineEdit_tem->setValidator(new QRegExpValidator(regExpNumTem, this));
     QRegExp regExpNumHave("([1-9][0-9]{1,2})|1000|0$");//0-1000
     ui->lineEdit_have->setValidator(new QRegExpValidator(regExpNumHave, this));
-    QRegExp regExpNumAlarm("^[2-9][0-9][0-9]|2000$");//200-2000
+    QRegExp regExpNumAlarm("^([2-9][0-9][0-9])|(1[0-9][0-9][0-9])|2000$");//200-2000
     ui->lineEdit_alarm->setValidator(new QRegExpValidator(regExpNumAlarm, this));
     //code
     QRegExp regExpNum("^[1-9][0-9]{1,5}$");//不是0开头的6位数字
@@ -74,6 +77,7 @@ void SystemSet::initVar()
     ui->pBtn_stopSound->hide();
     ui->pBtn_startSound->hide();
     ui->lineEdit_type->setEnabled(false);
+
 }
 
 void SystemSet::systemShow()
@@ -88,15 +92,16 @@ void SystemSet::systemShow()
         ui->gBox_other->setEnabled(false);
         ui->gBox_setTime->setEnabled(true);
         ui->gBox_setSMS->setEnabled(false);
-        ui->gBox_setPrint->setEnabled(false);
-        ui->gBox_setPasswd->setEnabled(true);
+        ui->gBox_setPrint->setEnabled(true);
+        ui->gBox_setPasswd->setEnabled(false);
         ui->gBox_setScretkey->setEnabled(false);
         ui->gBox_setSerialNum->setEnabled(false);
+        ui->lineEdit_pollTime->clear();
+
 
     }
     else if(MySqlite::ADMIN == m_userType)
     {
-
         ui->gBox_node->setEnabled(false);
         ui->gBox_other->setEnabled(false);
         ui->gBox_setSMS->setEnabled(true);
@@ -105,6 +110,7 @@ void SystemSet::systemShow()
         ui->gBox_setPasswd->setEnabled(true);
         ui->gBox_setScretkey->setEnabled(false);
         ui->gBox_setSerialNum->setEnabled(false);
+        ui->lineEdit_pollTime->clear();
     }
     else if(MySqlite::SUPER == m_userType)
     {
@@ -120,7 +126,10 @@ void SystemSet::systemShow()
 
         ui->lb_version->show();
         ui->lb_versionValue->show();
-        ui->lb_versionValue->setText(m_db.getIVN());
+        //ui->lb_versionValue->setText(m_db.getIVN());
+        ui->lineEdit_pollTime->setText(QString::number(m_db.getPollTime()));
+        ui->lineEdit_tem->setEnabled(false);
+        ui->comboBox_type->setCurrentIndex(0);
     }
 }
 
@@ -157,8 +166,9 @@ void SystemSet::initConnect()
     connect(m_pastTime,SIGNAL(timeout()),this,SLOT(slotPastTime()));
     connect(ui->pBtn_recoverPasswd,SIGNAL(clicked(bool)),this,SLOT(slotBtnRecoverPasswd()));
     connect(ui->pBtn_pollTime,SIGNAL(clicked(bool)),this,SLOT(slotPollTime()));
-    connect(ui->pBtn_copyDB,SIGNAL(clicked(bool)),this,SLOT(slotBtnCopyDB()));
-    connect(ui->pBtn_node,SIGNAL(clicked(bool)),this,SLOT(slotBtnNodeData()));
+
+    connect(ui->pBtn_write,SIGNAL(clicked(bool)),this,SLOT(slotBtnWriteData()));
+    connect(ui->pBtn_read,SIGNAL(clicked(bool)),this,SLOT(slotBtnReadNode()));
 
     connect(ui->pBtn_startSound,SIGNAL(clicked(bool)),this,SLOT(slotBtnStartSound()));
     connect(ui->pBtn_stopSound,SIGNAL(clicked(bool)),this,SLOT(slotBtnStopSound()));
@@ -167,6 +177,8 @@ void SystemSet::initConnect()
 
     connect(ui->comboBox_print,SIGNAL(currentIndexChanged(int)),this,SLOT(slotComboBoxPrint(int)));
     connect(ui->pBtn_cal,SIGNAL(clicked(bool)),this,SLOT(slotBtnCal()));
+
+    connect(ui->comboBox_type,SIGNAL(currentIndexChanged(int)),this,SLOT(slotComboBoxType(int)));
 
 }
 
@@ -240,29 +252,87 @@ void SystemSet::slotBtnPrintType()
 
 void SystemSet::slotBtnSysTime()
 {
-    m_setTime.year  = ui->lineEdit_year->text().toInt();
-    m_setTime.month = ui->lineEdit_month->text().toInt();
-    m_setTime.date  = ui->lineEdit_day->text().toInt();
-    m_setTime.hour  = ui->lineEdit_hour->text().toInt();
-    m_setTime.minute= ui->lineEdit_minute->text().toInt();
+
+    if(ui->lineEdit_year->text().isEmpty()  ||
+       ui->lineEdit_month->text().isEmpty() ||
+       ui->lineEdit_day->text().isEmpty()   ||
+       ui->lineEdit_hour->text().isEmpty()  ||
+       ui->lineEdit_minute->text().isEmpty())
+    {
+        QMessageBox::information(NULL,tr("操作提示"), tr("日期/时间设置不能为空！"),tr("确定"));
+        return;
+    }
+    int year,month,date,hour,minute,second;
+
+    year  = ui->lineEdit_year->text().toInt();
+    month = ui->lineEdit_month->text().toInt();
+    date  = ui->lineEdit_day->text().toInt();
+
+
+    switch (month) {
+    case 1:
+    case 3:
+    case 5:
+    case 7:
+    case 8:
+    case 10:
+    case 12:
+        break;
+    case 2:
+        //是闰年
+        if(((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
+        {
+            if(date > 29)
+            {
+                QMessageBox::information(NULL,tr("操作提示"), tr("日期设置错误！"),tr("确定"));
+                return;
+            }
+
+        }
+        else
+        {
+            if(date > 28)
+            {
+                QMessageBox::information(NULL,tr("操作提示"), tr("日期设置错误！"),tr("确定"));
+                return;
+            }
+        }
+
+        break;
+    case 4:
+    case 6:
+    case 9:
+    case 11:
+        if(date > 30)
+        {
+            QMessageBox::information(NULL,tr("操作提示"), tr("日期设置错误！"),tr("确定"));
+            return;
+        }
+        break;
+    default:
+        break;
+    }
+
+    hour  = ui->lineEdit_hour->text().toInt();
+    minute= ui->lineEdit_minute->text().toInt();
+
     if(ui->lineEdit_second->text().isEmpty() == true)
     {
-        m_setTime.second = 0;
+        second = 0;
     }
     else
     {
-        m_setTime.second = ui->lineEdit_second->text().toInt();
+        second = ui->lineEdit_second->text().toInt();
     }
 
     time_t time;
     struct tm p;
-
-    p.tm_year = m_setTime.year-1900;
-    p.tm_mon  = m_setTime.month-1;
-    p.tm_mday = m_setTime.date;
-    p.tm_hour = m_setTime.hour;
-    p.tm_min  = m_setTime.minute;
-    p.tm_sec  = m_setTime.second;
+    p.tm_year = year-1900;
+    p.tm_mon  = month-1;
+    p.tm_mday = date;
+    p.tm_hour = hour;
+    p.tm_min  = minute;
+    p.tm_sec  = second;
     time = mktime(&p);
     if(time < 0)
     {
@@ -275,7 +345,7 @@ void SystemSet::slotBtnSysTime()
     }
     else
     {
-        system("hwclock -w");
+        ::system("hwclock -w");
         QMessageBox::information(NULL,tr("操作提示"), tr("时间修改成功！"),tr("确定"));
     }
 }
@@ -356,13 +426,13 @@ void SystemSet::slotPollTime()
     else
     {
 
-        if(pollTime.toUInt() < 150)
-        {
-            QMessageBox::information(NULL,tr("设置轮循时间"),tr("轮循时间设定不能小于150ms"),tr("关闭"));
-            return;
-        }
+//        if(pollTime.toUInt() < 150)
+//        {
+//            QMessageBox::information(NULL,tr("设置轮循时间"),tr("轮循时间设定不能小于150ms"),tr("关闭"));
+//            return;
+//        }
 
-        int ret = QMessageBox::information(NULL,tr("设置轮循时间"),tr("轮循时间设定为:")+pollTime+tr("秒"),tr("确定"),tr("取消"));
+        int ret = QMessageBox::information(NULL,tr("设置轮循时间"),tr("轮循时间设定为:")+pollTime+tr("ms"),tr("确定"),tr("取消"));
         if(ret == 0)
         {
             if(m_db.setPollTime(pollTime))
@@ -378,36 +448,52 @@ void SystemSet::slotPollTime()
     }
 }
 
-void SystemSet::slotBtnCopyDB()
+
+void SystemSet::slotBtnReadNode()
 {
-    int ret = QMessageBox::question(NULL,tr("数据库烧录"),tr("数据库烧录之前请做好数据备份\n避免给您带来不必要的损失！"),
-                                    tr("确定"),tr("取消"));
-    if(ret == 0)
+    uint id  = ui->lineEdit_id->text().toUInt();
+    uint net = ui->lineEdit_net->text().toUInt();
+
+    if(mod[net][id].used == false)
     {
-        QString cmd_2;
-        cmd_2 = "wr cp /media/sda1/Bevone.db /opt/";
-        QProcess process;
-        int r = process.execute(cmd_2);
-        if(r == 0)
-        {
-            QMessageBox::information(NULL,tr("操作提示"),tr("数据库烧录成功！！！"),tr("关闭"));
-        }
-    }
-    else
-    {
+        QMessageBox::information(NULL,tr("操作提示"),tr("该节点不存在"),tr("关闭"));
         return;
     }
+
+    ui->lineEdit_alarm->clear();
+    ui->lineEdit_have->clear();
+    ui->lineEdit_tem->clear();
+
+    uint type = mod[net][id].type;
+    if(type == MODULE_CUR)
+    {
+        uint leakSet = mod[net][id].alarmDataSet;
+        uint leakBase = mod[net][id].baseData;
+        ui->lineEdit_alarm->setText(QString::number(leakSet));
+        ui->lineEdit_have->setText(QString::number(leakBase));
+    }
+    else if(type == MODULE_TEM)
+    {
+        uint temSet = mod[net][id].alarmTemSet;
+        ui->lineEdit_tem->setText(QString::number(temSet));
+    }
+
 }
 
-void SystemSet::slotBtnNodeData()
+void SystemSet::slotBtnWriteData()
 {
-    uchar temp[6];
+
     QString idStr    = ui->lineEdit_id->text();
     QString netStr   = ui->lineEdit_net->text();
 
     int index = ui->comboBox_type->currentIndex() + 2;
     if(index == MODULE_CUR)
     {
+        if(mod[netStr.toInt()][idStr.toInt()].type != MODULE_CUR)
+        {
+            QMessageBox::information(NULL,tr("错误提示"),tr("探测器与参数设定值不匹配！"),tr("关闭"));
+            return ;
+        }
         QString haveStr  = ui->lineEdit_have->text();
         QString alarmStr = ui->lineEdit_alarm->text();
         if(alarmStr.toUInt() < 200)
@@ -416,17 +502,32 @@ void SystemSet::slotBtnNodeData()
             return;
         }
 
-        temp[0] = CMD_SE_SET;
-        temp[1] = MODULE_CUR;
-        temp[2] = alarmStr.toUInt() & 0xFF;//低八位
-        temp[3] = alarmStr.toUInt() >> 8;
-        temp[4] = haveStr.toUInt() & 0xFF;
-        temp[5] = haveStr.toUInt() >> 8;
-        GlobalData::addCmd(netStr.toInt(),idStr.toInt(),temp[0],temp,6);
-        g_modSetCmd = true;
+        for(int i = 0;i<8;i++)
+        {
+            leakData[netStr.toInt()].data[i] = 0;
+        }
+        leakData[netStr.toInt()].can_id  = idStr.toUInt();
+        leakData[netStr.toInt()].can_dlc = 8;
+        leakData[netStr.toInt()].data[0] = CMD_SE_SET;
+        leakData[netStr.toInt()].data[1] = MODULE_CUR;
+        leakData[netStr.toInt()].data[2] = alarmStr.toUInt() & 0xFF;//低八位;
+        leakData[netStr.toInt()].data[3] = alarmStr.toUInt() >> 8;
+        leakData[netStr.toInt()].data[4] = haveStr.toUInt() & 0xFF;
+        leakData[netStr.toInt()].data[5] = haveStr.toUInt() >> 8;
+        leakData[netStr.toInt()].data[6] = 0;
+        leakData[netStr.toInt()].data[7] = 0;
+        CurNet = netStr.toInt();
+        g_modLeak[CurNet] = true;
+        g_modSetCmd[CurNet] = true;
     }
     else if(index == MODULE_TEM)
     {
+        if(mod[netStr.toInt()][idStr.toInt()].type != MODULE_TEM)
+        {
+            QMessageBox::information(NULL,tr("错误提示"),tr("探测器与参数设定值不匹配！"),tr("关闭"));
+            return ;
+        }
+
         QString temStr   = ui->lineEdit_tem->text();
         if(temStr.toUInt() < 55)
         {
@@ -434,15 +535,24 @@ void SystemSet::slotBtnNodeData()
             return;
         }
 
-        temp[0] = CMD_SE_SET;
-        temp[1] = MODULE_TEM;
-        temp[2] = temStr.toUInt() & 0xFF;
-        temp[3] = temStr.toUInt() >> 8;
-        GlobalData::addCmd(netStr.toInt(),idStr.toInt(),temp[0],temp,4);
-        g_modSetCmd = true;
+        for(int i = 0;i<8;i++)
+        {
+            tempData[netStr.toInt()].data[i] = 0;
+        }
+        tempData[netStr.toInt()].can_id  = idStr.toUInt();
+        tempData[netStr.toInt()].can_dlc = 8;
+        tempData[netStr.toInt()].data[0] = CMD_SE_SET;
+        tempData[netStr.toInt()].data[1] = MODULE_TEM;
+        tempData[netStr.toInt()].data[2] = temStr.toUInt() & 0xFF;
+        tempData[netStr.toInt()].data[3] = temStr.toUInt() >> 8;
+        tempData[netStr.toInt()].data[4] = 0;
+        tempData[netStr.toInt()].data[5] = 0;
+        tempData[netStr.toInt()].data[6] = 0;
+        tempData[netStr.toInt()].data[7] = 0;
+        CurNet = netStr.toInt();
+        g_modTemp[CurNet]   = true;
+        g_modSetCmd[CurNet] = true;
     }
-
-    qDebug()<<"SystemSet  g_modSetCmd : "<<g_modSetCmd;
 }
 
 void SystemSet::slotBtnStopSound()
@@ -508,13 +618,31 @@ void SystemSet::slotComboBoxPrint(int index)
     }
 }
 
+void SystemSet::slotComboBoxType(int index)
+{
+    if(index == 0)
+    {
+        ui->lineEdit_have->setEnabled(true);
+        ui->lineEdit_alarm->setEnabled(true);
+        ui->lineEdit_tem->setEnabled(false);
+    }
+    else
+    {
+        ui->lineEdit_have->setEnabled(false);
+        ui->lineEdit_alarm->setEnabled(false);
+        ui->lineEdit_tem->setEnabled(true);
+    }
+}
+
 void SystemSet::slotBtnCal()
 {
-//    QProcess *process = new QProcess;
-//    QString cmd = "wr chmod -x /etc/init.d/S85qt && wr chmod +x /etc/init.d/S85Cal && reboot";
-//    process->execute(cmd);
+    //    QProcess *process = new QProcess;
+    //    QString cmd = "wr chmod -x /etc/init.d/S85qt && wr chmod +x /etc/init.d/S85Cal && reboot";
+    //    process->execute(cmd);
     ::system("wr chmod -x /etc/init.d/S85qt && wr chmod +x /etc/init.d/S85Cal && reboot");
 }
+
+
 
 
 void SystemSet::setSerialNum(QString serialNum)
@@ -550,7 +678,7 @@ void SystemSet::slotBtnUpdatePasswd()
     *操作员只能改自己的密码
     */
     int userType =  ui->comboBox_userType->currentIndex()+1;
-    if(userType > m_userType)
+    if(userType > m_userType || userType == 1)
     {
         QMessageBox::information(NULL,tr("操作提示"),tr("权限不足！！！"),tr("关闭"));
         return;

@@ -2,13 +2,23 @@
 #include <QDebug>
 #include <QProcess>
 //#define DEBUG
-
+#define CANLED 20
 
 CalculaNode::CalculaNode(QObject *parent) : QObject(parent)
 {
+
+    m_db = new MySqlite;
+    m_passTime =  m_db->getPollTime();
+
     m_timer = new QTimer;
     connect(m_timer,SIGNAL(timeout()),this,SLOT(slotTimeOut()));
     m_timer->start(TIMER);
+
+    m_ledtimer = new QTimer;
+    connect(m_ledtimer,SIGNAL(timeout()),this,SLOT(slotLedTimeOut()));
+    m_ledtimer->start(100);
+
+
 
     m_ioFlag = 0;
     m_reError = 0;
@@ -20,14 +30,11 @@ CalculaNode::CalculaNode(QObject *parent) : QObject(parent)
     m_strSend.clear();
 
     m_gpio = new GpioControl;
-    m_db = new MySqlite;
-    //m_db->getSmsDetail(m_center,m_strNum);
     m_record = new Record;
-
     m_cmdFlag = false;
 
-    //    m_gsm = QtSMS::getqtsms();
-    //    m_gsm->OpenCom(QString("/dev/ttyUSB0"));
+    //m_gsm = QtSMS::getqtsms();
+    //m_gsm->OpenCom(QString("/dev/ttyUSB0"));
 
 
 }
@@ -37,9 +44,10 @@ void CalculaNode::initVar(bool powerType)
     m_powerType = powerType;
 }
 
-int CalculaNode::calculationNode(uint curNet)
+void CalculaNode::calculationPage(uint curNet)
 {
     int regNum = 0;
+
     for(int i=0;i<IDNUM;i++)
     {
         node[i] = 0;
@@ -47,24 +55,19 @@ int CalculaNode::calculationNode(uint curNet)
 
     for(uint net = 1;net < netMax;net++)
     {
-        for(uint id = 1;id < idMax;id++)
+        for(uint id = 1;id <= idMax;id++)
         {
-            if(mod[net][id].used == true)
+            if(mod[curNet][id].used == true)
             {
                 if(curNet == net)
                 {
                     node[regNum++] = id;
-                    node[regNum]   = 0;
+                    //qDebug()<<"*******************";
                 }
             }
         }
     }
 
-    emit sigNode(node,regNum);
-    return regNum;
-}
-int CalculaNode::calculationPage(int regNum)
-{
     int countPage = 0;
     if(regNum < 40)
     {
@@ -80,8 +83,9 @@ int CalculaNode::calculationPage(int regNum)
             }
         }
     }
-    emit sigSetCountPageNum(countPage);
-    return countPage;
+
+    //if(regNum != 0)
+        emit sigNodePage(node,regNum,countPage);
 }
 
 void CalculaNode::calculaNodeStatus(uint GPIOFlag)
@@ -90,33 +94,37 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
     uint error = 0;
     uint droped= 0;
     uint used  = 0;
-    //    uint send  = 0;
+
     m_used[1][0] = 0;
     m_used[2][0] = 0;
     m_droped[1][0] = 0;
     m_droped[2][0] = 0;
 
+    uint curTime = QDateTime::currentDateTime().toTime_t();
+    qDebug()<<"*** calculaNodeStatus ***";
     for(uint net = 1;net < netMax;net++)
     {
         for(uint id = 1;id <= idMax;id++)
         {
-            uint curTime  = QDateTime::currentDateTime().toTime_t();
-            uint sendTime = exeCmd[net][id].sendTime;
-            uint passTime = curTime - sendTime;
-
-            if(mod[net][id].used == TRUE)//当前节点存在
+            if(mod[net][id].used == true)//当前节点存在
             {
                 used++;
                 m_used[net][0]++;
 
-                if(exeCmd[net][id].dropped == TRUE)//当前节点掉线
+                if(mod[net][id].dropFlag == false)
                 {
-                    if(passTime >= PASSTIME && mod[net][id].dropFlag == false )
+                    mod[net][id].dropTimes++;
+                    qDebug()<<"mod["<<net<<"]["<<id<<"].dropTimes = "<<mod[net][id].dropTimes;
+                    if(mod[net][id].dropTimes > m_passTime )//当前节点掉线
                     {
+                        mod[net][id].dropTimes = 0;
                         mod[net][id].dropFlag = true;
                         mod[net][id].normalFlag = false;
                     }
                 }
+
+                //qDebug()<<"passTime = "<<m_passTime;
+
                 //当前节点正常
                 if(mod[net][id].normalFlag == TRUE)
                 {
@@ -132,7 +140,6 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                 if(mod[net][id].dropFlag == TRUE)
                 {
                     droped++;
-                    error++;
                     m_droped[net][0]++;
                     if(mod[net][id].insertDrop == FALSE)
                     {
@@ -159,7 +166,7 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                         {
                             if(m_db->getPrintError())
                             {
-                                qDebug()<<"getPrintError";
+                                //qDebug()<<"getPrintError";
                                 QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss");
                                 m_record->connectPrint(QString::number(net),QString::number(id),type,tr("通讯故障"),value,time,add);
                             }
@@ -291,9 +298,9 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
     if(netMax == 3)
     {
         //重新注册can
-        if(m_used[1][0] != 0 && m_used[2][0] != 0)
+        if(m_used[1][0] != 0 || m_used[2][0] != 0)
         {
-            if( m_used[1][0] == m_droped[1][0] ||  m_used[2][0] == m_droped[2][0])
+            if( m_used[1][0] == m_droped[1][0] || m_used[2][0] == m_droped[2][0])
             {
                 ::system("source /etc/profile");
             }
@@ -321,15 +328,7 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
 
 void CalculaNode::dealLedAndSound(uint alarm, uint error, uint droped, uint used, uint GPIOFlag)
 {
-    //通讯指示灯,节点掉线个数与总数相同
-    if(used == droped)
-    {
-        m_gpio->writeGPIO(GpioControl::CanLed,"0");
-    }
-    else
-    {
-        m_gpio->writeGPIO(GpioControl::CanLed,"1");
-    }
+    Q_UNUSED(used)
     //报警指示灯
     if(alarm > 0)
     {
@@ -344,7 +343,7 @@ void CalculaNode::dealLedAndSound(uint alarm, uint error, uint droped, uint used
         m_gpio->writeGPIO(GpioControl::OutControl_2,"0");
     }
     //故障指示灯
-    if(error > 0 || GPIOFlag > 0)
+    if(droped > 0 || error > 0 || GPIOFlag > 0)
     {
         m_gpio->writeGPIO(GpioControl::ErrorLed,"1");
     }
@@ -451,12 +450,42 @@ void CalculaNode::soundControl(int soundType, bool soundSwitch)
     }
 }
 
+void CalculaNode::slotLedTimeOut()
+{
+    if(m_canFlag == true)
+    {
+        if(!led)
+        {
+            led = true;
+            m_gpio->writeGPIO(GpioControl::CanLed,"1");
+        }
+        else
+        {
+            led = false;
+            m_canFlag = false;
+            m_gpio->writeGPIO(GpioControl::CanLed,"0");
+        }
+    }
+    else
+    {
+        m_gpio->writeGPIO(GpioControl::CanLed,"0");
+    }
+
+}
+
 void CalculaNode::slotTimeOut()
 {
     //显示节点状态，计算机点个数，计算页面数量
-    calculationPage(calculationNode(m_curNet));
+
+    calculationPage(m_curNet);
     calculaNodeStatus(m_gpio->dealGPIO());
 
+}
+
+void CalculaNode::slotReceiveLed()
+{
+
+    m_canFlag = true;
 }
 
 void CalculaNode::setSound(bool flag)

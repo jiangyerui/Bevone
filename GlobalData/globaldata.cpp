@@ -4,17 +4,22 @@
 //#define debug
 //#define test
 
+int CurNet ;
+bool g_modTemp[3]={0,0,0};
+bool g_modLeak[3]={0,0,0};
+setNodeData leakData[3];
+setNodeData tempData[3];
 bool g_login = false;
 bool g_printType = false;
 bool g_smsType = false;
 QString g_hostModel = "00";
 int g_cmdNum  = 0;
-bool g_resetCmd  = false;
-bool g_modSetCmd = false;
+bool g_resetCmd[3]={0,0,0};
+bool g_modSetCmd[3]={0,0,0};
 uint idMax = 0;
 uint netMax = 0;
 uint cmdMax = 0;
-uint idNum = 0;
+uint idNum = 1;
 uint modNum[3][1024];
 Exe_Cmd exeCmd[NETNUM][CMDEXENUM];
 Module mod[NETNUM][IDNUM];
@@ -24,7 +29,8 @@ bool g_powerStatus = false;
 bool g_bpowerStatus = false;
 SerialCmdNum serialCmdNum[NETNUM];
 SerialExeCmd serialExeCmd[NETNUM][CMDEXENUM];
-
+QList<CanFrame> canCmd_1_List;
+QList<CanFrame> canCmd_2_List;
 GlobalData::GlobalData()
 {
 
@@ -39,7 +45,6 @@ void GlobalData::initCmdType(QString type)
     {
         netMax = 2;
         idMax = 32;
-        cmdMax = 40;
     }
     else
     {
@@ -56,27 +61,22 @@ void GlobalData::initCmdType(QString type)
         switch (type.mid(4,1).toInt()) {
         case 1:
             idMax = 32;
-            cmdMax = 40;
             break;
         case 2:
             idMax = 64;
-            cmdMax = 70;
             break;
         case 3:
             idMax = 128;
-            cmdMax = 140;
+
             break;
         case 4:
             idMax = 256;
-            cmdMax = 270;
             break;
         case 5:
             idMax = 512;
-            cmdMax = 540;
             break;
         case 6:
             idMax = 1024;
-            cmdMax = 1040;
             break;
         default:
             break;
@@ -87,16 +87,16 @@ void GlobalData::initCmdType(QString type)
 
     for(uint net = 1;net < netMax; net++)
     {
-        for(uint id = 0;id <= idMax; id++)
+        for(uint id = 1;id <= idMax; id++)
         {
             //初始化can巡检命令
-
             temp[0] = CMD_SE_STATE;
             MySqlite db;
             if(db.getNodeNum(net ,id))
             {
+                //qDebug()<<"net = "<<net<<"  id = "<<id;
                 addCmd(net,id,temp[0],temp,1);
-                modNum[net][idNum++] = id;
+
             }
             //初始化ZigBee巡检命令
             //addCmdSerial(net,id,CMD_SE_STATE,15);
@@ -105,6 +105,8 @@ void GlobalData::initCmdType(QString type)
 
 
 }
+
+//#define TEST
 
 void GlobalData::initData()
 {
@@ -115,6 +117,9 @@ void GlobalData::initData()
             exeCmd[net][i].needExe = 0;
             exeCmd[net][i].canFrame.can_id  = 0;
             exeCmd[net][i].canFrame.can_dlc = 0;
+            exeCmd[net][i].sendTime = 0;
+            exeCmd[net][i].curTime  = 0;
+            exeCmd[net][i].dropped  = false;
             for(int j = 0 ;j < 8;j++)
             {
                 exeCmd[net][i].canFrame.data[j] = 0;
@@ -125,12 +130,20 @@ void GlobalData::initData()
 
     for(int net = 1;net < NETNUM;net++)
     {
-        for(int id = 0;id < IDNUM;id++)
+        for(int id = 1;id < IDNUM;id++)
         {
-            mod[net][id].used = FALSE;
+            mod[net][id].used = false;
             mod[net][id].id = 0;
             mod[net][id].net = 0;
             mod[net][id].type = 0;
+#ifdef TEST
+            mod[net][id].used = true;
+            mod[net][id].id = id;
+            mod[net][id].net = 1;
+            mod[net][id].type = 2;
+
+#endif
+
             mod[net][id].alarmTem = 0;
             mod[net][id].temData  = 0;
             mod[net][id].rtData   = 0;
@@ -148,27 +161,40 @@ void GlobalData::initData()
             mod[net][id].insertNormal = FALSE;
             mod[net][id].alaTemLock   = FALSE;
             mod[net][id].alaDataLock  = FALSE;
-
+            mod[net][id].dropTimes = 0;
+            mod[net][id].leakTimes = 0;
+            mod[net][id].tempTimes = 0;
         }
     }
 }
 
 void GlobalData::addCmd(int net,uint id,uint cmd, uchar *data, uchar lon)
 {
-    if( cmdNum[net].cmdNum == CMDEXENUM)
+    if(net == 1)
     {
-        cmdNum[net].cmdNum = 1;
+        CanFrame canFrame;
+        canFrame.can_dlc = lon;
+        canFrame.can_id  = id;
+        canFrame.data[0] = cmd;
+        for(int i = 1;i<lon;i++)
+        {
+            canFrame.data[i] = data[i];
+        }
+        canCmd_1_List.append(canFrame);
+    }
+    else if(net == 2)
+    {
+        CanFrame canFrame;
+        canFrame.can_dlc = lon;
+        canFrame.can_id  = id;
+        canFrame.data[0] = cmd;
+        for(int i = 1;i<lon;i++)
+        {
+            canFrame.data[i] = data[i];
+        }
+        canCmd_2_List.append(canFrame);
     }
 
-    exeCmd[net][cmdNum[net].cmdNum].needExe = 1;
-    exeCmd[net][cmdNum[net].cmdNum].canFrame.can_id  = id;
-    exeCmd[net][cmdNum[net].cmdNum].canFrame.can_dlc = lon;
-    exeCmd[net][cmdNum[net].cmdNum].canFrame.data[0] = cmd;
-    for(int j = 1 ;j < lon;j++)
-    {
-        exeCmd[net][cmdNum[net].cmdNum].canFrame.data[j] = data[j];
-    }
-    cmdNum[net].cmdNum++;
 }
 
 void GlobalData::deleteCmd(int net,  uint id, uint cmd)

@@ -24,7 +24,7 @@ void MyPrint::initCom()
     }
 
     if(myCom->open(QIODevice::ReadWrite))
-        qDebug()<<"open success!";
+        qDebug()<<"print open success!";
     else
         return;
     //波特率设置，我们设置为9600
@@ -84,9 +84,9 @@ void MyPrint::deletePrint()
 void MyPrint::checkSelfPrint(QString nodeNum, QString alarmNum, QString errorNum, QString power, QString bpower)
 {
     QByteArray byte;
-    QString company =   tr("****北京北元安达电子有限公司****");
-    byte = company.toLocal8Bit();
-    myCom->write(byte);
+    //QString company = tr("****北京北元安达电子有限公司****");
+    //byte = company.toLocal8Bit();
+    //myCom->write(byte);
 
     //自检完成
     QString compelet =  tr("自检完成");
@@ -99,12 +99,12 @@ void MyPrint::checkSelfPrint(QString nodeNum, QString alarmNum, QString errorNum
     myCom->write(byte);
     myCom->write(lf,1);
     //故障数目
-    QString modAddres = tr("故障数目 :") + alarmNum;
+    QString modAddres = tr("故障数目 : ") + errorNum;
     byte = modAddres.toLocal8Bit();
     myCom->write(byte);
     myCom->write(lf,1);
     //报警数目
-    QString modTime =   tr("报警数目 : ") + errorNum;
+    QString modTime =   tr("报警数目 : ") + alarmNum;
     byte = modTime.toLocal8Bit();
     myCom->write(byte);
     myCom->write(lf,1);
@@ -123,9 +123,9 @@ void MyPrint::checkSelfPrint(QString nodeNum, QString alarmNum, QString errorNum
 void MyPrint::printConnect(QString net, QString id, QString type,QString status,QString value, QString time, QString address)
 {
     QByteArray byte;
-    QString company = tr("****北京北元安达电子有限公司****");
-    byte = company.toLocal8Bit();
-    myCom->write(byte);
+//    QString company = tr("****北京北元安达电子有限公司****");
+//    byte = company.toLocal8Bit();
+//    myCom->write(byte);
     //打印地址
     QString modAddres = tr("地址 ：") + address;
     byte = modAddres.toLocal8Bit();

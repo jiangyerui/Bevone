@@ -46,7 +46,11 @@ public:
     int m_net;
     int m_canfd;
     uint m_idNum;
+//    uint m_leakTimes;
+//    uint m_tempTimes;
 
+    int m_can_1;
+    int m_can_2;
     void getNodeNum(Exe_Cmd exeCmd[NETNUM][CMDEXENUM]);
 
 private:
@@ -54,6 +58,7 @@ private:
     struct sockaddr_can m_addr;
 signals:
     void sigSuccess();
+    void sigReceiveLed();
 
 public slots:
     void slotCanRxTimeOut();
