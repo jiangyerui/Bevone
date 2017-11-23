@@ -3,7 +3,7 @@
 
 //#define DataRead
 //#define DataWrite
-
+#define ALARMTIMES 1
 CanMoudle::CanMoudle(QObject *parent) : QObject(parent)
 {
 
@@ -21,10 +21,9 @@ CanMoudle::CanMoudle(const char *canName, int net, uint pollTime)
     m_net = net;
     m_idNum = 0;
 
-
     m_canRxTimer = new QTimer;
     connect(m_canRxTimer,SIGNAL(timeout()),this,SLOT(slotCanRxTimeOut()),Qt::DirectConnection);
-    m_canRxTimer->start(80);
+    m_canRxTimer->start(70);
 
     m_canTxTimer = new QTimer;
     connect(m_canTxTimer,SIGNAL(timeout()),this,SLOT(slotCanTxTimeOut()),Qt::DirectConnection);
@@ -149,7 +148,7 @@ void CanMoudle::dealCanData(can_frame frame)
             if(frame.data[2] == 0x01)
             {
                 mod[m_net][canId].leakTimes++;
-                if(mod[m_net][canId].leakTimes > 2)
+                if(mod[m_net][canId].leakTimes > ALARMTIMES)
                 {
                     mod[m_net][canId].leakTimes = 0;
 
@@ -161,7 +160,6 @@ void CanMoudle::dealCanData(can_frame frame)
                         mod[m_net][canId].alarmData = rtData;
                     }
                 }
-
             }
             else
             {
@@ -180,7 +178,7 @@ void CanMoudle::dealCanData(can_frame frame)
             if(frame.data[2] == 0x01)
             {
                 mod[m_net][canId].tempTimes++;
-                if(mod[m_net][canId].tempTimes > 2)
+                if(mod[m_net][canId].tempTimes > ALARMTIMES)
                 {
                     mod[m_net][canId].tempTimes = 0;
                     nodeStatus(m_net,canId,frame.data[2]);

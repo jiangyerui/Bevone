@@ -77,6 +77,9 @@ void MainWindow::initConnect()
     connect(m_resetTimer,SIGNAL(timeout()),this,SLOT(slotResetTimer()));
     m_resetTimer->start(300);
 
+    m_selfCheckTimer = new QTimer;
+    connect(m_selfCheckTimer,SIGNAL(timeout()),this,SLOT(selfCheckResult()));
+    m_selfCheckTimer->start(1000);
 
 
 
@@ -363,9 +366,10 @@ void MainWindow::moduleStatus(int *nod,int nodeNum,int curPage)
     for(int i = 0;i<nodeNum;i++)
     {
         this->node[i] = nod[i];
-        //qDebug()<<"node["<<i<<"]="<<nod[i];
+        qDebug()<<"node["<<i<<"]="<<nod[i];
     }
-    //qDebug()<<"***"<<QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss")<<"***";
+    qDebug()<<"nodeNum  = "<<nodeNum;
+
 
     m_modeSts = 0;
     int i = (curPage - 1 ) * 40;
@@ -407,6 +411,8 @@ void MainWindow::moduleStatus(int *nod,int nodeNum,int curPage)
             }
         }
     }
+    qDebug()<<" i = "<<i;
+    qDebug()<<"***"<<QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss")<<"***";
 }
 
 QString MainWindow::modType(int type)
@@ -465,11 +471,6 @@ void MainWindow::showNodeValue(int curNet, int curId)
         ui->lcdNo_alaTemSet->display(QString::number(alarmTemSet));
     }
 
-
-
-
-
-
 }
 
 void MainWindow::hideAllTopWidget()
@@ -499,13 +500,22 @@ void MainWindow::selfCheckScreen()
     if(m_screenColor == 11)
     {
         m_screenColor = 0;
+        m_selfCheckTimer->stop();
         m_screenCheck->hide();
         m_selfCheckFlag = false;
         m_calNode->setSelfCheckFlag(m_selfCheckFlag);
 
+        //error
+        QString sqlError ="select count(*) from  TEMP TEMP WHERE type >= 2 and type <= 5 ;";
+        uint countError = m_db->getRowCount(sqlError);//返回故障数据的总行数
+
+        //alarm
+        QString sqlAlarm ="select count(*) from  TEMP WHERE type = 1 ;";
+        uint countAlarm = m_db->getRowCount(sqlAlarm);//返回报警数据的总行数
+
         QString nodeNumStr  = QString::number(m_nodeNum);
-        QString alarmNumStr = QString::number(m_alarmNum);
-        QString errorNumStr = QString::number(m_errorNum);
+        QString alarmNumStr = QString::number(countAlarm);
+        QString errorNumStr = QString::number(countError);
         QString power,bpower;
         if(g_powerStatus == true)   power = tr("正常");
         else    power = tr("故障");
@@ -518,9 +528,9 @@ void MainWindow::selfCheckScreen()
                 tr(" 报警总数:")+alarmNumStr+
                 tr(" 主电状态:")+power+
                 tr(" 备电状态:")+bpower;
-        QMessageBox::information(NULL,tr("自检结果"),result,tr("确定"));
 
         record->checkSelfPrint(nodeNumStr,alarmNumStr,errorNumStr,power,bpower);
+        QMessageBox::information(this,tr("自检结果"),result,tr("确定"));
     }
 }
 
@@ -566,36 +576,12 @@ void MainWindow::slotCurrentTime()
     //显示报警临时数据
     slotDataShow(ERODATA);
 
-    //自检操作是其他指示灯,蜂鸣器不受控制
-    if(m_selfCheckFlag == true)
-    {
-        selfCheckScreen();//屏幕自检
-    }
 
 #ifdef WatchDog
     //看门口狗
     Watchdog::kellLive();
 #endif
 
-//    if(m_delayFlag == true)
-//    {
-//        m_delayNum++;
-//        if(m_delayNum == 3)
-//        {
-//            m_delayNum = 0;
-//            if(netMax == 2)
-//            {
-//                m_can1->controlTimer(true);
-//            }
-//            else
-//            {
-//                m_can1->controlTimer(true);
-//                m_can2->controlTimer(true);
-//            }
-//            m_delayFlag = false;
-//            g_resetCmd = false;
-//        }
-//    }
 
 }
 //检测按键复位状态
@@ -873,6 +859,7 @@ void MainWindow::slotResetShow()
 void MainWindow::slotSelfCheckShow()
 {
     m_selfCheckFlag = true;
+    m_selfCheckTimer->start(1000);
     m_screenCheck->show();
     m_gpio->selfCheck();
     m_calNode->setSelfCheckFlag(m_selfCheckFlag);
@@ -933,6 +920,15 @@ void MainWindow::slotLoginStatus(int type)
         ui->tBtn_Reset->setEnabled(false);
         ui->tBtn_Check->setEnabled(false);
         g_login = false;
+    }
+}
+
+void MainWindow::selfCheckResult()
+{
+    //自检操作是其他指示灯,蜂鸣器不受控制
+    if(m_selfCheckFlag == true)
+    {
+        selfCheckScreen();//屏幕自检
     }
 }
 

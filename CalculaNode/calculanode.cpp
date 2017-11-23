@@ -61,12 +61,14 @@ void CalculaNode::calculationPage(uint curNet)
             {
                 if(curNet == net)
                 {
+
+                    qDebug()<<"node["<<regNum<<"] = "<<id;
                     node[regNum++] = id;
-                    //qDebug()<<"*******************";
                 }
             }
         }
     }
+    qDebug()<<"*******************";
 
     int countPage = 0;
     if(regNum < 40)
@@ -84,8 +86,10 @@ void CalculaNode::calculationPage(uint curNet)
         }
     }
 
-    //if(regNum != 0)
+    if(regNum != 0)
         emit sigNodePage(node,regNum,countPage);
+    else
+        emit sigNodePage(node,0,countPage);
 }
 
 void CalculaNode::calculaNodeStatus(uint GPIOFlag)
@@ -101,7 +105,7 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
     m_droped[2][0] = 0;
 
     uint curTime = QDateTime::currentDateTime().toTime_t();
-    qDebug()<<"*** calculaNodeStatus ***";
+    //qDebug()<<" *** calculaNodeStatus ***";
     for(uint net = 1;net < netMax;net++)
     {
         for(uint id = 1;id <= idMax;id++)
@@ -114,7 +118,7 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                 if(mod[net][id].dropFlag == false)
                 {
                     mod[net][id].dropTimes++;
-                    qDebug()<<"mod["<<net<<"]["<<id<<"].dropTimes = "<<mod[net][id].dropTimes;
+                    //qDebug()<<"mod["<<net<<"]["<<id<<"].dropTimes = "<<mod[net][id].dropTimes;
                     if(mod[net][id].dropTimes > m_passTime )//当前节点掉线
                     {
                         mod[net][id].dropTimes = 0;
@@ -122,8 +126,6 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                         mod[net][id].normalFlag = false;
                     }
                 }
-
-                //qDebug()<<"passTime = "<<m_passTime;
 
                 //当前节点正常
                 if(mod[net][id].normalFlag == TRUE)

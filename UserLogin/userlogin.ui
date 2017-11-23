@@ -67,7 +67,7 @@ background-color: rgb(255, 255, 255);
     <string notr="true"/>
    </property>
    <property name="text">
-    <string>V-1.0.12</string>
+    <string>V-1.0.13</string>
    </property>
   </widget>
   <widget class="QLabel" name="lb_EVN">
@@ -293,6 +293,9 @@ font: 13pt &quot;文泉驿等宽微米黑&quot;;
     </property>
     <property name="focusPolicy">
      <enum>Qt::ClickFocus</enum>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::NoContextMenu</enum>
     </property>
     <property name="text">
      <string/>

@@ -268,25 +268,6 @@ void SerialHandle::slotRXTimeOut()
 
 void SerialHandle::slotTXTimeOut()
 {
-
-    //    for(int net = 1;net < netMax;net++)
-    //    {
-    //        for(int id = 0;id < 1000;id++)
-    //        {
-    //            for(int i = 0;i < D_lON;i++)
-    //            {
-    //                TX_data[i] = serialExeCmd[net][id].data[i];
-    //                qDebug()<<"serialExeCmd["<<net<<"]["<<id<<"].data["<<i<<"]="<<serialExeCmd[net][id].data[i];
-    //            }
-    //            writeComData((char *)TX_data,15);
-    //            //区分广播命令和节点命令
-    //            if(TX_data[CMD] == CMD_SE_RESET)
-    //            {
-    //                GlobalData::deleteCmdSerial(net,ALLID,CMD_SE_RESET);
-    //            }
-    //        }
-    //    }
-
     times++;
     if(times == 1000)
     {

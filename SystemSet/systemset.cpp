@@ -2,7 +2,7 @@
 #include "ui_systemset.h"
 #include "MySqlite/mysqlite.h"
 
-
+//#define RELEASE
 #define MINUTE 60
 #define HOUR   24
 
@@ -72,6 +72,11 @@ void SystemSet::initVar()
     QRegExp regExpSecond("^([0-9])|([1-5][0-9])$");
     ui->lineEdit_second->setValidator(new QRegExpValidator(regExpSecond, this));
 
+
+#ifdef RELEASE
+    ui->lineEdit_pollTime->setVisible(false);
+    ui->pBtn_pollTime->setVisible(false);
+#endif
 
     m_pastTime = new QTimer;
     ui->pBtn_stopSound->hide();
@@ -678,11 +683,13 @@ void SystemSet::slotBtnUpdatePasswd()
     *操作员只能改自己的密码
     */
     int userType =  ui->comboBox_userType->currentIndex()+1;
-    if(userType > m_userType || userType == 1)
+
+    if(userType > m_userType)
     {
         QMessageBox::information(NULL,tr("操作提示"),tr("权限不足！！！"),tr("关闭"));
         return;
     }
+
 
     QString oldPasswd = ui->lineEdit_oldPasswd->text();
     QString newPasswd = ui->lineEdit_newPasswd->text();
@@ -703,8 +710,6 @@ void SystemSet::slotBtnUpdatePasswd()
         QMessageBox::information(NULL,tr("操作提示"),tr("原始密码错误！！！"),tr("关闭"));
     }
 
-    //qDebug()<<"oldPasswd = "<<oldPasswd;
-    //qDebug()<<"newPasswd = "<<newPasswd;
 }
 
 void SystemSet::slotBtnClose()

@@ -79,9 +79,8 @@ public:
     ~MainWindow();
     QTimer *m_currentTimer;
     QTimer *m_resetTimer;
+    QTimer *m_selfCheckTimer;
 
-    QTimer *m_errorSound;
-    QTimer *m_alarmSound;
 
     void initCan_1(const char *canName, int net, uint pollTime);
     void initCan_2(const char *canName, int net, uint pollTime);
@@ -232,6 +231,8 @@ public slots:
     void slotSelfCheckShow();//自检界面
     void slotDataShow(int type);//显示报警-故障数据
     void slotLoginStatus(int type);//登陆类型
+
+    void selfCheckResult();
 
 
     void slotNodeData(int *node, int size, int countPage);

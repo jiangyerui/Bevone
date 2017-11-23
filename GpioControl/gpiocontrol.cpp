@@ -133,7 +133,6 @@ void GpioControl::initGPIOChip()
     m_ledCan->initGPIOChip(ledCan,ledCanValue,ledCanDirection);
     m_ledCan->setState(out);
 
-
     m_buzz = new GpioChip;
     m_buzz->initGPIOChip(buzz,buzzValue,buzzDirection);
     m_buzz->setState(out);
@@ -248,9 +247,6 @@ void GpioControl::controlSound(int type)
         break;
     }
 }
-
-
-
 
 void GpioControl::slotTimeOut()
 {
@@ -440,11 +436,7 @@ bool GpioControl::dealReset()
     //qDebug()<<"reset = "<<reset;
     if(reset == '0')
     {
-        //        m_resetTimes++;
-        //        if(m_resetTimes == 10)
-        //        {
         resetFlag = true;
-        //        }
     }
     return resetFlag;
 }

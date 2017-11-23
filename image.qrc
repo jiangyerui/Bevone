@@ -18,12 +18,12 @@
         <file>Image/sound.png</file>
         <file>Image/up.png</file>
         <file>Image/user.png</file>
-        <file>Image/Style-1.png</file>
         <file>Image/mute.png</file>
         <file>Image/checked.png</file>
         <file>Image/uncheck.png</file>
         <file>Image/backGround.png</file>
         <file>Image/Bevone.png</file>
         <file>Image/devGround.png</file>
+        <file>Image/go-back.png</file>
     </qresource>
 </RCC>

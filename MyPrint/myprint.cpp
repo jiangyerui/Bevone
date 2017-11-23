@@ -44,27 +44,6 @@ void MyPrint::initCom()
     lf[0]=LF;
     lf[1]='\0';
 
-//    //初始化
-//    init[0] = 0x1B;
-//    init[1] = 0x40;
-//    //设置汉字字符模式
-//    printinit[0]=0x1C;
-//    printinit[1]=0x21;
-//    printinit[2]=0x00;
-//    //选择汉字模式
-//    printChn[0]=0x1C;
-//    printChn[1]=0x26;
-//    //选择汉字代码系统
-//    printCode[0] = 0x1C;
-//    printCode[1] = 0x43;
-//    printCode[2] = 0x00;
-
-//    //myCom->write(init,3);
-//    myCom->write(printinit,3);
-//    myCom->write(printChn,2);
-//    myCom->write(printCode,3);
-
-
 }
 
 MyPrint *MyPrint::getPrint()
