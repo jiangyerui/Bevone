@@ -17,6 +17,8 @@ public:
     UserLogin  *m_login;
     MySqlite    m_db;
 
+
+
     bool m_lockStatus;
 
     void init();

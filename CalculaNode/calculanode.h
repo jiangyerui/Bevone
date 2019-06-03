@@ -9,7 +9,8 @@
 #include "Record/record.h"
 //#include "SMS/SMS.h"
 
-#define TIMER 1000
+//#define TIMER 1000
+#define TIMER 1000//更改刷新时间jiang20190527
 #define NODENUM 1200
 #define PAGEMAX 30
 #define PASSTIME  60
@@ -31,13 +32,20 @@ public:
 
     uint m_curNet;
     uint m_passTime;
+    bool m_passTime_first;
+    uint m_passTime_first_count;
 
     //报警,故障重新打开
     uint m_ioFlag;
     uint m_reError;
+    uint m_reErrorFlag;
     uint m_reAlarm;
+
     uint m_reDropped;
+
+    uint m_curSound;
     bool m_soundFlag;
+    bool m_oldSoundFlag;
     bool m_powerType;
     bool m_selfCheckFlag;
     int node[1024];
@@ -52,6 +60,7 @@ public:
     bool led;
     bool m_canFlag;
 
+    void initFlag();
     void initVar(bool powerType);
     void setSound(bool flag);
     void setCurNet(int curNet);

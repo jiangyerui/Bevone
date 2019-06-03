@@ -100,6 +100,8 @@ private slots:
 
 
 
+    void on_pBtn_setNode_clicked();
+
 private:
     Ui::SystemSet *ui;
 };

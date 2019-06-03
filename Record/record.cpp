@@ -308,6 +308,7 @@ uint Record::getPageCount(QString sql)
 {
     int countPage = 0;
     int recordNum = m_db.getRowCount(sql);//返回相应查询的条数
+    ui->lb_countNum->setText(QString::number(recordNum));
     if(0 >= recordNum)  //没有相应的记录返
     {
         return countPage;
@@ -655,8 +656,8 @@ void Record::setPrint(QTableWidget *tableWidget, MyPrint *myPrint, int row, int 
 
 void Record::checkSelfPrint(QString nodeNum,QString alarmNum, QString errorNum, QString power, QString bpower)
 {
-    qDebug()<<"alarmNum = "<<alarmNum;
-    qDebug()<<"errorNum = "<<errorNum;
+    //qDebug()<<"alarmNum = "<<alarmNum;
+    //qDebug()<<"errorNum = "<<errorNum;
     m_myPrint->checkSelfPrint(nodeNum,alarmNum,errorNum,power,bpower);
 }
 

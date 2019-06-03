@@ -40,18 +40,18 @@ public:
     int dataRead(int canfd, can_frame &frame);  //从串口读出数据
 
     void dealCanData(struct can_frame frame);
+    void lc_dealCanData(struct can_frame frame);//解析联创探测器
     void nodeStatus(int net,uint id,char status);
-    void controlTimer(bool flag);
+    bool readSetVal(int net, int index);//读取探测器的设定值，直到成功
+    bool revcFrameData(int canId);//发完巡检命令就接收，如果接收不到就再发再接，连续三次
+    bool sendFrameData(can_frame frame);//发送一帧巡检，如果发送不成功连发三次
     uint m_id;
     int m_net;
     int m_canfd;
     uint m_idNum;
-//    uint m_leakTimes;
-//    uint m_tempTimes;
 
     int m_can_1;
     int m_can_2;
-    void getNodeNum(Exe_Cmd exeCmd[NETNUM][CMDEXENUM]);
 
 private:
     struct ifreq m_ifr;

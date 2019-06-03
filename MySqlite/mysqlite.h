@@ -78,6 +78,7 @@ public:
     QString getNodeAddress(int net,int id);//获取节点地址
 
     bool getPrintAlarm();
+    void updateNode(QString net,QString id,QString enable);//更新节点，用于设置探测器个数jiang20190527
     void setPrintAlarm(bool model);
 
     bool getPrintError();
@@ -108,6 +109,7 @@ public:
     void recoverPasswd();//恢复密码
 
     uint getNodeNum(uint net , uint id);
+    bool setNodeNum(uint net , uint id);//jiang20190526
     //Curve
     bool insertCurveData(QString net, QString id, QString time, QString value);//插入曲线实时数据
     void updateCurveData(QString net, QString id, QString time, QString value);//更新数据

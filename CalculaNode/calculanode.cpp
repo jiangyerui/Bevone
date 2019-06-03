@@ -1,15 +1,22 @@
 ﻿#include "calculanode.h"
 #include <QDebug>
 #include <QProcess>
-//#define DEBUG
+#define DEBUG
 #define CANLED 20
 
 CalculaNode::CalculaNode(QObject *parent) : QObject(parent)
 {
 
+    m_passTime_first = true;
+    m_passTime_first_count = 0;
+
     m_db = new MySqlite;
     m_passTime =  m_db->getPollTime();
+    //    qDebug()<<"m_passTime = "<<m_passTime;
+    //    m_passTime=70;//带128个探测器时用本数据
+    //    m_passTime=32;//带60个探测器时用本数据
 
+    //更新节点数量
     m_timer = new QTimer;
     connect(m_timer,SIGNAL(timeout()),this,SLOT(slotTimeOut()));
     m_timer->start(TIMER);
@@ -19,13 +26,15 @@ CalculaNode::CalculaNode(QObject *parent) : QObject(parent)
     m_ledtimer->start(100);
 
 
-
+    m_curSound = NORMAL;
+    m_oldSoundFlag = false;
     m_ioFlag = 0;
     m_reError = 0;
     m_reAlarm = 0;
     m_reDropped = 0;
+    m_reErrorFlag = 0;
     m_curNet = 1;
-    m_soundFlag = true;
+    m_soundFlag = false;
     m_selfCheckFlag = false;
     m_strSend.clear();
 
@@ -39,47 +48,55 @@ CalculaNode::CalculaNode(QObject *parent) : QObject(parent)
 
 }
 
+void CalculaNode::initFlag()
+{
+    m_ioFlag = 0;
+    m_reError = 0;
+    m_reAlarm = 0;
+    m_reDropped = 0;
+    m_reErrorFlag = 0;
+    m_soundFlag = false;
+    m_oldSoundFlag = false;
+
+}
+
 void CalculaNode::initVar(bool powerType)
 {
     m_powerType = powerType;
 }
 
-void CalculaNode::calculationPage(uint curNet)
+void CalculaNode::calculationPage(uint curNet)//curNet：当前通道
 {
-    int regNum = 0;
-
-    for(int i=0;i<IDNUM;i++)
+    int regNum = 0;//实际节点数量
+    mutex.lock();
+    for(uint net = 1;net < netMax;net++)//netMax:通道最大值3
     {
-        node[i] = 0;
-    }
-
-    for(uint net = 1;net < netMax;net++)
-    {
-        for(uint id = 1;id <= idMax;id++)
+        for(uint id = 1;id <= idMax;id++)//idMax：当前节点最大值
         {
-            if(mod[curNet][id].used == true)
+            if(mod[curNet][id].used == true)//如果该节点存在
             {
                 if(curNet == net)
                 {
-
-                    qDebug()<<"node["<<regNum<<"] = "<<id;
-                    node[regNum++] = id;
+                    //                    qDebug()<<"node["<<regNum<<"] = "<<id;
+                    node[regNum++] = id;//记录节点位置
+                    node[regNum] = 0;
                 }
             }
         }
     }
-    qDebug()<<"*******************";
-
+    mutex.unlock();
+    //    qDebug()<<"*******************";
+    //计算页数
     int countPage = 0;
-    if(regNum < 40)
+    if(regNum < 480)//如果节点数小于60*8，就一页了
     {
         countPage = 1;
     }
-    else
+    else//否则大于一页
     {
         for(int i = 1;i < PAGEMAX;i++)
         {
-            if((regNum > 40*i)&&( regNum <= 40*(i+1)))
+            if((regNum > 480*i)&&( regNum <= 480*(i+1)))
             {
                 countPage = i+1;
             }
@@ -87,7 +104,10 @@ void CalculaNode::calculationPage(uint curNet)
     }
 
     if(regNum != 0)
-        emit sigNodePage(node,regNum,countPage);
+    {
+        //qDebug()<<"regNum="<<regNum<<"***countPage="<<countPage;
+        emit sigNodePage(node,regNum,countPage);//node：当前节点的ID值,regNum:当前节点数,countPage：当前页数
+    }
     else
         emit sigNodePage(node,0,countPage);
 }
@@ -105,7 +125,16 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
     m_droped[2][0] = 0;
 
     uint curTime = QDateTime::currentDateTime().toTime_t();
-    //qDebug()<<" *** calculaNodeStatus ***";
+    //    qDebug()<<" *** calculaNodeStatus ***";
+
+    //jiangstrat
+    if(m_passTime_first_count<12){
+        m_passTime_first_count++;
+    }else{
+        m_passTime_first = false;
+    }
+    //jiangend
+
     for(uint net = 1;net < netMax;net++)
     {
         for(uint id = 1;id <= idMax;id++)
@@ -118,13 +147,39 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                 if(mod[net][id].dropFlag == false)
                 {
                     mod[net][id].dropTimes++;
-                    //qDebug()<<"mod["<<net<<"]["<<id<<"].dropTimes = "<<mod[net][id].dropTimes;
-                    if(mod[net][id].dropTimes > m_passTime )//当前节点掉线
+//                    if(id>32&&id<41){
+                        //                        qDebug()<<"mod["<<net<<"]["<<id<<"].dropTimes = "<<mod[net][id].dropTimes;
+//                    }
+
+                    //jiangsstart
+                    //                    if(m_passTime_first && mod[net][id].dropTimes>10){
+                    //                        mod[net][id].dropTimes = 0;
+                    //                        mod[net][id].dropFlag = true;
+                    //                        mod[net][id].normalFlag = false;
+                    //                        mod[net][id].errorFlag  = false;
+                    //                    }
+                    if(mod[net][id].dropTimes > m_passTime )//当前节点掉线18
                     {
+                        int canId = id%8==0?id/8:((id/8)+1);
+                        if(canId==5){
+                            //                            qDebug()<<"mod["<<net<<"]["<<canId<<"].dropFlag = true";
+                        }
+
                         mod[net][id].dropTimes = 0;
                         mod[net][id].dropFlag = true;
                         mod[net][id].normalFlag = false;
+                        mod[net][id].errorFlag  = false;
                     }
+                    //jiangend
+                    //                    if(mod[net][id].dropTimes > m_passTime )//当前节点掉线18
+                    //                    {
+                    //                        int canId = id%8==0?id/8:((id/8)+1);
+                    //                        qDebug()<<"mod["<<net<<"]["<<canId<<"].dropFlag = true";
+                    //                        mod[net][id].dropTimes = 0;
+                    //                        mod[net][id].dropFlag = true;
+                    //                        mod[net][id].normalFlag = false;
+                    //                        mod[net][id].errorFlag  = false;
+                    //                    }
                 }
 
                 //当前节点正常
@@ -141,78 +196,100 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                 //节点掉线
                 if(mod[net][id].dropFlag == TRUE)
                 {
-                    droped++;
-                    m_droped[net][0]++;
-                    if(mod[net][id].insertDrop == FALSE)
-                    {
-                        mod[net][id].insertDrop = TRUE;
-                        QString add = m_db->getNodeAddress(net,id);
-                        QString type,value;
+                    if(mod[net][id].used==true){    //jiang20190603
+                        droped++;
+                        m_droped[net][0]++;
 
-                        if(MODULE_CUR == mod[net][id].type)
+                        if(mod[net][id].insertDrop == FALSE)
                         {
-                            type = tr("漏电");
-                            value = QString::number(mod[net][id].alarmData);
-                            m_db->insertAlarm(net,id,MODULE_CUR,DROP,"0",curTime,add);//插入历史报警
-                        }
-                        else if(MODULE_TEM == mod[net][id].type)
-                        {
-                            type = tr("温度");
-                            value = QString::number(mod[net][id].alarmTem);
-                            m_db->insertAlarm(net,id,MODULE_TEM,DROP,"0",curTime,add);//插入历史报警
-                        }
+                            mod[net][id].insertDrop = TRUE;
 
-                        m_db->insertTemp(net,id,DROP,curTime);//插入临时故障
+                            mod[net][id].insertError = false;
+                            m_db->delTemp(net,id,ERROR);//删除故障
+                            QString add = m_db->getNodeAddress(net,id);
+                            QString type,value;
 
-                        if(m_db->getPrintStyle())
-                        {
-                            if(m_db->getPrintError())
+                            if(MODULE_CUR == mod[net][id].type)
                             {
-                                //qDebug()<<"getPrintError";
-                                QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss");
-                                m_record->connectPrint(QString::number(net),QString::number(id),type,tr("通讯故障"),value,time,add);
+                                type = tr("漏电");
+                                value = QString::number(mod[net][id].alarmData);
+                                m_db->insertAlarm(net,id,MODULE_CUR,DROP,"0",curTime,add);//插入历史报警
+                            }
+                            else if(MODULE_TEM == mod[net][id].type)
+                            {
+                                type = tr("温度");
+                                value = QString::number(mod[net][id].alarmTem);
+                                m_db->insertAlarm(net,id,MODULE_TEM,DROP,"0",curTime,add);//插入历史报警
+                            }
+
+                            m_db->insertTemp(net,id,DROP,curTime);//插入临时故障
+
+                            if(m_db->getPrintStyle())
+                            {
+                                if(m_db->getPrintError())
+                                {
+                                    //qDebug()<<"getPrintError";
+                                    QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss");
+                                    m_record->connectPrint(QString::number(net),QString::number(id),type,tr("通讯故障"),value,time,add);
+                                }
                             }
                         }
+                    }else{
+                        m_db->delTemp(net,id,DROP);//删除掉线
                     }
                 }
                 else
                 {
                     m_db->delTemp(net,id,DROP);//删除掉线
                 }
+
                 //节点故障
                 if(mod[net][id].errorFlag == TRUE)
                 {
-                    error++;
-                    if(mod[net][id].insertError == FALSE)
-                    {
-                        mod[net][id].insertError = TRUE;
-                        QString add = m_db->getNodeAddress(net,id);
-                        QString type,value;
-                        if(MODULE_CUR == mod[net][id].type)
-                        {
-                            type = tr("漏电");
-                            value = QString::number(mod[net][id].alarmData);
-                            m_db->insertAlarm(net,id,MODULE_CUR,ERROR,"0",curTime,add);
-                        }
-                        else if(MODULE_TEM == mod[net][id].type)
-                        {
-                            type = tr("温度");
-                            value = QString::number(mod[net][id].alarmTem);
-                            m_db->insertAlarm(net,id,MODULE_TEM,ERROR,"0",curTime,add);
-                        }
-                        m_db->insertTemp(net,id,ERROR,curTime);//插入临时故障
 
-                        if(m_db->getPrintStyle())
+                    if(mod[net][id].used==true){    //jiang20190603
+                        error++;
+
+                        if(mod[net][id].insertError == FALSE)
                         {
-                            if(m_db->getPrintError() )
+                            mod[net][id].insertError = TRUE;
+
+                            m_db->delTemp(net,id,DROP);//删除掉线
+
+                            QString add = m_db->getNodeAddress(net,id);
+                            QString type,value;
+                            if(MODULE_CUR == mod[net][id].type)
                             {
+                                type = tr("漏电");
+                                value = QString::number(mod[net][id].alarmData);
+                                m_db->insertAlarm(net,id,MODULE_CUR,ERROR,"0",curTime,add);
+                            }
+                            else if(MODULE_TEM == mod[net][id].type)
+                            {
+                                type = tr("温度");
+                                value = QString::number(mod[net][id].alarmTem);
+                                m_db->insertAlarm(net,id,MODULE_TEM,ERROR,"0",curTime,add);
+                            }
+                            m_db->insertTemp(net,id,ERROR,curTime);//插入临时故障
 
-                                QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss");
-                                m_record->connectPrint(QString::number(net),QString::number(id),type,tr("模块故障"),value,time,add);
+                            if(m_db->getPrintStyle())
+                            {
+                                if(m_db->getPrintError() )
+                                {
+
+                                    QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss");
+                                    m_record->connectPrint(QString::number(net),QString::number(id),type,tr("模块故障"),value,time,add);
+                                }
                             }
                         }
+                    }else{
+                        m_db->delTemp(net,id,ERROR);//删除掉线
                     }
+
+                }else{
+                    m_db->delTemp(net,id,ERROR);//删除掉线
                 }
+
                 //节点报警
                 if(mod[net][id].alarmFlag == TRUE)
                 {
@@ -221,7 +298,6 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                     if(mod[net][id].insertAlarm == FALSE)
                     {
                         mod[net][id].insertAlarm = TRUE;
-
                         m_db->delTemp(net,id,DROP); //删除掉线
                         m_db->delTemp(net,id,ERROR);//删除故障
 
@@ -285,14 +361,6 @@ void CalculaNode::calculaNodeStatus(uint GPIOFlag)
                     //}
 
                 }
-#ifdef DEBUG
-                qDebug()<<"*********************************";
-                qDebug()<<"exeCmd dropped  = "<<exeCmd[net][id].dropped;
-                qDebug()<<"passTime        = "<<passTime;
-                qDebug()<<"mod  normalFlag = "<<mod[net][id].normalFlag;
-                qDebug()<<"mod    dropFlag = "<<mod[net][id].dropFlag;
-                qDebug()<<"mod   errorFlag = "<<mod[net][id].errorFlag;
-#endif
             }
         }
     }
@@ -354,73 +422,144 @@ void CalculaNode::dealLedAndSound(uint alarm, uint error, uint droped, uint used
         m_gpio->writeGPIO(GpioControl::ErrorLed,"0");
     }
 
+
+
     //静音时有新的故障,报警发生
     if(alarm > m_reAlarm)
     {
-        m_reAlarm = alarm;
-        m_soundFlag = true;
+        m_reAlarm  = alarm;
+        m_curSound = ALARM;
+        m_soundFlag = false;
         soundControl(ALARM,true);
+        return;
     }
-    else
+    else if(droped > m_reDropped )
     {
-        //如果当前有报警的,新的故障也是发出报警声音
-        if(droped > m_reDropped || error > m_reError || GPIOFlag != m_ioFlag)
+        if(m_curSound == ALARM)
         {
-            if(alarm > 0)
-            {
-                m_soundFlag = true;
-                soundControl(ALARM,true);
-            }
-            else
-            {
-                m_soundFlag = true;
-                soundControl(ERROR,true);
-            }
-            m_reError   = error;
-            m_reDropped = droped;
+            m_curSound = ALARM;
+            soundControl(ALARM,true);
         }
+        else
+        {
+            m_curSound = ERROR;
+            soundControl(ERROR,true);
+        }
+        m_reDropped = droped;
+        m_soundFlag = false;
+        return;
     }
-    //当报警节点数目小于总数时
-    if(alarm <= m_reAlarm)
+    else if(error > m_reError)
+    {
+        if(m_curSound == ALARM)
+        {
+            m_curSound = ALARM;
+            soundControl(ALARM,true);
+        }
+        else
+        {
+            m_curSound = ERROR;
+            soundControl(ERROR,true);
+        }
+        m_reError   = error;
+        m_soundFlag = false;
+        return;
+    }
+    else if(GPIOFlag > m_ioFlag)
+    {
+        if(m_curSound == ALARM)
+        {
+            m_curSound = ALARM;
+            soundControl(ALARM,true);
+        }
+        else
+        {
+            m_curSound  = ERROR;
+            soundControl(ERROR,true);
+        }
+        m_ioFlag = GPIOFlag;
+        m_soundFlag = false;
+        return;
+    }
+
+    if(alarm < m_reAlarm)
     {
         m_reAlarm = alarm;
     }
 
-    if(droped <= m_reDropped)
+    //当报警节点数目小于总数时
+    if(droped < m_reDropped)
     {
         m_reDropped = droped;
+        if(m_oldSoundFlag != m_soundFlag)
+        {
+            uint errorNum = error + GPIOFlag + droped +alarm;
+            if(m_reErrorFlag == errorNum)
+            {
+                soundControl(NORMAL,true);
+            }
+        }
     }
 
-    if(error <= m_reError)
+    if(error < m_reError)
     {
         m_reError = error;
+
+        if(m_oldSoundFlag != m_soundFlag)
+        {
+            uint errorNum = error + GPIOFlag + droped +alarm;
+            if(m_reErrorFlag == errorNum)
+            {
+                soundControl(NORMAL,true);
+            }
+        }
+
     }
-    if(GPIOFlag != m_ioFlag)
+
+    if(GPIOFlag < m_ioFlag)
     {
         m_ioFlag = GPIOFlag;
+        if(m_oldSoundFlag != m_soundFlag)
+        {
+            uint errorNum = error + GPIOFlag + droped +alarm;
+            if(m_reErrorFlag == errorNum)
+            {
+                soundControl(NORMAL,true);
+            }
+        }
     }
 
-    //声音控制
-    if(alarm > 0)
+    if(m_soundFlag == true)
     {
-        soundControl(ALARM,m_soundFlag);
+        m_reErrorFlag = error + GPIOFlag + droped + alarm;
     }
-    else if(error > 0 || GPIOFlag > 0 || droped > 0)
+
+    //都是正常消音
+    if(error == 0 && GPIOFlag == 0 && droped == 0 && alarm == 0)
     {
-        soundControl(ERROR,m_soundFlag);
+        m_curSound = NORMAL;
+        soundControl(NORMAL,true);
     }
-    else
-    {
-        soundControl(NORMAL,m_soundFlag);
-    }
+
+
+
+
+
 
 #ifdef DEBUG
-    qDebug()<<"droped       = "<<droped;
+    /*
+    qDebug()<<"********************************";
     qDebug()<<"error        = "<<error;
+    qDebug()<<"alarm        = "<<alarm;
+    qDebug()<<"GPIOFlag     = "<<GPIOFlag;
+    qDebug()<<"droped       = "<<droped;
+    qDebug()<<"reErrorFlag  = "<<m_reErrorFlag;
+    qDebug()<<"oldSoundFlag = "<<m_oldSoundFlag;
     qDebug()<<"m_soundFlag  = "<<m_soundFlag;
     qDebug()<<"m_reError    = "<<m_reError;
     qDebug()<<"m_reAlarm    = "<<m_reAlarm;
     qDebug()<<"m_reDropped  = "<<m_reDropped;
+    */
 #endif
 }
 
@@ -434,12 +573,10 @@ void CalculaNode::soundControl(int soundType, bool soundSwitch)
         if(soundType == ALARM)
         {
             m_gpio->controlSound(ALARM);
-            emit sigBtnSound();
         }
         else if(soundType == ERROR)
         {
             m_gpio->controlSound(ERROR);
-            emit sigBtnSound();
         }
         else if(soundType == NORMAL)
         {
@@ -479,7 +616,7 @@ void CalculaNode::slotTimeOut()
 {
     //显示节点状态，计算机点个数，计算页面数量
 
-    calculationPage(m_curNet);
+    calculationPage(m_curNet);//m_curNet当前通道
     calculaNodeStatus(m_gpio->dealGPIO());
 
 }
@@ -493,6 +630,8 @@ void CalculaNode::slotReceiveLed()
 void CalculaNode::setSound(bool flag)
 {
     m_soundFlag = flag;
+    m_oldSoundFlag = m_soundFlag;
+    m_curSound  = NORMAL;
 }
 
 void CalculaNode::setCurNet(int curNet)

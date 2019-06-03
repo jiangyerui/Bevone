@@ -12,6 +12,8 @@ void Manager::init()
     m_lockStatus = false;
     m_mainPage = new MainWindow;
     m_login    = new UserLogin;
+
+
 }
 
 void Manager::initConnect()
@@ -25,15 +27,17 @@ void Manager::initConnect()
 
 void Manager::managerWork()
 {
-    //解锁状态
+    //解锁状态  ///如果没有登陆，还是回到登陆界面
     if(!m_db.getLockStatus())
     {
+        //qDebug()<<"not login -----";
         m_mainPage->hide();
         m_login->m_locked = true;
         m_login->loginShow();
         return;
     }
 
+    //如果登陆了，就显示主页
     m_mainPage->show();
     m_login->m_locked = false;
     m_login->hide();

@@ -74,20 +74,20 @@ extern bool g_bpowerStatus;
 //节点状态
 struct Module{
     bool used;    //是否存在
-    uchar net;
-    uchar id;
-    uchar type;
+    uchar net;      //通道
+    uchar id;       //ID
+    uchar type;     //类型
     uchar flag;    //状态标志
-    uchar alarmTem;//温度阈值
-    uchar temData; //温度适时
-    uint rtData;   //实时数据
     uint baseData; //固有漏电
-    uint alarmData;//报警阈值
+    uchar temData; //实时温度
+    uint rtData;   //实时漏电
+    uchar alarmTem;//温度报警值
+    uint alarmData;//电流报警值
 
-    uint alarmTemSet; //温度报警值
-    uint alarmDataSet;//漏电报警值
-    bool alaTemLock;  //温度报警锁定值
-    bool alaDataLock; //漏电报警锁定值
+    uint alarmTemSet; //温度报警界限值
+    uint alarmDataSet;//漏电报警界限值
+    bool alaTemLock;  //温度报警锁定
+    bool alaDataLock; //漏电报警锁定
 
     bool dropFlag;
     bool alarmFlag;
@@ -103,8 +103,46 @@ struct Module{
     uint dropTimes;
     uint leakTimes;
     uint tempTimes;
+};
+//联创每个探测器下八个通道，每个通道的信息
+struct lc_Channel{
+    uchar id;       //通道ID
+    uchar type;     //类型
+    uint baseData; //固有漏电
+    uchar temData; //实时温度
+    uint rtData;   //实时漏电
+    uchar alarmTem;//温度报警值
+    uint alarmData;//电流报警值
+
+    uint alarmTemSet; //温度报警界限值
+    uint alarmDataSet;//漏电报警界限值
+    bool alaTemLock;  //温度报警锁定
+    bool alaDataLock; //漏电报警锁定
 
 
+};
+//联创每个探测器的信息
+struct lc_Module{
+    bool used;    //是否存在
+    uchar net;      //通道
+    uchar id;       //ID
+    uchar flag;    //状态标志
+
+
+    bool dropFlag;
+    bool alarmFlag;
+    bool errorFlag;
+    bool normalFlag;
+
+    bool insertDrop;
+    bool insertAlarm;
+    bool insertError;
+    bool insertNormal;
+    bool sent;
+
+    uint dropTimes;
+    uint leakTimes;
+    uint tempTimes;
 };
 extern uint idNum;
 extern uint modNum[3][1024];
@@ -147,15 +185,17 @@ struct SerialCmdNum{
 };
 extern SerialCmdNum serialCmdNum[NETNUM];
 extern SerialExeCmd serialExeCmd[NETNUM][CMDEXENUM];
-
+extern QMutex mutex;
 class GlobalData
 {
 public:
 
+    MySqlite m_db;
     GlobalData();
     static void initCmdType(QString type);
     static void initData();
     static void addCmd(int net, uint id, uint cmd, uchar *data, uchar lon);
+    static void lc_addCmd(int net,uint idUsedMax);//初始化巡检jiang20190527
     static void deleteCmd(int net, uint id, uint cmd);
     static void addCmdSerial(uint net, uint id, uint cmd, uint lon);
     static void deleteCmdSerial(uint net, uint id, uint cmd);

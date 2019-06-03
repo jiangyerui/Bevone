@@ -64,7 +64,14 @@ bool MySqlite::insertSerialNumber(QString serialNO)
     //qDebug()<<"strPwdMd5 = "<<strPwdMd5;
     QString sql = "update serialnum set serialnumber = '"+serialNO+"',secretkey = '"+strPwdMd5+"' where rowid = 1;";
     QSqlQuery query(m_db);
-    flag = query.exec(sql);
+    if(query.exec(sql))
+    {
+        flag = true;
+    }
+    else
+    {
+        flag = false;
+    }
     query.clear();
     return flag;
 
@@ -230,6 +237,14 @@ void MySqlite::setPrintAlarm(bool model)
     {
         sql = "update PRINT set ALARM = 0 where rowid = 1;";
     }
+    QSqlQuery query(m_db);
+    query.exec(sql);
+    query.clear();
+}
+//更新节点，用于设置探测器个数
+void MySqlite::updateNode(QString net,QString id,QString enable){
+    QString sql = "update NODE set ENABLE = "+enable+" WHERE NET = "+net+" and ID = "+id+";";
+    qDebug()<<"sql = "<<sql;
     QSqlQuery query(m_db);
     query.exec(sql);
     query.clear();
@@ -523,11 +538,32 @@ void MySqlite::recoverPasswd()
     updateUserPasswd(MySqlite::SUPER, QString("333333"));
 }
 
+//uint MySqlite::getNodeNum(uint net, uint id)
+//{
+//    uint exsit = 0;
+
+//    QString sql = "select count(*) from NODE WHERE net = "+QString::number(net)+" and id = "+QString::number(id)+";";
+//    //qDebug()<<"getNodeNum slq"<<sql;
+//    QSqlQuery query(m_db);
+
+//    if(query.exec(sql))
+//    {
+//        if(query.next())
+//        {
+//            exsit = query.value(0).toUInt();
+//            //qDebug()<<"exsit = "<<exsit;
+//        }
+//    }
+//    query.clear();
+//    return exsit;
+//}
+//jiang20190527如果本互感器打开了
 uint MySqlite::getNodeNum(uint net, uint id)
 {
     uint exsit = 0;
 
-    QString sql = "select count(*) from NODE WHERE net = "+QString::number(net)+" and id = "+QString::number(id)+";";
+    QString sql = "select count(*) from NODE WHERE net = "+QString::number(net)+" and id = "
+            +QString::number(id)+" and enable = 1;";
     //qDebug()<<"getNodeNum slq"<<sql;
     QSqlQuery query(m_db);
 
@@ -542,7 +578,22 @@ uint MySqlite::getNodeNum(uint net, uint id)
     query.clear();
     return exsit;
 }
+//插入一个节点
+bool MySqlite::setNodeNum(uint net , uint id){
+    bool flag = false;
+//    QString sql = "insert into CURVE values("+net+","+id+","+value+","+time+");";
+    QString id_d = QString::number(id);
+    QString sql = "insert into NODE values(1,"+id_d+",1,'1."+id_d+"');";
 
+    qDebug()<<sql;
+    QSqlQuery query(m_db);
+    if(query.exec(sql))
+    {
+        flag = true;
+    }
+    query.clear();
+    return flag;
+}
 bool MySqlite::setSuccess(bool stutas)
 {
     bool flag = false;

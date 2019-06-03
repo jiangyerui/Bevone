@@ -4,9 +4,10 @@
 #
 #-------------------------------------------------
 
-QT       += core gui sql network serialport
+QT       += core gui sql network
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets serialport
+
 
 TARGET = Bevone
 TEMPLATE = app
@@ -150,5 +151,14 @@ FORMS    += MainPage/mainwindow.ui \
 
 RESOURCES += \
     image.qrc
+
+FORMS += \
+    dlgcaninfo.ui
+
+HEADERS += \
+    dlgcaninfo.h
+
+SOURCES += \
+    dlgcaninfo.cpp
 
 

@@ -24,6 +24,8 @@ uint modNum[3][1024];
 Exe_Cmd exeCmd[NETNUM][CMDEXENUM];
 Module mod[NETNUM][IDNUM];
 CmdNum cmdNum[NETNUM];
+QMutex mutex;
+
 
 bool g_powerStatus = false;
 bool g_bpowerStatus = false;
@@ -36,7 +38,7 @@ GlobalData::GlobalData()
 
 }
 
-
+//#define VERSION
 void GlobalData::initCmdType(QString type)
 {
     //在没有数据库的情况下默认可以使用net1,可以配接32个点
@@ -48,6 +50,7 @@ void GlobalData::initCmdType(QString type)
     }
     else
     {
+
         //网络数
         if(type.mid(3,1).toInt() == 1)
         {
@@ -82,25 +85,43 @@ void GlobalData::initCmdType(QString type)
             break;
         }
     }
-
+    //qDebug()<<"idMax = "<<idMax;
     uchar temp[1];
+    uint idUsedMax = 0;
 
-    for(uint net = 1;net < netMax; net++)
+    for(int net = 1;net < netMax; net++)
     {
+//        int canIdTemp =(idMax/8);
+//        for(int i=1;i<=canIdTemp;i++){
+//            //初始化can巡检命令
+//            addCmd(net,i,temp[0],temp,1);
+//        }
         for(uint id = 1;id <= idMax; id++)
         {
-            //初始化can巡检命令
             temp[0] = CMD_SE_STATE;
             MySqlite db;
-            if(db.getNodeNum(net ,id))
+
+            if(db.getNodeNum(net ,id))//如果这个互感器在数据库存在,且ENABLE了，1-1024
             {
-                //qDebug()<<"net = "<<net<<"  id = "<<id;
-                addCmd(net,id,temp[0],temp,1);
+                mod[net][id].used = true;//设本互感器存在
+                idUsedMax = id;
+                /*
+#ifdef VERSION
+                mod[net][id].used = true;
+                mod[net][id].type = MODULE_CUR;
+#endif
+*/
+                //addCmd(net,id,temp[0],temp,1);
+
+//jiang20190527初始化巡检数据
 
             }
             //初始化ZigBee巡检命令
             //addCmdSerial(net,id,CMD_SE_STATE,15);
         }
+        //初始化巡检 jiang20190527
+        //qDebug()<<"net = "<<net<<"******idUsedMax = "<<idUsedMax;
+        lc_addCmd(net,idUsedMax);
     }
 
 
@@ -128,14 +149,22 @@ void GlobalData::initData()
         cmdNum[net].cmdNum = 1;
     }
 
-    for(int net = 1;net < NETNUM;net++)
+    for(uint net = 1;net < NETNUM;net++)
     {
-        for(int id = 1;id < IDNUM;id++)
+        for(uint id = 1;id < IDNUM;id++)
         {
+//            mod[net][id].used = false;
+//            mod[net][id].id = 0;
+//            mod[net][id].net = 0;
+            MySqlite db;
+            if(db.getNodeNum(net,id)>0)
+            mod[net][id].used = true;
+            else
             mod[net][id].used = false;
-            mod[net][id].id = 0;
-            mod[net][id].net = 0;
+            mod[net][id].id = id;
+            mod[net][id].net = net;
             mod[net][id].type = 0;
+
 #ifdef TEST
             mod[net][id].used = true;
             mod[net][id].id = id;
@@ -153,6 +182,8 @@ void GlobalData::initData()
             mod[net][id].alarmDataSet = 0;
             mod[net][id].alarmFlag = FALSE;
             mod[net][id].dropFlag  = FALSE;
+            mod[net][id].dropFlag  = FALSE;
+//            mod[net][id].dropFlag  = TRUE;//jiang20190529
             mod[net][id].normalFlag = FALSE;
             mod[net][id].errorFlag  = FALSE;
             mod[net][id].insertAlarm = FALSE;
@@ -174,7 +205,8 @@ void GlobalData::addCmd(int net,uint id,uint cmd, uchar *data, uchar lon)
     {
         CanFrame canFrame;
         canFrame.can_dlc = lon;
-        canFrame.can_id  = id;
+//        canFrame.can_id  = id;
+        canFrame.can_id  = id|CAN_RTR_FLAG;//jiang20190519,发送远程帧
         canFrame.data[0] = cmd;
         for(int i = 1;i<lon;i++)
         {
@@ -186,13 +218,53 @@ void GlobalData::addCmd(int net,uint id,uint cmd, uchar *data, uchar lon)
     {
         CanFrame canFrame;
         canFrame.can_dlc = lon;
-        canFrame.can_id  = id;
+//        canFrame.can_id  = id;
+        canFrame.can_id  = id|CAN_RTR_FLAG;//jiang20190519,发送远程帧
         canFrame.data[0] = cmd;
         for(int i = 1;i<lon;i++)
         {
             canFrame.data[i] = data[i];
         }
         canCmd_2_List.append(canFrame);
+    }
+
+}
+
+
+void GlobalData::lc_addCmd(int net,uint idUsedMax)
+{
+    int canCount = 0;
+    if(net == 1)
+    {
+        if(idUsedMax%8==0){
+            canCount = idUsedMax/8;
+        }else{
+            canCount = (idUsedMax/8)+1;
+        }
+//        qDebug()<<"canCount="<<canCount;
+        for(int i=1;i<=canCount;i++){
+//            qDebug()<<"i="<<i;
+            CanFrame canFrame;
+            canFrame.can_dlc = 0;
+            canFrame.can_id  = i|CAN_RTR_FLAG;//jiang20190519,发送远程帧
+            canCmd_1_List.append(canFrame);
+        }
+//        qDebug()<<"canCmd_1_List.length="<<canCmd_1_List.length();
+
+    }
+    else if(net == 2)
+    {
+        if(idUsedMax%8==0){
+            canCount = idUsedMax/8;
+        }else{
+            canCount = (idUsedMax/8)+1;
+        }
+        for(int i=1;i<=canCount;i++){
+            CanFrame canFrame;
+            canFrame.can_dlc = 0;
+            canFrame.can_id  = i|CAN_RTR_FLAG;//jiang20190519,发送远程帧
+            canCmd_2_List.append(canFrame);
+        }
     }
 
 }

@@ -7,7 +7,7 @@
 #include "ScreenSaver/screensaver.h"
 
 
-#define QUITTIME 180*1000
+#define QUITTIME 3*60*1000
 
 #define ON_ARM
 
@@ -35,8 +35,9 @@ int main(int argc, char *argv[])
     db.initDb();//初始化数据库
     db.delData("delete from TEMP;");//删除临时记录
 
-    Manager manager;
+    Manager manager;//为什么不创建对象就可以使用方法，又不是类方法，就算是类方法，也得通过类调用啊？？
     manager.managerWork();
+
 
     return a.exec();
 }

@@ -2,11 +2,13 @@
 #include "ui_mainwindow.h"
 
 
+
 #define ALADATA     1
 #define ERODATA     2
 #define HOURTIME    60*1000
 #define SECENDTIME  1000
-#define TIMEOUT     20 //看门狗时间
+//#define TIMEOUT     20 //看门狗时间
+#define TIMEOUT     300 //看门狗时间//jiang20190519
 #define GPIODEV     "/dev/gpio"
 #define DEVICE      "/dev/watchdog"
 //#define DEBUG
@@ -23,10 +25,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::FramelessWindowHint);
     setGeometry(0,0,800,480);
+    ui->lineEdit->setHidden(true);
+    ui->pBtn_jump->setHidden(true);
     initVar();
     initConfigure();
     initConnect();
     initNodeBtn();
+
+    // 增加数据中的节点数为1024
+    //    for(uint i=37;i<1025;i++){
+    //        uint j=1;
+    //        m_db->setNodeNum(j,i);
+    //    }
 }
 
 MainWindow::~MainWindow()
@@ -81,6 +91,14 @@ void MainWindow::initConnect()
     connect(m_selfCheckTimer,SIGNAL(timeout()),this,SLOT(selfCheckResult()));
     m_selfCheckTimer->start(1000);
 
+    //初始化显示
+    //    initShowCounter = 30;
+    //    initShowIndex = 1;
+    //    m_initShowTimer = new QTimer;
+    //    connect(m_initShowTimer,SIGNAL(timeout()),this,SLOT(slotInitShow()));
+    //    m_initShowTimer->setInterval(1000);
+    //m_initShowTimer->start();
+
 
 
 
@@ -97,10 +115,10 @@ void MainWindow::initConnect()
     connect(ui->pBtn_jump,SIGNAL(clicked(bool)),this,SLOT(slotBtnJump()));
     connect(ui->pBtn_pass1,SIGNAL(clicked(bool)),this,SLOT(slotBtnPass_1()));
     connect(ui->pBtn_pass2,SIGNAL(clicked(bool)),this,SLOT(slotBtnPass_2()));
-    connect(ui->pBtn_lastPage,SIGNAL(clicked(bool)),this,SLOT(slotBtnLastPage()));
-    connect(ui->pBtn_nestPage,SIGNAL(clicked(bool)),this,SLOT(slotBtnNestPage()));
-    connect(ui->pBtn_tailPage,SIGNAL(clicked(bool)),this,SLOT(slotBtnTailPage()));
-    connect(ui->pBtn_firstPage,SIGNAL(clicked(bool)),this,SLOT(slotBtnFirstPage()));
+    connect(ui->pBtn_lastPage,SIGNAL(clicked(bool)),this,SLOT(slotBtnLastPage()));//上一页
+    connect(ui->pBtn_nestPage,SIGNAL(clicked(bool)),this,SLOT(slotBtnNestPage()));//下一页
+    connect(ui->pBtn_tailPage,SIGNAL(clicked(bool)),this,SLOT(slotBtnTailPage()));//尾页
+    connect(ui->pBtn_firstPage,SIGNAL(clicked(bool)),this,SLOT(slotBtnFirstPage()));//首页
 
     connect(ui->pBtn_downErrorStrip,SIGNAL(clicked(bool)),this,SLOT(slotBtnErrorDown()));
     connect(ui->pBtn_upErrorStrip,SIGNAL(clicked(bool)),this,SLOT(slotBtnErrorUp()));
@@ -118,6 +136,8 @@ void MainWindow::initConnect()
 void MainWindow::initVar()
 {
 
+    nowPage=1;//开机默认为显示第一页
+    allPage=1;//默认共1页
     m_db = new MySqlite;
     //初始化全局变量
     GlobalData::initData();
@@ -129,7 +149,7 @@ void MainWindow::initVar()
     m_freeTimes = 1;
     m_nodeNum = 0;
     m_curPage = 1;
-    m_countPage = 1;
+    m_countPage = 3;
     m_userType = 1;
     m_lockTimes = 1;
     m_reGPIO = 0;
@@ -155,6 +175,7 @@ void MainWindow::initVar()
     m_redStyle     = m_styleSheet+"background-color: rgb(255, 0,   0);";
     m_greenStyle   = m_styleSheet+"background-color: rgb(0, 255,   0);";
     m_yellowStyle  = m_styleSheet+"background-color: rgb(255, 255, 0);";
+    m_yellowErrorStyle  = m_styleSheet+"background-color: rgb(255, 127, 0);";
     m_blueStyle    = m_styleSheet+"background-color: rgb(82, 143, 237);";
 
     m_normalStyle  = "border:1px solid;border-radius:8px;"
@@ -165,7 +186,7 @@ void MainWindow::initVar()
     initTableWidget(ui->tabWid_Alarm);
     initTableWidget(ui->tabWid_Error);
 
-    ui->lb_address->clear();
+    //ui->lb_address->clear();
     ui->lb_curNodeNum->clear();
 
     ui->pBtn_pass1->setStyleSheet(m_pressedStyle);
@@ -209,6 +230,9 @@ void MainWindow::initVar()
 
     sys = new SystemSet;
     record = new Record;
+
+    canInfo = new DlgCanInfo;
+
     //屏幕检测观察坏点
     m_screenCheck = new ScreenCheck;
     m_screenCheck->hide();
@@ -283,7 +307,9 @@ void MainWindow::showData(QTableWidget *tableWidget,QSqlQueryModel *model,MySqli
 
     tableWidget->clearContents();
     tableWidget->setRowCount(countNum);//设置行数
-    tableWidget->setColumnWidth(0,60);
+    //    tableWidget->setColumnWidth(0,60);
+    //    tableWidget->setColumnWidth(1,160);
+    tableWidget->setColumnWidth(0,70);
     tableWidget->setColumnWidth(1,160);
 
     QTableWidgetItem *item;
@@ -330,9 +356,10 @@ void MainWindow::showData(QTableWidget *tableWidget,QSqlQueryModel *model,MySqli
         }
     }
 }
-
+/*
 void MainWindow::lcdNumberClean()
 {
+
     //温度
     ui->lcdNo_alaTem->display("0");//温度报警
     ui->lcdNo_curTemp->display("0"); //温度实时
@@ -342,14 +369,15 @@ void MainWindow::lcdNumberClean()
     ui->lcdNo_curLeakage->display("0");//实时漏电
     ui->lcdNo_alaLeakage->display("0");//漏电报警
     ui->lcdNo_alaLeakageSet->display("0");//漏电设定
-}
 
+}
+    */
 
 void MainWindow::slotSound()
 {
-    m_soundFlag = TRUE;
-    ui->tBtn_Voice->setText(tr("蜂 鸣"));
-    ui->tBtn_Voice->setIcon(QIcon(":/Image/sound.png"));
+    m_soundFlag = false;
+    //ui->tBtn_Voice->setText(tr("蜂 鸣"));
+    //ui->tBtn_Voice->setIcon(QIcon(":/Image/sound.png"));
 }
 
 void MainWindow::setCurPageNum(int curPage)
@@ -359,61 +387,205 @@ void MainWindow::setCurPageNum(int curPage)
 
 }
 
-
-//节点显示与隐藏
-void MainWindow::moduleStatus(int *nod,int nodeNum,int curPage)
-{
+//计算探测器的数量jiang20190523//返回探测器的
+int MainWindow::culCanCount(int *nod,int nodeNum){
+    int canCount;
+    mutex.lock();
+    //qDebug()<<"***************************"+QString::number(nodeNum);
     for(int i = 0;i<nodeNum;i++)
     {
-        this->node[i] = nod[i];
-        qDebug()<<"node["<<i<<"]="<<nod[i];
+        this->node[i] = nod[i];//获取每个节点的存放的canID
+        //qDebug()<<"nod"+QString::number(i)+"--"+QString::number(nod[i]);
     }
-    qDebug()<<"nodeNum  = "<<nodeNum;
+    mutex.unlock();
 
+    int nodeTemp = node[nodeNum-1];//获取每个节点的存放的canID
+    canCount=((nodeTemp%8)==0)?(nodeTemp/8):((nodeTemp/8)+1);
+    return canCount;
 
-    m_modeSts = 0;
-    int i = (curPage - 1 ) * 40;
-    for(int index = 1;index <= 40;index++)
-    {
-        m_btnGroup->button(index)->setText("");
-        m_btnGroup->button(index)->setVisible(false);
-
-        if(node[i] <= idMax && i < nodeNum)
-        {
-            if(mod[m_curNet][node[i]].used == true && node[i] != 0 )
-            {
-                int type = mod[m_curNet][node[i]].type;
-                QString text = QString::number(node[i]) + modType(type);
-                m_btnGroup->button(index)->setText(text);
-                m_btnGroup->button(index)->setVisible(true);
-
-                if(mod[m_curNet][node[i]].normalFlag == TRUE)
-                {
-                    m_modeSts = 0;
-                    m_btnGroup->button(index)->setStyleSheet(m_greenStyle);
-                }
-                if(mod[m_curNet][node[i]].errorFlag == TRUE)
-                {
-                    m_modeSts = 2;
-                    m_btnGroup->button(index)->setStyleSheet(m_yellowStyle);
-                }
-                if(mod[m_curNet][node[i]].dropFlag == TRUE)
-                {
-                    m_modeSts = 9;
-                    m_btnGroup->button(index)->setStyleSheet(m_yellowStyle);
-                }
-                if(mod[m_curNet][node[i]].alarmFlag == TRUE)
-                {
-                    m_modeSts = 1;
-                    m_btnGroup->button(index)->setStyleSheet(m_redStyle);
-                }
-                i++;
+}
+//计算单个探测器状态jiang20190523//00正常01故障02报警
+int MainWindow::culCanStatus(int index){
+    int nodeId = 0;
+    int channelCount = 0;
+    int dropCount = 0;
+    //先判断8个通道有没有报警，有一个报警探测器即可返回报警
+    for(int i=1;i<9;i++){
+        nodeId = (index-1)*8+i;
+        if(mod[m_curNet][nodeId].used==true){
+            channelCount++;
+            if(mod[m_curNet][nodeId].alarmFlag == TRUE){
+                return 1;
             }
         }
     }
-    qDebug()<<" i = "<<i;
-    qDebug()<<"***"<<QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss")<<"***";
+    //如果8个通道都没有报警，再判断故障，有一个是故障，就返回故障
+    for(int i=1;i<9;i++){
+        nodeId = (index-1)*8+i;
+        if(mod[m_curNet][nodeId].used==true){
+            if(mod[m_curNet][nodeId].errorFlag == TRUE)
+            {
+                //                qDebug()<<"error--errorFlag--"+QString::number(index);
+                return 2;//如果有一个是故障，则返回故障
+            }
+        }
+    }
+
+
+    for(int i=1;i<channelCount+1;i++){
+        nodeId = (index-1)*8+i;
+        if(mod[m_curNet][nodeId].used==true){
+            if(mod[m_curNet][nodeId].dropFlag == TRUE){
+                dropCount++;
+                //                qDebug()<<"error--dropFlag--"+QString::number(index);
+            }
+        }
+    }
+    if(dropCount>=channelCount){
+        return 3;//如果全部是掉线，则返回掉线
+    }
+    //如果没有报警，也没有故障，就返回正常
+    //qDebug()<<"normal--"+QString::number(index);
+    return 0;
 }
+//计算共多少页，返回总页数
+int MainWindow::culPageCount(int canCount){
+    return (canCount/60)+1;
+}
+void MainWindow::culBtnStyle(int indexArg,int canCount){
+    int status = 0;
+    int indexBase = (nowPage-1)*60;
+    for(int index=indexArg;index<canCount+1;index++){
+        m_btnGroup->button(index-indexBase)->setText("");
+        m_btnGroup->button(index-indexBase)->setVisible(false);
+
+        status = culCanStatus(index);
+        QString text = QString::number(index) + "";
+        m_btnGroup->button(index-indexBase)->setText(text);
+        m_btnGroup->button(index-indexBase)->setVisible(true);
+        //qDebug()<<"index"+QString::number(index)+"***status="<<QString::number(status);
+        switch (status) {
+        case 0://正常
+            m_btnGroup->button(index)->setStyleSheet(m_greenStyle);
+            //qDebug()<<"normal--"+QString::number(index);m_yellowDropStyle
+            break;
+        case 1://报警
+            m_btnGroup->button(index)->setStyleSheet(m_redStyle);
+            //qDebug()<<"error--"+QString::number(index);
+            break;
+        case 2://故障
+            m_btnGroup->button(index)->setStyleSheet(m_yellowErrorStyle);
+            break;
+        case 3://掉线
+            m_btnGroup->button(index)->setStyleSheet(m_yellowStyle);
+            break;
+        default:
+            break;
+        }
+    }
+
+}
+//节点显示与隐藏 //int *nod:can地址(0-1024),int nodeNum：节点数(共有多少个互感器),int curPage：当前页
+void MainWindow::moduleStatus(int *nod,int nodeNum,int curPage)
+{
+    //    qDebug()<<"moduleStatus=";
+    //jiangstart20190523显示每个探测器的按钮
+    int canCount = culCanCount(nod,nodeNum);//计算探测器个数
+    m_countPage = (canCount%60==0)?(canCount/60):((canCount/60)+1);//计算总页数
+    ui->lb_nodeNum->setText(QString::number(canCount));
+    //    qDebug()<<"canCount="<<QString::number(canCount);
+
+    ui->lb_countPage->setText(QString::number(m_countPage));
+    ui->lb_curPage->setText(QString::number(nowPage));
+    //    qDebug()<<"m_countPage = "<<m_countPage<<"*****nowPage = "<<nowPage;
+    if(nowPage==1){
+        if(canCount<60){
+            culBtnStyle(1,canCount);
+        }else{
+            culBtnStyle(1,60);
+        }
+    }else if(nowPage==2){
+
+        if(canCount>60&&canCount<120){
+            culBtnStyle(61,canCount);
+
+        }else{
+            culBtnStyle(61,120);
+        }
+
+    }else if(nowPage==3){
+        if(canCount>120&&canCount<129){
+            culBtnStyle(61,canCount);
+        }else{
+            culBtnStyle(61,128);
+        }
+    }
+}
+
+////节点显示与隐藏 //int *nod:can地址,int nodeNum：节点数,int curPage：当前页
+//void MainWindow::moduleStatus(int *nod,int nodeNum,int curPage)
+//{
+//    //qDebug()<<"idMax  = "<<idMax;
+//    mutex.lock();
+//    for(int i = 0;i<nodeNum;i++)
+//    {
+//        this->node[i] = nod[i];//获取每个节点的存放的canID
+//        //qDebug()<<"node["<<i<<"]="<<nod[i];
+//    }
+//    mutex.unlock();
+//    //qDebug()<<"nodeNum  = "<<nodeNum;
+
+
+//    m_modeSts = 0;
+//    int i = (curPage - 1 ) * 40;
+//    for(int index = 1;index <= 40;index++)
+//    {
+//        m_btnGroup->button(index)->setText("");
+//        m_btnGroup->button(index)->setVisible(false);
+
+//        if(node[i] <= idMax && i < nodeNum)
+//        {
+//            if(mod[m_curNet][node[i]].used == true && node[i] != 0 )
+//            {
+//                int type = mod[m_curNet][node[i]].type;
+//                //jiang20190522start 更改按键数值
+//                QString text = QString::number(node[i]) + modType(type);
+////                int canId=0;
+////                int channel=0;
+////                canId=((node[i]%8)==0)?(node[i]/8):((node[i]/8)+1);
+////                channel=((node[i]%8)==0)?8:(node[i]%8);
+////                QString text = QString::number(canId)+"-"+QString::number(channel) + modType(type);
+//                //jiang20190522end 更改按键数值
+//                m_btnGroup->button(index)->setText(text);
+//                m_btnGroup->button(index)->setVisible(true);
+
+//                if(mod[m_curNet][node[i]].normalFlag == TRUE)
+//                {
+//                    m_modeSts = 0;
+//                    m_btnGroup->button(index)->setStyleSheet(m_greenStyle);
+//                }
+//                if(mod[m_curNet][node[i]].errorFlag == TRUE)
+//                {
+//                    m_modeSts = 2;
+//                    m_btnGroup->button(index)->setStyleSheet(m_yellowStyle);
+//                }
+//                if(mod[m_curNet][node[i]].dropFlag == TRUE)
+//                {
+//                    m_modeSts = 9;
+//                    m_btnGroup->button(index)->setStyleSheet(m_yellowStyle);
+//                }
+//                if(mod[m_curNet][node[i]].alarmFlag == TRUE)
+//                {
+//                    m_modeSts = 1;
+//                    m_btnGroup->button(index)->setStyleSheet(m_redStyle);
+//                }
+//                i++;
+//            }
+//        }
+//    }
+//    //qDebug()<<" i = "<<i;
+//    //qDebug()<<"***"<<QDateTime::currentDateTime().toString("yyyy-MM-dd/hh:mm:ss")<<"***";
+//}
 
 QString MainWindow::modType(int type)
 {
@@ -442,13 +614,17 @@ QString MainWindow::modType(int type)
     }
     return typeStr;
 }
-
+/*
+//显示界面数值
 void MainWindow::showNodeValue(int curNet, int curId)
 {
+
+
     lcdNumberClean();
 
     if(MODULE_CUR ==  mod[curNet][curId].type)
     {
+        //qDebug()<<"showNodeValue()";
         int rtData       = mod[curNet][curId].rtData;      //实时报警值
         int baseData     = mod[curNet][curId].baseData;    //固有报警值
         int alarmDataSet = mod[curNet][curId].alarmDataSet;//报警设定值
@@ -458,6 +634,7 @@ void MainWindow::showNodeValue(int curNet, int curId)
         ui->lcdNo_curLeakage->display(QString::number(rtData));
         ui->lcdNo_alaLeakage->display(QString::number(alarmData));
         ui->lcdNo_alaLeakageSet->display(QString::number(alarmDataSet));
+        qDebug()<<"canId:"+QString::number(curId)+"--QString::number(rtData)"+QString::number(rtData);
     }
     else if(MODULE_TEM ==  mod[curNet][curId].type)
     {
@@ -471,7 +648,9 @@ void MainWindow::showNodeValue(int curNet, int curId)
         ui->lcdNo_alaTemSet->display(QString::number(alarmTemSet));
     }
 
+
 }
+    */
 
 void MainWindow::hideAllTopWidget()
 {
@@ -512,8 +691,19 @@ void MainWindow::selfCheckScreen()
         //alarm
         QString sqlAlarm ="select count(*) from  TEMP WHERE type = 1 ;";
         uint countAlarm = m_db->getRowCount(sqlAlarm);//返回报警数据的总行数
-
-        QString nodeNumStr  = QString::number(m_nodeNum);
+        //12.25
+        int nodeNum = 0;
+        for(int net = 1;net <= 2;net++)
+        {
+            for(int id = 1;id<=128;id++)
+            {
+                if(mod[net][id].used == true)
+                {
+                    nodeNum++;
+                }
+            }
+        }
+        QString nodeNumStr  = QString::number(nodeNum);
         QString alarmNumStr = QString::number(countAlarm);
         QString errorNumStr = QString::number(countError);
         QString power,bpower;
@@ -570,11 +760,12 @@ void MainWindow::slotCurrentTime()
         emit sigLoginStatus(false);//设置退出值
     }
     //显示当前前节点的数值
-    showNodeValue(m_curNet,m_curId);
+    //showNodeValue(m_curNet,m_curId);
     //显示故障临时数据
     slotDataShow(ALADATA);
     //显示报警临时数据
     slotDataShow(ERODATA);
+
 
 
 #ifdef WatchDog
@@ -677,7 +868,7 @@ void MainWindow::slotBtnPass_1()
     m_curPage = 1;
     m_calNode->setCurNet(m_curNet);
     ui->lb_curNodeNum->clear();
-    ui->lb_address->clear();
+    //ui->lb_address->clear();
     ui->pBtn_pass1->setStyleSheet(m_pressedStyle);
     ui->pBtn_pass2->setStyleSheet(m_normalStyle);
 }
@@ -688,87 +879,133 @@ void MainWindow::slotBtnPass_2()
     m_curPage = 1;
     m_calNode->setCurNet(m_curNet);
     ui->lb_curNodeNum->clear();
-    ui->lb_address->clear();
+    //ui->lb_address->clear();
     ui->pBtn_pass1->setStyleSheet(m_normalStyle);
     ui->pBtn_pass2->setStyleSheet(m_pressedStyle);
 }
 
 void MainWindow::slotBtnFirstPage()
 {
-
+    hiddenAllBtn();
     if(m_countPage != 0)
     {
-        m_curPage = 1;
-        setCurPageNum(m_curPage);
+        nowPage = 1;
+        setCurPageNum(nowPage);
     }
 }
 
 void MainWindow::slotBtnTailPage()
 {
+    hiddenAllBtn();
     if(m_countPage != 0)
     {
-        m_curPage = m_countPage;
-        setCurPageNum(m_curPage);
+        nowPage = m_countPage;
+        setCurPageNum(nowPage);
     }
 }
 
 void MainWindow::slotBtnLastPage()
 {
-    if(m_curPage <= 1)
+    hiddenAllBtn();
+    if(nowPage <= 1)
     {
         QMessageBox::information(this,tr("提示"),tr("已经是第一页！"),tr("确定"));
         return;
     }
     else
     {
-        m_curPage--;
-        setCurPageNum(m_curPage);
+        nowPage--;
+        //ui->lb_curPage->setText(QString::number(nowPage));
+        setCurPageNum(nowPage);
     }
 }
 
 void MainWindow::slotBtnNestPage()
 {
-    if(m_curPage == m_countPage)
+    hiddenAllBtn();
+    if(nowPage == m_countPage)
     {
         QMessageBox::information(this,tr("提示"),tr("已经是最后一页！"),tr("确定"));
         return;
     }
     else
     {
-        m_curPage++;
-        setCurPageNum(m_curPage);
+        nowPage++;
+        setCurPageNum(nowPage);
     }
 }
 
+//点击按键
+//void MainWindow::slotBtnClick(int index)
+//{
+//    QString currentNodeStr = m_btnGroup->button(index)->text();
+//    currentNodeStr = currentNodeStr.left(currentNodeStr.length()-3);
+//    //当前节点
+//    ui->lb_curNodeNum->setText(currentNodeStr);
+//    m_curId = currentNodeStr.toInt();
+//    //qDebug()<<"m_curId:"+QString::number(m_curId);
+
+//    ui->lb_address->clear();
+//    QString nodeAdd = m_db->getNodeAddress(m_curNet,m_curId);
+//    ui->lb_address->setText(nodeAdd);
+//}
+//点击按键弹出该探测器的详细信息
 void MainWindow::slotBtnClick(int index)
 {
-    QString currentNodeStr = m_btnGroup->button(index)->text();
-    currentNodeStr = currentNodeStr.left(currentNodeStr.length()-3);
-    //当前节点
-    ui->lb_curNodeNum->setText(currentNodeStr);
-    m_curId = currentNodeStr.toInt();
 
-    ui->lb_address->clear();
-    QString nodeAdd = m_db->getNodeAddress(m_curNet,m_curId);
-    ui->lb_address->setText(nodeAdd);
+    m_can1->readSetVal(m_curNet,index);//读取设定值
+    canInfo->setNet(m_curNet);//设置网络
+    canInfo->culCanInfo(index);//计算本探测器的所有信息数据
+    canInfo->show();//显示本探测器的所有数据
+
+    //    if(m_curNet==1){
+    //        if(m_can1->readSetVal(m_curNet,index)){
+    //            canInfo->setNet(m_curNet);//设置网络
+    //            canInfo->culCanInfo(index);//计算本探测器的所有信息数据
+    //            canInfo->show();//显示本探测器的所有数据
+    //        }else{
+    //            qDebug()<<"m_can1->readSetVal(m_curNet,index) = false";
+    //            canInfo->setNet(m_curNet);//设置网络
+    //            canInfo->culCanInfo(index);//计算本探测器的所有信息数据
+    //            canInfo->show();//显示本探测器的所有数据
+    //        }
+    //    }
+
+    //    if(m_curNet==2){
+    //        if(m_can1->readSetVal(m_curNet,index)){
+    //            DlgCanInfo *canInfo = new DlgCanInfo();
+    //            canInfo->setNet(m_curNet);//设置网络
+    //            canInfo->culCanInfo(index);//计算本探测器的所有信息数据
+    //            canInfo->show();//显示本探测器的所有数据
+    //        }else{
+    //            qDebug()<<"m_can2->readSetVal(m_curNet,index) = false";
+    //        }
+    //    }
+    //取设定值
+
+
+    //    QString currentNodeStr = m_btnGroup->button(index)->text();
+    //    currentNodeStr = currentNodeStr.left(currentNodeStr.length()-3);
+    //    //当前节点
+    //    ui->lb_curNodeNum->setText(currentNodeStr);
+    //    m_curId = currentNodeStr.toInt();
+    //    //qDebug()<<"m_curId:"+QString::number(m_curId);
+
+    //    ui->lb_address->clear();
+    //    QString nodeAdd = m_db->getNodeAddress(m_curNet,m_curId);
+    //    ui->lb_address->setText(nodeAdd);
 }
 
 void MainWindow::slotBtnSound()
 {
-    if(m_soundFlag == TRUE)
-    {
-        m_soundFlag = FALSE;
-        ui->tBtn_Voice->setText(tr("静 音"));
-        ui->tBtn_Voice->setIcon(QIcon(":/Image/mute.png"));
-    }
-    else
-    {
-        m_soundFlag = TRUE;
-        ui->tBtn_Voice->setText(tr("蜂 鸣"));
-        ui->tBtn_Voice->setIcon(QIcon(":/Image/sound.png"));
-    }
+
+    m_soundFlag = true;
+    m_gpio->controlSound(NORMAL);
+    ui->tBtn_Voice->setText(tr("静 音"));
+    ui->tBtn_Voice->setIcon(QIcon(":/Image/mute.png"));
     m_calNode->setSound(m_soundFlag);
 }
+
 
 void MainWindow::slotSystemSetShow()
 {
@@ -809,21 +1046,19 @@ void MainWindow::slotResetShow()
             g_resetCmd[1] = true;
             g_resetCmd[2] = true;
         }
-
-        QString styleSheet =m_styleSheet+"background-color: rgb(0, 255, 0);font: 14pt";
-        for(int i = 1;i<= 40;i++)
+        //        QString styleSheet =m_styleSheet+"background-color: rgb(0, 255, 0);font: 14pt";
+        QString styleSheet =m_styleSheet+"background-color: rgb(0, 0, 255s);font: 14pt";
+        for(int i = 1;i<=60;i++)
         {
             if(m_btnGroup->button(i)->isVisible())
             {
                 m_btnGroup->button(i)->setStyleSheet(styleSheet);
             }
         }
-
         for(int net = 0;net < NETNUM;net++)
         {
             for(int id = 0;id < IDNUM;id++)
             {
-
                 mod[net][id].id  = 0;
                 mod[net][id].net = 0;
                 mod[net][id].alarmTem = 0;
@@ -832,9 +1067,10 @@ void MainWindow::slotResetShow()
                 mod[net][id].baseData = 0;
                 mod[net][id].alarmData= 0;
                 mod[net][id].alarmFlag = FALSE;
-                mod[net][id].dropFlag  = FALSE;
-
-                mod[net][id].normalFlag = TRUE;
+                //                mod[net][id].dropFlag  = FALSE;
+                //                mod[net][id].normalFlag = TRUE;
+                mod[net][id].dropFlag  = TRUE;
+                mod[net][id].normalFlag = FALSE;
                 mod[net][id].errorFlag  = FALSE;
                 mod[net][id].insertAlarm = FALSE;
                 mod[net][id].insertDrop   = FALSE;
@@ -846,7 +1082,8 @@ void MainWindow::slotResetShow()
                 mod[net][id].tempTimes  = 0;
             }
         }
-
+        m_calNode->initFlag();
+        m_gpio->controlSound(NORMAL);
         m_db->delData("delete from TEMP;");//删除临时记录
         ui->lb_curNodeNum->clear();
     }
@@ -931,7 +1168,33 @@ void MainWindow::selfCheckResult()
         selfCheckScreen();//屏幕自检
     }
 }
+//void MainWindow::slotInitShow(){
+//    qDebug()<<"initShow***";
+//    if(initShowCounter>0){
+//        initShowCounter--;
+//        //初始化显示
+//        for(int index=1;index<61;index++){
+//            QString text = QString::number(index) + "";
+//            m_btnGroup->button(index)->setText(text);
+//            m_btnGroup->button(index)->setVisible(true);
+//            m_btnGroup->button(index)->setStyleSheet(m_greenStyle);
+//        }
+//        m_btnGroup->button(initShowIndex)->setStyleSheet(m_yellowStyle);
 
+//    }else{
+//        m_initShowTimer->stop();
+//    }
+//    initShowIndex++;
+//    if(initShowIndex>60){
+//        initShowIndex = 1;
+//    }
+//}
+void MainWindow::hiddenAllBtn(){
+    for(int i = 1;i<= 60;i++)
+    {
+        m_btnGroup->button(i)->setVisible(false);
+    }
+}
 void MainWindow::initNodeBtn()
 {
     m_btnGroup->addButton(ui->pBtn_1, 1);
@@ -975,8 +1238,29 @@ void MainWindow::initNodeBtn()
     m_btnGroup->addButton(ui->pBtn_39,39);
     m_btnGroup->addButton(ui->pBtn_40,40);
 
+    m_btnGroup->addButton(ui->pBtn_41,41);
+    m_btnGroup->addButton(ui->pBtn_42,42);
+    m_btnGroup->addButton(ui->pBtn_43,43);
+    m_btnGroup->addButton(ui->pBtn_44,44);
+    m_btnGroup->addButton(ui->pBtn_45,45);
+    m_btnGroup->addButton(ui->pBtn_46,46);
+    m_btnGroup->addButton(ui->pBtn_47,47);
+    m_btnGroup->addButton(ui->pBtn_48,48);
+    m_btnGroup->addButton(ui->pBtn_49,49);
+    m_btnGroup->addButton(ui->pBtn_50,50);
+    m_btnGroup->addButton(ui->pBtn_51,51);
+    m_btnGroup->addButton(ui->pBtn_52,52);
+    m_btnGroup->addButton(ui->pBtn_53,53);
+    m_btnGroup->addButton(ui->pBtn_54,54);
+    m_btnGroup->addButton(ui->pBtn_55,55);
+    m_btnGroup->addButton(ui->pBtn_56,56);
+    m_btnGroup->addButton(ui->pBtn_57,57);
+    m_btnGroup->addButton(ui->pBtn_58,58);
+    m_btnGroup->addButton(ui->pBtn_59,59);
+    m_btnGroup->addButton(ui->pBtn_60,60);
+
     QString styleSheet =m_styleSheet+"background-color: rgb(0, 255, 0);font: 14pt";
-    for(int i = 1;i<= 40;i++)
+    for(int i = 1;i<= 60;i++)
     {
         m_btnGroup->button(i)->setFocusPolicy(Qt::NoFocus);
         m_btnGroup->button(i)->setVisible(false);
@@ -991,8 +1275,10 @@ void MainWindow::initTableWidget(QTableWidget *tableWidget)
     alrmHeadList<<tr("节   点")<<tr("时   间");
     tableWidget->setHorizontalHeaderLabels(alrmHeadList);
     tableWidget->horizontalHeader()->setFixedHeight(20);
-    tableWidget->setColumnWidth(0,70);
-    tableWidget->setColumnWidth(1,170);
+    //    tableWidget->setColumnWidth(0,70);
+    //    tableWidget->setColumnWidth(1,170);
+    tableWidget->setColumnWidth(0,90);
+    tableWidget->setColumnWidth(1,150);
 
     QString horStyle = "QHeaderView::section{"
                        "background-color:rgb(255,255,255);"
@@ -1015,51 +1301,57 @@ void MainWindow::initTableWidget(QTableWidget *tableWidget)
 QString MainWindow::intToString(int number)
 {
     QString str ;
-    if(0<number && number < 10)
+    QString channelStr ;
+
+    int canId;
+    int channelId;
+
+    canId = (number%8==0)?(number/8):((number/8)+1);
+    channelId = (number%8==0)?8:number%8;
+
+    if(0<canId && canId < 10)
     {
-        str = "000"+QString::number(number) ;
+        str = "00"+QString::number(canId) ;
     }
-    else if(10 <= number && number < 100)
+    else if(10 <= canId && canId < 100)
     {
-        str = "00"+QString::number(number) ;
-    }
-    else if(100 <= number && number < 1000)
-    {
-        str = "0"+QString::number(number) ;
+        str = "0"+QString::number(canId) ;
     }
     else
     {
-        str = QString::number(number);
+        str = QString::number(canId);
     }
 
-    return str;
-}
+    channelStr = QString::number(channelId);
 
+
+    return str+"-"+channelStr;
+}
+//int *node:can地址, int nodeNum：节点数,int countPage：总页//每秒更新一次
 void MainWindow::slotNodeData(int *node, int nodeNum,int countPage)
 {
+    //    qDebug()<<"slotNodeData_node="<<QString::number(*node)<<"-----nodeNum="<<QString::number(nodeNum);
     m_nodeNum   = nodeNum;
-    m_countPage = countPage;
-    ui->lb_nodeNum->setText(QString::number(nodeNum));
-    ui->lb_countPage->setText(QString::number(countPage));
+    //m_countPage = countPage;
+    //ui->lb_nodeNum->setText(QString::number(nodeNum));
+    //ui->lb_countPage->setText(QString::number(countPage));
 
     for(int i = 0;i<IDNUM;i++)
     {
         this->node[i] = 0;
     }
-
     if(m_nodeNum != 0)
     {
-        moduleStatus(node,m_nodeNum,m_curPage);//当前页面的显示和隐藏
+        moduleStatus(node,m_nodeNum,nowPage);//当前页面的显示和隐藏
     }
-    else
+    else//如果节点数为0，页不显示任何按键
     {
-        for(int index = 1;index <= 40;index++)
+        for(int index = 1;index <= 60;index++)
         {
             m_btnGroup->button(index)->setText("");
             m_btnGroup->button(index)->setVisible(false);
         }
     }
-
 }
 
 

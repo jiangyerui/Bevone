@@ -15,6 +15,7 @@ SystemSet::SystemSet(QWidget *parent) :
     this->setGeometry(0,0,800,480);
 
     ui->gBox_setSMS->hide();
+    ui->gBox_setNode->show();
 
     initVar();
     initConfigure();
@@ -45,7 +46,7 @@ void SystemSet::initVar()
     ui->lineEdit_tem->setValidator(new QRegExpValidator(regExpNumTem, this));
     QRegExp regExpNumHave("([1-9][0-9]{1,2})|1000|0$");//0-1000
     ui->lineEdit_have->setValidator(new QRegExpValidator(regExpNumHave, this));
-    QRegExp regExpNumAlarm("^([2-9][0-9][0-9])|(1[0-9][0-9][0-9])|2000$");//200-2000
+    QRegExp regExpNumAlarm("^([5-9][0-9][0-9])|1000$");//500-1000
     ui->lineEdit_alarm->setValidator(new QRegExpValidator(regExpNumAlarm, this));
     //code
     QRegExp regExpNum("^[1-9][0-9]{1,5}$");//不是0开头的6位数字
@@ -501,9 +502,9 @@ void SystemSet::slotBtnWriteData()
         }
         QString haveStr  = ui->lineEdit_have->text();
         QString alarmStr = ui->lineEdit_alarm->text();
-        if(alarmStr.toUInt() < 200)
+        if(alarmStr.toUInt() < 500)
         {
-            QMessageBox::information(NULL,tr("错误提示"),tr("漏电设定值不能小于200mA"),tr("关闭"));
+            QMessageBox::information(NULL,tr("错误提示"),tr("漏电设定值不能小于500mA"),tr("关闭"));
             return;
         }
 
@@ -746,3 +747,45 @@ void SystemSet::slotBtnSerialNum()
 }
 
 
+//设置探测器的数量
+void SystemSet::on_pBtn_setNode_clicked()
+{
+    int ret = QMessageBox::question(NULL,tr("配置操作"),tr("本操作需要等待几分钟..."),tr("确定"),tr("取消"));
+    if(ret == 0)
+    {
+        QString net = ui->lineEdit_nodeNet->text();//当前网络
+        uint canCount = ui->lineEdit_canCount->text().toInt();//探测器数量
+        uint nodeCount = canCount*8;
+        QString nodeTemp;
+        QString enable = "1";
+        QString disable = "0";
+        if(nodeCount<=idMax){
+            for(uint i=1;i<=nodeCount;i++){
+                nodeTemp = QString::number(i);
+                m_db.updateNode(net,nodeTemp,enable);
+            }
+            for(uint i=nodeCount+1;i<=1024;i++){
+                nodeTemp = QString::number(i);
+                m_db.updateNode(net,nodeTemp,disable);
+            }
+        }else{
+            for(uint i=1;i<=idMax;i++){
+                nodeTemp = QString::number(i);
+                m_db.updateNode(net,nodeTemp,enable);
+            }
+            for(uint i=idMax+1;i<=1024;i++){
+                nodeTemp = QString::number(i);
+                m_db.updateNode(net,nodeTemp,disable);
+            }
+        }
+
+        //计算巡检时间
+        QString polltime = QString::number((canCount/2)+2);
+        m_db.setPollTime(polltime);
+
+        ::system("wr reboot");
+    }
+
+
+
+}

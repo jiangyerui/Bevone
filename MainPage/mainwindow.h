@@ -25,6 +25,7 @@
 #include "CalculaNode/calculanode.h"
 //#include "SerialZigBee/serialhandle.h"
 #include "CanMoudle/canmoudle.h"
+#include "dlgcaninfo.h"
 
 #define NODENUM 1200
 #define PAGEMAX 30
@@ -81,26 +82,38 @@ public:
     QTimer *m_resetTimer;
     QTimer *m_selfCheckTimer;
 
+    //    QTimer *m_initShowTimer;
+    //    int initShowCounter;
+    //    int initShowIndex;
+
+
 
     void initCan_1(const char *canName, int net, uint pollTime);
     void initCan_2(const char *canName, int net, uint pollTime);
     void initConfigure();//系统配置
     void initConnect();//初始化信号槽
     void initVar();//初始化成员变量
+    void hiddenAllBtn();//隐藏所有按键
     void initNodeBtn();//初始化节点按钮
     void initTableWidget(QTableWidget *tableWidget);//初始化表格
     //显示数据表格
     void showData(QTableWidget *tableWidget, QSqlQueryModel*model, MySqlite *db, int type);
-    void lcdNumberClean();//清空数据
+    //void lcdNumberClean();//清空数据
     void setCurPageNum(int curPage);//设置当前页
-//    void setCountPageNum(int countPage);//设置总数页
+    int culCanCount(int *nod,int nodeNum);//jiang20190523计算探测器的个数
+    int culCanStatus(int index);//jiang20190523计算探测器的状态
+    int culPageCount(int canCount);//jiang20190523计算总页数s
+
+    void culBtnStyle(int indexArg,int canCount);//更新BTN的样式
+
+    //    void setCountPageNum(int countPage);//设置总数页
     void moduleStatus(int *node,int nodeNum,int curPage); //检测节点状态
     //int  calculationNode(int curNet);//计算网络节点个数
     //int  calculationPage(int regNum);//计算总总页数
 
     QString modType(int type);//探测器类型
     QString intToString(int number);//显示格式化
-    void showNodeValue(int curNet, int curId);//探测器实时数据
+    //void showNodeValue(int curNet, int curId);//探测器实时数据
 
     void hideAllTopWidget();
 
@@ -120,6 +133,8 @@ public:
     Record *record;
     UserLogin *userlogin;
     ScreenCheck *m_screenCheck;
+
+    DlgCanInfo *canInfo;
 
 
     CanMoudle *m_can2;
@@ -141,6 +156,8 @@ public:
     QThread *m_threadRS485;
 private:
 
+    int nowPage;//当前页
+    int allPage;//总页数
     uint m_freeTimes;
 
     uint m_lockTimes;
@@ -184,6 +201,8 @@ private:
     QString m_redStyle;
     QString m_greenStyle;
     QString m_yellowStyle;
+
+    QString m_yellowErrorStyle;
     QString m_blueStyle;
 
     QString m_normalStyle;
@@ -233,6 +252,7 @@ public slots:
     void slotLoginStatus(int type);//登陆类型
 
     void selfCheckResult();
+    //    void slotInitShow();
 
 
     void slotNodeData(int *node, int size, int countPage);

@@ -93,7 +93,7 @@ height:20px;
    <widget class="QLineEdit" name="lineEdit_tem">
     <property name="geometry">
      <rect>
-      <x>540</x>
+      <x>525</x>
       <y>25</y>
       <width>30</width>
       <height>30</height>
@@ -124,7 +124,7 @@ height:20px;
    <widget class="QLineEdit" name="lineEdit_alarm">
     <property name="geometry">
      <rect>
-      <x>355</x>
+      <x>290</x>
       <y>25</y>
       <width>45</width>
       <height>30</height>
@@ -155,7 +155,7 @@ height:20px;
    <widget class="QLineEdit" name="lineEdit_net">
     <property name="geometry">
      <rect>
-      <x>195</x>
+      <x>75</x>
       <y>25</y>
       <width>51</width>
       <height>30</height>
@@ -186,7 +186,7 @@ height:20px;
    <widget class="QLineEdit" name="lineEdit_have">
     <property name="geometry">
      <rect>
-      <x>355</x>
+      <x>290</x>
       <y>60</y>
       <width>45</width>
       <height>30</height>
@@ -217,7 +217,7 @@ height:20px;
    <widget class="QLabel" name="lb_alarmTem">
     <property name="geometry">
      <rect>
-      <x>445</x>
+      <x>430</x>
       <y>25</y>
       <width>90</width>
       <height>30</height>
@@ -239,7 +239,7 @@ height:20px;
    <widget class="QLabel" name="lb_alramCurrent">
     <property name="geometry">
      <rect>
-      <x>260</x>
+      <x>195</x>
       <y>25</y>
       <width>90</width>
       <height>30</height>
@@ -261,7 +261,7 @@ height:20px;
    <widget class="QLabel" name="lb_haveCurrent">
     <property name="geometry">
      <rect>
-      <x>260</x>
+      <x>195</x>
       <y>60</y>
       <width>90</width>
       <height>30</height>
@@ -283,7 +283,7 @@ height:20px;
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
-      <x>405</x>
+      <x>340</x>
       <y>60</y>
       <width>25</width>
       <height>30</height>
@@ -305,7 +305,7 @@ height:20px;
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>405</x>
+      <x>340</x>
       <y>25</y>
       <width>25</width>
       <height>30</height>
@@ -327,7 +327,7 @@ height:20px;
    <widget class="QLabel" name="lb_address">
     <property name="geometry">
      <rect>
-      <x>145</x>
+      <x>25</x>
       <y>60</y>
       <width>50</width>
       <height>30</height>
@@ -374,7 +374,7 @@ height:20px;
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>555</x>
       <y>25</y>
       <width>20</width>
       <height>30</height>
@@ -399,7 +399,7 @@ height:20px;
    <widget class="QLabel" name="lb_pass">
     <property name="geometry">
      <rect>
-      <x>145</x>
+      <x>25</x>
       <y>25</y>
       <width>50</width>
       <height>30</height>
@@ -424,7 +424,7 @@ height:20px;
    <widget class="QLineEdit" name="lineEdit_id">
     <property name="geometry">
      <rect>
-      <x>195</x>
+      <x>75</x>
       <y>60</y>
       <width>51</width>
       <height>30</height>
@@ -455,9 +455,9 @@ height:20px;
    <widget class="QComboBox" name="comboBox_type">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>515</x>
       <y>60</y>
-      <width>106</width>
+      <width>61</width>
       <height>30</height>
      </rect>
     </property>
@@ -484,7 +484,7 @@ height:20px;
     </property>
     <item>
      <property name="text">
-      <string>剩余漏电</string>
+      <string>漏电</string>
      </property>
     </item>
     <item>
@@ -521,8 +521,8 @@ height:20px;
    <widget class="QLabel" name="lb_alramCurrent_2">
     <property name="geometry">
      <rect>
-      <x>35</x>
-      <y>25</y>
+      <x>430</x>
+      <y>60</y>
       <width>81</width>
       <height>30</height>
      </rect>
@@ -537,7 +537,7 @@ height:20px;
      </font>
     </property>
     <property name="text">
-     <string>选择类型</string>
+     <string>选择类型:</string>
     </property>
    </widget>
   </widget>
@@ -1122,7 +1122,7 @@ height:20px;
      <enum>Qt::NoFocus</enum>
     </property>
     <property name="text">
-     <string>系统时间</string>
+     <string>设置时间</string>
     </property>
    </widget>
    <widget class="QLabel" name="lb_year">
@@ -1262,7 +1262,7 @@ height:20px;
      <rect>
       <x>25</x>
       <y>25</y>
-      <width>50</width>
+      <width>55</width>
       <height>30</height>
      </rect>
     </property>
@@ -1293,7 +1293,7 @@ height:20px;
      <rect>
       <x>145</x>
       <y>25</y>
-      <width>30</width>
+      <width>35</width>
       <height>30</height>
      </rect>
     </property>
@@ -1324,7 +1324,7 @@ height:20px;
      <rect>
       <x>235</x>
       <y>25</y>
-      <width>30</width>
+      <width>35</width>
       <height>30</height>
      </rect>
     </property>
@@ -1355,7 +1355,7 @@ height:20px;
      <rect>
       <x>325</x>
       <y>25</y>
-      <width>30</width>
+      <width>35</width>
       <height>30</height>
      </rect>
     </property>
@@ -1386,7 +1386,7 @@ height:20px;
      <rect>
       <x>415</x>
       <y>25</y>
-      <width>30</width>
+      <width>35</width>
       <height>30</height>
      </rect>
     </property>
@@ -1417,7 +1417,7 @@ height:20px;
      <rect>
       <x>505</x>
       <y>25</y>
-      <width>30</width>
+      <width>35</width>
       <height>30</height>
      </rect>
     </property>
@@ -1759,8 +1759,8 @@ image: url(:/Image/checked.png);
   <widget class="QGroupBox" name="gBox_setSMS">
    <property name="geometry">
     <rect>
-     <x>540</x>
-     <y>335</y>
+     <x>565</x>
+     <y>415</y>
      <width>216</width>
      <height>100</height>
     </rect>
@@ -1933,7 +1933,7 @@ background-color: rgb(255, 255, 255);</string>
     <rect>
      <x>175</x>
      <y>280</y>
-     <width>581</width>
+     <width>366</width>
      <height>55</height>
     </rect>
    </property>
@@ -1993,7 +1993,7 @@ background-color: rgb(255, 255, 255);</string>
      </font>
     </property>
     <property name="text">
-     <string>V-1.0.13</string>
+     <string>V-1.0.16</string>
     </property>
    </widget>
    <widget class="QLabel" name="lb_day_3">
@@ -2217,6 +2217,185 @@ border-radius:13px;</string>
      <height>25</height>
     </size>
    </property>
+  </widget>
+  <widget class="QGroupBox" name="gBox_setNode">
+   <property name="geometry">
+    <rect>
+     <x>560</x>
+     <y>300</y>
+     <width>216</width>
+     <height>130</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>文泉驿等宽微米黑</family>
+     <pointsize>14</pointsize>
+     <weight>50</weight>
+     <italic>false</italic>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QCheckBox{
+spacing: 10px;
+color: rgb(0, 0, 0);
+border:1px solid;
+border-radius:10px;
+background-color: rgb(240, 237, 39);
+}
+
+QCheckBox::indicator{
+width:12px;
+height:12px;
+margin-left:5px;
+image: url(:/Image/uncheck.png);
+}
+
+QCheckBox::indicator::unchecked {
+image: url(:/Image/uncheck.png);
+}
+QCheckBox::indicator::checked {
+image: url(:/Image/checked.png);
+}</string>
+   </property>
+   <property name="title">
+    <string>数量设置</string>
+   </property>
+   <property name="flat">
+    <bool>true</bool>
+   </property>
+   <widget class="QPushButton" name="pBtn_setNode">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>95</y>
+      <width>105</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>文泉驿等宽微米黑</family>
+      <pointsize>15</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="text">
+     <string>确认设置</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_nodeNet">
+    <property name="geometry">
+     <rect>
+      <x>105</x>
+      <y>15</y>
+      <width>71</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>文泉驿等宽微米黑</family>
+      <pointsize>15</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::ClickFocus</enum>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::NoContextMenu</enum>
+    </property>
+    <property name="text">
+     <string>1</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_canCount">
+    <property name="geometry">
+     <rect>
+      <x>105</x>
+      <y>55</y>
+      <width>71</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>文泉驿等宽微米黑</family>
+      <pointsize>15</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::ClickFocus</enum>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::NoContextMenu</enum>
+    </property>
+    <property name="text">
+     <string>32</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lb_canCount">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>55</y>
+      <width>90</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>文泉驿等宽微米黑</family>
+      <pointsize>15</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>探测器数：</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lb_net">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>90</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>文泉驿等宽微米黑</family>
+      <pointsize>15</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>通道：</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources>
