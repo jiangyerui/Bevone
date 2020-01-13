@@ -452,9 +452,11 @@ int MainWindow::culCanStatus(int index){
 int MainWindow::culPageCount(int canCount){
     return (canCount/60)+1;
 }
-void MainWindow::culBtnStyle(int indexArg,int canCount){
+void MainWindow::culBtnStyle(int indexArg,int canCount){//61 120
+//    qDebug()<<"indexArg"<<QString::number(indexArg);
+//    qDebug()<<"canCount"<<QString::number(canCount);
     int status = 0;
-    int indexBase = (nowPage-1)*60;
+    int indexBase = (nowPage-1)*60;//60
     for(int index=indexArg;index<canCount+1;index++){
         m_btnGroup->button(index-indexBase)->setText("");
         m_btnGroup->button(index-indexBase)->setVisible(false);
@@ -463,21 +465,21 @@ void MainWindow::culBtnStyle(int indexArg,int canCount){
         QString text = QString::number(index) + "";
         m_btnGroup->button(index-indexBase)->setText(text);
         m_btnGroup->button(index-indexBase)->setVisible(true);
-        //qDebug()<<"index"+QString::number(index)+"***status="<<QString::number(status);
+//        qDebug()<<"index"+QString::number(index)+"***status="<<QString::number(status);/
         switch (status) {
         case 0://正常
-            m_btnGroup->button(index)->setStyleSheet(m_greenStyle);
+            m_btnGroup->button(index-indexBase)->setStyleSheet(m_greenStyle);
             //qDebug()<<"normal--"+QString::number(index);m_yellowDropStyle
             break;
         case 1://报警
-            m_btnGroup->button(index)->setStyleSheet(m_redStyle);
+            m_btnGroup->button(index-indexBase)->setStyleSheet(m_redStyle);
             //qDebug()<<"error--"+QString::number(index);
             break;
         case 2://故障
-            m_btnGroup->button(index)->setStyleSheet(m_yellowErrorStyle);
+            m_btnGroup->button(index-indexBase)->setStyleSheet(m_yellowErrorStyle);
             break;
         case 3://掉线
-            m_btnGroup->button(index)->setStyleSheet(m_yellowStyle);
+            m_btnGroup->button(index-indexBase)->setStyleSheet(m_yellowStyle);
             break;
         default:
             break;
@@ -494,6 +496,7 @@ void MainWindow::moduleStatus(int *nod,int nodeNum,int curPage)
     m_countPage = (canCount%60==0)?(canCount/60):((canCount/60)+1);//计算总页数
     ui->lb_nodeNum->setText(QString::number(canCount));
     //    qDebug()<<"canCount="<<QString::number(canCount);
+//        qDebug()<<"nowPage="<<QString::number(nowPage);
 
     ui->lb_countPage->setText(QString::number(m_countPage));
     ui->lb_curPage->setText(QString::number(nowPage));
@@ -514,10 +517,11 @@ void MainWindow::moduleStatus(int *nod,int nodeNum,int curPage)
         }
 
     }else if(nowPage==3){
+
         if(canCount>120&&canCount<129){
-            culBtnStyle(61,canCount);
+            culBtnStyle(121,canCount);
         }else{
-            culBtnStyle(61,128);
+            culBtnStyle(121,128);
         }
     }
 }
